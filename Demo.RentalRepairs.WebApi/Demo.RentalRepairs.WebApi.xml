@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Demo.RentalRepairs.WebApi</name>
+    </assembly>
+    <members>
+        <member name="M:Demo.RentalRepairs.WebApi.Controllers.PropertiesController.Get">
+            <summary>
+            Retrieves a list of properties
+            </summary>
+        </member>
+        <member name="M:Demo.RentalRepairs.WebApi.Controllers.PropertiesController.Get(System.String)">
+            <summary>
+            Retrieves property details
+            </summary>
+        </member>
+        <member name="M:Demo.RentalRepairs.WebApi.Controllers.PropertiesController.Post(Demo.RentalRepairs.WebApi.Models.PropertyModel)">
+            <summary>
+            Creates a new property
+            </summary>
+        </member>
+        <member name="M:Demo.RentalRepairs.WebApi.Controllers.RequestsController.Get(System.String,System.String)">
+            <summary>
+            Retrieves a list of tenant requests
+            </summary>
+        </member>
+        <member name="M:Demo.RentalRepairs.WebApi.Controllers.RequestsController.Post(System.String,System.String,Demo.RentalRepairs.WebApi.Models.TenantRequestDocModel)">
+            <summary>
+            Adds a new tenant request
+            </summary>
+        </member>
+        <member name="M:Demo.RentalRepairs.WebApi.Controllers.RequestsController.ScheduleWork(System.String,System.String,System.String,Demo.RentalRepairs.Domain.ValueObjects.Request.ServiceWorkOrder)">
+            <summary>
+            Schedules work for the request
+            </summary>
+        </member>
+        <member name="M:Demo.RentalRepairs.WebApi.Controllers.RequestsController.RejectRequest(System.String,System.String,System.String,Demo.RentalRepairs.Domain.ValueObjects.Request.TenantRequestRejectNotes)">
+            <summary>
+            Declines the request
+            </summary>
+        </member>
+        <member name="M:Demo.RentalRepairs.WebApi.Controllers.RequestsController.ReportWorkCompleted(System.String,System.String,System.String,Demo.RentalRepairs.Domain.ValueObjects.Request.ServiceWorkReport)">
+            <summary>
+            Reports work is done
+            </summary>
+        </member>
+        <member name="M:Demo.RentalRepairs.WebApi.Controllers.RequestsController.ReportWorkIncomplete(System.String,System.String,System.String,Demo.RentalRepairs.Domain.ValueObjects.Request.ServiceWorkReport)">
+            <summary>
+            Reports work can't be completed
+            </summary>
+        </member>
+        <member name="M:Demo.RentalRepairs.WebApi.Controllers.RequestsController.CloseRequest(System.String,System.String,System.String)">
+            <summary>
+            Closes the request
+            </summary>
+        </member>
+        <member name="M:Demo.RentalRepairs.WebApi.Controllers.TenantsController.Get(System.String)">
+            <summary>
+            Retrieves a list of property tenants
+            </summary>
+        </member>
+        <member name="M:Demo.RentalRepairs.WebApi.Controllers.TenantsController.Get(System.String,System.String)">
+            <summary>
+            Retrieves tenant details
+            </summary>
+        </member>
+        <member name="M:Demo.RentalRepairs.WebApi.Controllers.TenantsController.Post(System.String,Demo.RentalRepairs.WebApi.Models.TenantModel)">
+            <summary>
+            Adds new tenant to property
+            </summary>
+        </member>
+    </members>
+</doc>

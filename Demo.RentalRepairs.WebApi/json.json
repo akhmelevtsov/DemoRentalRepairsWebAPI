@@ -1,0 +1,581 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "V1",
+    "title": "Rental Repairs API"
+  },
+  "paths": {
+    "/api/v1/Properties": {
+      "get": {
+        "tags": [ "Properties" ],
+        "summary": "Retrieves a list of properties",
+        "operationId": "Get",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "uniqueItems": false,
+              "type": "array",
+              "items": { "$ref": "#/definitions/PropertyModel" }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "schema": { "$ref": "#/definitions/ResponseErrorModel" }
+          }
+        }
+      },
+      "post": {
+        "tags": [ "Properties" ],
+        "summary": "Creates a new property",
+        "operationId": "Post",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "prop",
+            "in": "body",
+            "required": false,
+            "schema": { "$ref": "#/definitions/PropertyModel" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": { "$ref": "#/definitions/PropertyModel" }
+          },
+          "500": {
+            "description": "Server Error",
+            "schema": { "$ref": "#/definitions/ResponseErrorModel" }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": { "$ref": "#/definitions/ResponseErrorModel" }
+          }
+        }
+      }
+    },
+    "/api/v1/Properties/{propCode}": {
+      "get": {
+        "tags": [ "Properties" ],
+        "summary": "Retrieves property details",
+        "operationId": "GetByCode",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "propCode",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": { "$ref": "#/definitions/PropertyModel" }
+          },
+          "500": {
+            "description": "Server Error",
+            "schema": { "$ref": "#/definitions/ResponseErrorModel" }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": { "$ref": "#/definitions/ResponseErrorModel" }
+          }
+        }
+      }
+    },
+    "/api/v1/properties/{propertyCode}/tenants/{tenantUnit}/Requests": {
+      "get": {
+        "tags": [ "Requests" ],
+        "summary": "Retrieves a list of tenant requests",
+        "operationId": "Get",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "propertyCode",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tenantUnit",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": {
+              "uniqueItems": false,
+              "type": "array",
+              "items": { "$ref": "#/definitions/TenantRequestModel" }
+            }
+          },
+          "500": {
+            "description": "Server Error",
+            "schema": { "$ref": "#/definitions/ResponseErrorModel" }
+          }
+        }
+      },
+      "post": {
+        "tags": [ "Requests" ],
+        "summary": "Adds a new tenant request",
+        "operationId": "Post",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "propertyCode",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tenantUnit",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tenantRequestDocModel",
+            "in": "body",
+            "required": false,
+            "schema": { "$ref": "#/definitions/TenantRequestDocModel" }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server Error",
+            "schema": { "$ref": "#/definitions/ResponseErrorModel" }
+          }
+        }
+      }
+    },
+    "/api/v1/properties/{propertyCode}/tenants/{tenantUnit}/Requests/schedule": {
+      "patch": {
+        "tags": [ "Requests" ],
+        "summary": "Schedules work for the request",
+        "operationId": "ScheduleWork",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "propertyCode",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tenantUnit",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "requestCode",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "serviceWorkOrder",
+            "in": "body",
+            "required": false,
+            "schema": { "$ref": "#/definitions/ServiceWorkOrder" }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server Error",
+            "schema": { "$ref": "#/definitions/ResponseErrorModel" }
+          }
+        }
+      }
+    },
+    "/api/v1/properties/{propertyCode}/tenants/{tenantUnit}/Requests/{requestCode}/reject": {
+      "patch": {
+        "tags": [ "Requests" ],
+        "summary": "Declines the request",
+        "operationId": "RejectRequest",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "propertyCode",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tenantUnit",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "requestCode",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tenantRequestRejectNotes",
+            "in": "body",
+            "required": false,
+            "schema": { "$ref": "#/definitions/TenantRequestRejectNotes" }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server Error",
+            "schema": { "$ref": "#/definitions/ResponseErrorModel" }
+          }
+        }
+      }
+    },
+    "/api/v1/properties/{propertyCode}/tenants/{tenantUnit}/Requests/{requestCode}/done": {
+      "patch": {
+        "tags": [ "Requests" ],
+        "summary": "Reports work is done",
+        "operationId": "ReportWorkCompleted",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "propertyCode",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tenantUnit",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "requestCode",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "serviceWorkReport",
+            "in": "body",
+            "required": false,
+            "schema": { "$ref": "#/definitions/ServiceWorkReport" }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server Error",
+            "schema": { "$ref": "#/definitions/ResponseErrorModel" }
+          }
+        }
+      }
+    },
+    "/api/v1/properties/{propertyCode}/tenants/{tenantUnit}/Requests/{requestCode}/undone": {
+      "patch": {
+        "tags": [ "Requests" ],
+        "summary": "Reports work can't be completed",
+        "operationId": "ReportWorkIncomplete",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "propertyCode",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tenantUnit",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "requestCode",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "serviceWorkReport",
+            "in": "body",
+            "required": false,
+            "schema": { "$ref": "#/definitions/ServiceWorkReport" }
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server Error",
+            "schema": { "$ref": "#/definitions/ResponseErrorModel" }
+          }
+        }
+      }
+    },
+    "/api/v1/properties/{propertyCode}/tenants/{tenantUnit}/Requests/{requestCode}/close": {
+      "patch": {
+        "tags": [ "Requests" ],
+        "summary": "Closes the request",
+        "operationId": "CloseRequest",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "propertyCode",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "tenantUnit",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "requestCode",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server Error",
+            "schema": { "$ref": "#/definitions/ResponseErrorModel" }
+          }
+        }
+      }
+    },
+    "/api/v1/properties/{propertyCode}/Tenants": {
+      "get": {
+        "tags": [ "Tenants" ],
+        "summary": "Retrieves a list of property tenants",
+        "operationId": "Get",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "propertyCode",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": { "$ref": "#/definitions/TenantModel" }
+          },
+          "500": {
+            "description": "Server Error",
+            "schema": { "$ref": "#/definitions/ResponseErrorModel" }
+          }
+        }
+      },
+      "post": {
+        "tags": [ "Tenants" ],
+        "summary": "Adds a new tenant to property",
+        "operationId": "Post",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "tenant",
+            "in": "body",
+            "required": false,
+            "schema": { "$ref": "#/definitions/TenantModel" }
+          },
+          {
+            "name": "propertyCode",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "500": {
+            "description": "Server Error",
+            "schema": { "$ref": "#/definitions/ResponseErrorModel" }
+          }
+        }
+      }
+    },
+    "/api/v1/properties/{propertyCode}/Tenants/{unitNumber}": {
+      "get": {
+        "tags": [ "Tenants" ],
+        "summary": "Retrieves property details",
+        "operationId": "GetByUnitNumber",
+        "consumes": [ "application/json" ],
+        "produces": [ "application/json" ],
+        "parameters": [
+          {
+            "name": "propCode",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "unitNumber",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "propertyCode",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "schema": { "$ref": "#/definitions/PropertyModel" }
+          },
+          "500": {
+            "description": "Server Error",
+            "schema": { "$ref": "#/definitions/ResponseErrorModel" }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": { "$ref": "#/definitions/ResponseErrorModel" }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "PropertyModel": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "address": { "$ref": "#/definitions/PropertyAddress" },
+        "phoneNumber": { "type": "string" },
+        "superintendent": { "$ref": "#/definitions/PersonContactInfo" },
+        "noReplyEmailAddress": { "type": "string" },
+        "units": {
+          "uniqueItems": false,
+          "type": "array",
+          "items": { "type": "string" },
+          "readOnly": true
+        }
+      }
+    },
+    "PropertyAddress": {
+      "type": "object",
+      "properties": {
+        "streetNumber": { "type": "string" },
+        "streetName": { "type": "string" },
+        "city": { "type": "string" },
+        "postalCode": { "type": "string" }
+      }
+    },
+    "PersonContactInfo": {
+      "type": "object",
+      "properties": {
+        "firstName": { "type": "string" },
+        "lastName": { "type": "string" },
+        "emailAddress": { "type": "string" },
+        "mobilePhone": { "type": "string" }
+      }
+    },
+    "ResponseErrorModel": {
+      "type": "object",
+      "properties": {
+        "errorCode": { "type": "string" },
+        "errorMessage": { "type": "string" }
+      }
+    },
+    "TenantRequestModel": {
+      "type": "object",
+      "properties": {
+        "requestStatus": {
+          "enum": [ "Undefined", "RequestReceived", "RequestRejected", "WorkScheduled", "WorkCompleted", "WorkIncomplete", "Closed" ],
+          "type": "string"
+        },
+        "requestDoc": { "$ref": "#/definitions/TenantRequestDoc" },
+        "rejectNotes": { "$ref": "#/definitions/TenantRequestRejectNotes" },
+        "workReport": { "$ref": "#/definitions/ServiceWorkReport" },
+        "serviceWorkOrder": { "$ref": "#/definitions/ServiceWorkOrder" }
+      }
+    },
+    "TenantRequestDoc": {
+      "type": "object",
+      "properties": {
+        "requestItems": {
+          "uniqueItems": false,
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "TenantRequestRejectNotes": {
+      "type": "object",
+      "properties": { "notes": { "type": "string" } }
+    },
+    "ServiceWorkReport": {
+      "type": "object",
+      "properties": { "notes": { "type": "string" } }
+    },
+    "ServiceWorkOrder": {
+      "type": "object",
+      "properties": {
+        "workerId": {
+          "format": "uuid",
+          "type": "string"
+        },
+        "serviceDate": {
+          "format": "date-time",
+          "type": "string"
+        },
+        "workOrderNo": {
+          "format": "int32",
+          "type": "integer"
+        },
+        "person": { "$ref": "#/definitions/PersonContactInfo" }
+      }
+    },
+    "TenantRequestDocModel": {
+      "type": "object",
+      "properties": {
+        "requestItems": {
+          "uniqueItems": false,
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "example": { "requestItems": [ "Power plug in kitchen", "Water leak in main bathroom" ] }
+    },
+    "TenantModel": {
+      "type": "object",
+      "properties": {
+        "contactInfo": { "$ref": "#/definitions/PersonContactInfo" },
+        "unitNumber": { "type": "string" },
+        "propertyCode": { "type": "string" }
+      },
+      "example": {
+        "contactInfo": {
+          "firstName": "John",
+          "lastName": "Tenant",
+          "emailAddress": "tenant123@hotmail.com",
+          "mobilePhone": "222-222-2222"
+        },
+        "unitNumber": "21",
+        "propertyCode": "moonlight"
+      }
+    }
+  }
+}
