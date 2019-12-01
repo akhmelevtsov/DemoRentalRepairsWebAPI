@@ -44,14 +44,7 @@ namespace Demo.RentalRepairs.Domain.Entities
 
         }
 
-        //public Tenant GetTenantById(Guid tenantId)
-        //{
-        //    return Tenants.FirstOrDefault(x => x.Id == tenantId);
-        //}
-        //public Tenant FindTenantById(Guid id)
-        //{
-        //    return Tenants.FirstOrDefault(x => x.Id == id);
-        //}
+       
 
 
         public  Tenant GetTenantByUnitNumber(string unitNumber)
