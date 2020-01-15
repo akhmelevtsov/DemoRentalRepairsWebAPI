@@ -6,67 +6,67 @@
     <members>
         <member name="M:Demo.RentalRepairs.WebApi.Controllers.PropertiesController.Get">
             <summary>
-            Retrieves a list of properties
+            Retrieves a list of properties 
             </summary>
         </member>
         <member name="M:Demo.RentalRepairs.WebApi.Controllers.PropertiesController.Get(System.String)">
             <summary>
-            Retrieves property details
+            Retrieves property details 
             </summary>
         </member>
         <member name="M:Demo.RentalRepairs.WebApi.Controllers.PropertiesController.Post(Demo.RentalRepairs.WebApi.Models.PropertyModel)">
             <summary>
-            Creates a new property
+            Creates a new property 
             </summary>
         </member>
         <member name="M:Demo.RentalRepairs.WebApi.Controllers.RequestsController.Get(System.String,System.String)">
             <summary>
-            Retrieves a list of tenant requests
+            Retrieves a list of tenant requests (tenant)
             </summary>
         </member>
         <member name="M:Demo.RentalRepairs.WebApi.Controllers.RequestsController.Post(System.String,System.String,Demo.RentalRepairs.WebApi.Models.TenantRequestDocModel)">
             <summary>
-            Adds a new tenant request
+            Adds a new tenant request (tenant)
             </summary>
         </member>
         <member name="M:Demo.RentalRepairs.WebApi.Controllers.RequestsController.ScheduleWork(System.String,System.String,System.String,Demo.RentalRepairs.Domain.ValueObjects.Request.ServiceWorkOrder)">
             <summary>
-            Schedules work for the request
+            Schedules work for the tenant request (property owner)
             </summary>
         </member>
         <member name="M:Demo.RentalRepairs.WebApi.Controllers.RequestsController.RejectRequest(System.String,System.String,System.String,Demo.RentalRepairs.Domain.ValueObjects.Request.TenantRequestRejectNotes)">
             <summary>
-            Declines the request
+            Declines the request (property owner)
             </summary>
         </member>
         <member name="M:Demo.RentalRepairs.WebApi.Controllers.RequestsController.ReportWorkCompleted(System.String,System.String,System.String,Demo.RentalRepairs.Domain.ValueObjects.Request.ServiceWorkReport)">
             <summary>
-            Reports work is done
+            Reports work is done (worker)
             </summary>
         </member>
         <member name="M:Demo.RentalRepairs.WebApi.Controllers.RequestsController.ReportWorkIncomplete(System.String,System.String,System.String,Demo.RentalRepairs.Domain.ValueObjects.Request.ServiceWorkReport)">
             <summary>
-            Reports work can't be completed
+            Reports work can't be completed (worker)
             </summary>
         </member>
         <member name="M:Demo.RentalRepairs.WebApi.Controllers.RequestsController.CloseRequest(System.String,System.String,System.String)">
             <summary>
-            Closes the request
+            Closes the request (property owner)
             </summary>
         </member>
         <member name="M:Demo.RentalRepairs.WebApi.Controllers.TenantsController.Get(System.String)">
             <summary>
-            Retrieves a list of property tenants
+            Retrieves a list of property tenants (property owner)
             </summary>
         </member>
         <member name="M:Demo.RentalRepairs.WebApi.Controllers.TenantsController.Get(System.String,System.String)">
             <summary>
-            Retrieves tenant details
+            Retrieves tenant details (property owner, tenant)
             </summary>
         </member>
         <member name="M:Demo.RentalRepairs.WebApi.Controllers.TenantsController.Post(System.String,Demo.RentalRepairs.WebApi.Models.TenantModel)">
             <summary>
-            Adds new tenant to property
+            Adds new tenant to property (tenant)
             </summary>
         </member>
     </members>

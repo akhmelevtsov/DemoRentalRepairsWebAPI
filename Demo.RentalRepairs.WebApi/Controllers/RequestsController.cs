@@ -25,7 +25,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         }
         // GET api/properties/moonlight/tenants/21/requests/
         /// <summary>
-        /// Retrieves a list of tenant requests
+        /// Retrieves a list of tenant requests (tenant)
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<TenantRequestModel>), StatusCodes.Status200OK)]
@@ -38,9 +38,9 @@ namespace Demo.RentalRepairs.WebApi.Controllers
             List<TenantRequestModel> list = _propertyService.GetTenantRequests(propertyCode, tenantUnit).Select(s => s.BuildModel()).ToList();
             return list;
         }
-        // POST api/properties/moonlight/21/requests
+        // POST api/properties/moonlight/21/requests 
         /// <summary>
-        /// Adds a new tenant request
+        /// Adds a new tenant request (tenant)
         /// </summary>
         [SwaggerRequestExample(typeof(TenantRequestDocModel), typeof(TenantRequestDocModelExample))]
         [HttpPost]
@@ -53,7 +53,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         }
         // PATCH api/properties/moonlight/tenants/21/requests/1/schedule
         /// <summary>
-        /// Schedules work for the request
+        /// Schedules work for the tenant request (property owner)
         /// </summary>
         [HttpPatch("schedule",Name = "ScheduleWork")]
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status400BadRequest)]
@@ -65,7 +65,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         }
         // PATCH api/properties/moonlight/tenants/21/requests/1/reject
         /// <summary>
-        /// Declines the request
+        /// Declines the request (property owner)
         /// </summary>
         [HttpPatch("{requestCode}/reject", Name = "RejectRequest")]
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status400BadRequest)]
@@ -77,7 +77,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         }
         // PATCH api/properties/moonlight/tenants/21/requests/1/done
         /// <summary>
-        /// Reports work is done
+        /// Reports work is done (worker)
         /// </summary>
         [HttpPatch("{requestCode}/done", Name = "ReportWorkCompleted")]
         [ProducesResponseType(typeof(PropertyModel), StatusCodes.Status200OK)]
@@ -90,7 +90,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         }
         // PATCH api/properties/moonlight/tenants/21/requests/1/failed
         /// <summary>
-        /// Reports work can't be completed
+        /// Reports work can't be completed (worker)
         /// </summary>
         [HttpPatch("{requestCode}/failed", Name = "ReportWorkIncomplete")]
         [ProducesResponseType(typeof(PropertyModel), StatusCodes.Status200OK)]
@@ -103,7 +103,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         }
         // PATCH api/properties/moonlight/tenants/21/requests/1/close
         /// <summary>
-        /// Closes the request
+        /// Closes the request (property owner)
         /// </summary>
         [HttpPatch("{requestCode}/close", Name = "CloseRequest")]
         [ProducesResponseType(typeof(PropertyModel), StatusCodes.Status200OK)]

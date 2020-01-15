@@ -23,7 +23,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         }
         // GET api/properties/moonlight/tenants ------------------------------------------------------------
         /// <summary>
-        /// Retrieves a list of property tenants
+        /// Retrieves a list of property tenants (property owner)
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(TenantModel), StatusCodes.Status200OK)]
@@ -39,7 +39,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
 
         // GET api/v1/properties/moonlight/tenants/234 ------------------------------------------------------
         /// <summary>
-        /// Retrieves tenant details
+        /// Retrieves tenant details (property owner, tenant)
         /// </summary>
 
         [HttpGet("{unitNumber}", Name = "GetByUnitNumber")]
@@ -55,7 +55,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
 
         // POST api/properties/{propertyCode} -----------------------------------------------------------------
         /// <summary>
-        /// Adds new tenant to property
+        /// Adds new tenant to property (tenant)
         /// </summary>
         [SwaggerRequestExample(typeof(TenantModel), typeof(TenantModelExample))]
         [ProducesResponseType(typeof(PropertyModel), StatusCodes.Status200OK)]

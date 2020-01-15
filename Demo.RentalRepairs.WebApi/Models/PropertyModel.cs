@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Demo.RentalRepairs.Domain.ValueObjects;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 
 namespace Demo.RentalRepairs.WebApi.Models

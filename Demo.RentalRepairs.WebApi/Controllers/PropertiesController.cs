@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Demo.RentalRepairs.Core.Interfaces;
-using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.WebApi.Models;
 using Demo.RentalRepairs.WebApi.Models.Examples;
 using Microsoft.AspNetCore.Http;
@@ -25,7 +24,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         }
         // GET api/v1/properties
         /// <summary>
-        /// Retrieves a list of properties
+        /// Retrieves a list of properties 
         /// </summary>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<PropertyModel>), StatusCodes.Status200OK)]
@@ -38,7 +37,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
 
         // GET api/v1/properties/code
         /// <summary>
-        /// Retrieves property details
+        /// Retrieves property details 
         /// </summary>
 
         [HttpGet("{propCode}",Name = "GetByCode")]
@@ -49,14 +48,12 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         public ActionResult<PropertyModel> Get([FromRoute ]string propCode)
         {
             var property = _propertyService.GetPropertyByCode(propCode);
-            //if (property == null)
-            //    return NotFound(new ResponseErrorModel(){ ErrorCode = "property_not_found", ErrorMessage =  $"Unable to find property {propCode}" } );
             return property.BuildModel();
         }
 
         // POST api/v1/properties
         /// <summary>
-        /// Creates a new property
+        /// Creates a new property 
         /// </summary>
         [HttpPost]
       
