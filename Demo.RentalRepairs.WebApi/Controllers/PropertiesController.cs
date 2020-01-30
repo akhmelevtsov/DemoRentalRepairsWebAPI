@@ -1,8 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Interfaces;
+using Demo.RentalRepairs.Domain.Entities.Validators;
+using Demo.RentalRepairs.Domain.Framework;
 using Demo.RentalRepairs.WebApi.Models;
-using Demo.RentalRepairs.WebApi.Models.Examples;
+using Demo.RentalRepairs.WebApi.Swagger.Examples;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -64,7 +67,14 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status500InternalServerError)]
         public void Post([BindRequired, FromBody] PropertyModel prop)
         {
-           
+            
+            var validator = new PropertyValidator();
+
+            var results = validator.Validate(prop);
+            if (!results.IsValid)
+            {
+                throw new DomainValidationException("create_property_validation", results.Errors);
+            }
             _propertyService.AddProperty(prop.Name, prop.Code, prop.Address, prop.PhoneNumber, prop.Superintendent, prop.Units.ToList() );
         }
         

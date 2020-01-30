@@ -6,9 +6,6 @@
         public string Notes;
    
 
-        //public ServiceWorkReport(ICreatedTimeStamp command, DateTime registerDateTime) : base (command, registerDateTime)
-        //{
-          
-        //}
+      
     }
 }

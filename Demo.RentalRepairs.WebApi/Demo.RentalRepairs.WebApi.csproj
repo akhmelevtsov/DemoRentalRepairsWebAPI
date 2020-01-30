@@ -25,6 +25,11 @@
   <ItemGroup>
     <ProjectReference Include="..\Demo.RentalRepairs.Core\Demo.RentalRepairs.Core.csproj" />
     <ProjectReference Include="..\Demo.RentalRepairs.Infrastructure\Demo.RentalRepairs.Infrastructure.csproj" />
+    <ProjectReference Include="..\Demo.RentalRepairs.WebApi.Models\Demo.RentalRepairs.WebApi.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\" />
   </ItemGroup>
 
 </Project>

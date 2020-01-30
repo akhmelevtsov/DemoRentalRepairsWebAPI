@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Demo.RentalRepairs.Domain.Entities
 {
-    public class Property : Entity
+    public class Property : Entity, IProperty
     {
         public string Name { get;  private set; }
         public string Code { get; private set; }

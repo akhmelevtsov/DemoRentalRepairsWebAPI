@@ -13,7 +13,8 @@ namespace Demo.RentalRepairs.Core.Services
     {
         private readonly IPropertyRepository _propertyRepository;
         private readonly INotifyPartiesService _notifyPartiesService;
-        
+
+        private readonly ValidationService _validationService = new ValidationService();
 
         public PropertyService(IPropertyRepository propertyRepository, INotifyPartiesService notifyPartiesService)
         {
@@ -29,7 +30,7 @@ namespace Demo.RentalRepairs.Core.Services
 
         public Property GetPropertyByCode(string propCode)
         {
-            DomainValidations.ValidatePropertyCode(propCode);
+            _validationService.ValidatePropertyCode(propCode);
 
             var prop =  _propertyRepository.GetPropertyByCode(propCode);
            
@@ -38,7 +39,7 @@ namespace Demo.RentalRepairs.Core.Services
 
         public Property AddProperty(string name, string propertyCode, PropertyAddress propertyAddress, string phoneNumber, PersonContactInfo superintendentInfo, List<string> units)
         {
-            DomainValidations.ValidatePropertyCode(propertyCode);
+            _validationService.ValidatePropertyCode(propertyCode);
           
             var prop = new PropertyDomainService().CreateProperty(name, propertyCode, propertyAddress, phoneNumber, superintendentInfo, units);
             _propertyRepository.AddProperty(prop);
@@ -48,15 +49,15 @@ namespace Demo.RentalRepairs.Core.Services
         // tenants
         public IEnumerable<Tenant> GetPropertyTenants(string propertyCode)
         {
-            DomainValidations.ValidatePropertyCode(propertyCode);
+            _validationService.ValidatePropertyCode(propertyCode);
             return _propertyRepository.GetPropertyTenants(propertyCode);
         }
 
         public Tenant AddTenant(string propertyCode, PersonContactInfo contactInfo, string unitNumber)
         {
-            
-            DomainValidations.ValidatePersonContactInfo(contactInfo);
-            DomainValidations.ValidatePropertyUnit(unitNumber);
+
+            _validationService.ValidatePersonContactInfo(contactInfo);
+            _validationService.ValidatePropertyUnit(unitNumber);
 
             var property = GetPropertyByCode(propertyCode);
 
@@ -67,7 +68,7 @@ namespace Demo.RentalRepairs.Core.Services
         }
         public Tenant GetTenantByPropertyUnit(string propertyCode, string propertyUnit)
         {
-            DomainValidations.ValidatePropertyCode(propertyCode);
+            _validationService.ValidatePropertyCode(propertyCode);
             var tenant = _propertyRepository.GetTenantByUnitNumber(propertyUnit, propertyCode);
             if (tenant == null)
                 Tenant.NotFoundException(propertyUnit, propertyCode);
@@ -78,8 +79,8 @@ namespace Demo.RentalRepairs.Core.Services
         public IEnumerable<TenantRequest> GetTenantRequests(string propertyCode, string tenantUnit)
         {
             var retList = new List<TenantRequest>();
-            DomainValidations.ValidatePropertyCode(propertyCode);
-            DomainValidations.ValidatePropertyUnit(tenantUnit);
+            _validationService.ValidatePropertyCode(propertyCode);
+            _validationService.ValidatePropertyUnit(tenantUnit);
 
             var tenant = _propertyRepository.GetTenantByUnitNumber(tenantUnit, propertyCode);
             if (tenant != null)
@@ -90,8 +91,8 @@ namespace Demo.RentalRepairs.Core.Services
         }
         public TenantRequest RegisterTenantRequest(string propCode, string tenantUnit , TenantRequestDoc tenantRequestDoc)
         {
-            DomainValidations.ValidatePropertyCode(propCode);
-            DomainValidations.ValidatePropertyUnit(tenantUnit);
+            _validationService.ValidatePropertyCode(propCode);
+            _validationService.ValidatePropertyUnit(tenantUnit);
 
             var  tenant = _propertyRepository.GetTenantByUnitNumber(tenantUnit, propCode);
             if (tenant == null)
@@ -106,8 +107,8 @@ namespace Demo.RentalRepairs.Core.Services
         public TenantRequest ChangeRequestStatus(string propCode, string tenantUnit, string requestCode,
             TenantRequestStatusEnum newStatus, TenantRequestBaseDoc tenantRequestBaseDoc)
         {
-            DomainValidations.ValidatePropertyCode(propCode);
-            DomainValidations.ValidatePropertyUnit(tenantUnit);
+            _validationService.ValidatePropertyCode(propCode);
+            _validationService.ValidatePropertyUnit(tenantUnit);
 
             var tenantRequest = _propertyRepository.GetTenantRequest(propCode, tenantUnit, requestCode);
             tenantRequest = tenantRequest.ChangeStatus(newStatus, tenantRequestBaseDoc);

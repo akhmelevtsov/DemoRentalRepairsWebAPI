@@ -24,7 +24,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             var prop = propService.CreateProperty("Moonlight Apartments", "moonlight",
                 new PropertyAddress()
-                    {StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M95 4T1"},
+                    {StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5"},
                 "905-111-1111",
                 new PersonContactInfo()
                 {
@@ -127,7 +127,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
             var propService = new PropertyService(repo, ntfService);
             var prop = propService.AddProperty("Moonlight Apartments", "moonlight",
                 new PropertyAddress()
-                    {StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M95 4T1"},
+                    {StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5"},
                 "905-111-1111",
                 new PersonContactInfo()
                 {
@@ -238,9 +238,9 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
         {
             var propService = new PropertyDomainService();
 
-            var prop = propService.CreateProperty("", "moonlight",
+            var prop = propService.CreateProperty("moonlight", "moonlight",
                 new PropertyAddress()
-                    {StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M95 4T1"},
+                    {StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5"},
                 "905-111-1111",
                 new PersonContactInfo()
                 {

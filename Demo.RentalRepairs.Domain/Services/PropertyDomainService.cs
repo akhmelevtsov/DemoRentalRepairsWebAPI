@@ -9,11 +9,14 @@ namespace Demo.RentalRepairs.Domain.Services
 {
     public class PropertyDomainService
     {
+        readonly ValidationService _validationService = new ValidationService();
+
         public Property CreateProperty(string name, string code, PropertyAddress propertyAddress, string phoneNumber,
             PersonContactInfo superintendentInfo, List<string> units)
         {
             var prop = new Property(name, code, phoneNumber, propertyAddress, superintendentInfo, units);
-            prop.Validate();
+            _validationService.ValidateProperty(prop);
+            //prop.Validate();
             return prop;
         }
 
@@ -21,8 +24,9 @@ namespace Demo.RentalRepairs.Domain.Services
         {
            
             var tenant = new Tenant(property, contactInfo, unitNumber);
-            tenant.Validate();
-
+            _validationService.ValidateTenant(tenant);
+            //tenant.Validate();
+           
             return tenant;
 
         }

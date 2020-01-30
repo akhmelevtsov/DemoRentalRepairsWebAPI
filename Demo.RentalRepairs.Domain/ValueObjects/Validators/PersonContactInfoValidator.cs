@@ -6,10 +6,10 @@ namespace Demo.RentalRepairs.Domain.ValueObjects.Validators
     {
         public PersonContactInfoValidator()
         {
-            RuleFor(p => p.FirstName).NotNull();
-            RuleFor(p => p.LastName).NotNull();
+            RuleFor(p => p.FirstName).NotNull().Matches(@"^[a-zA-Z]+(([\'\,\.\-][a-zA-Z])?[a-zA-Z]*)*$");
+            RuleFor(p => p.LastName).NotNull().Matches(@"^[a-zA-Z]+(([\'\,\.\-][a-zA-Z])?[a-zA-Z]*)*$");
             RuleFor(p => p.EmailAddress).NotNull().EmailAddress();
-            RuleFor(p => p.MobilePhone).NotNull();
+            RuleFor(p => p.MobilePhone).NotNull().Matches(@"^[2-9]\d{2}-\d{3}-\d{4}$");
         }
     }
 }

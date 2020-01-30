@@ -1,6 +1,7 @@
-﻿using Swashbuckle.AspNetCore.Examples;
+﻿using Demo.RentalRepairs.WebApi.Models;
+using Swashbuckle.AspNetCore.Examples;
 
-namespace Demo.RentalRepairs.WebApi.Models.Examples
+namespace Demo.RentalRepairs.WebApi.Swagger.Examples
 {
     public class TenantRequestDocModelExample : IExamplesProvider
     {

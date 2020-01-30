@@ -2,7 +2,7 @@
 using System.Linq;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.WebApi.Models;
-using Demo.RentalRepairs.WebApi.Models.Examples;
+using Demo.RentalRepairs.WebApi.Swagger.Examples;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Examples;
