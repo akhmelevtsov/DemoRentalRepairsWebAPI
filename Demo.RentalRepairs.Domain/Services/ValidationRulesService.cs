@@ -12,7 +12,7 @@ namespace Demo.RentalRepairs.Domain.Services
 {
     public class ValidationRulesService
     {
-        public  ValidationResult ValidateProperty( IProperty property)
+        public  ValidationResult ValidateProperty( IPropertyFields property)
         {
             var validator = new PropertyValidator();
 
@@ -37,6 +37,8 @@ namespace Demo.RentalRepairs.Domain.Services
 
         public ValidationResult ValidatePropertyUnit(string propertyUnit)
         {
+            if (propertyUnit == null)
+                propertyUnit = string.Empty;
             var validator = new UnitNumberValidator();
             return  validator.Validate(propertyUnit);
            

@@ -3,7 +3,7 @@ using Demo.RentalRepairs.Domain.ValueObjects;
 
 namespace Demo.RentalRepairs.Domain.Entities
 {
-    public interface IProperty
+    public interface IPropertyFields
     {
         string Name { get; }
         string Code { get; }

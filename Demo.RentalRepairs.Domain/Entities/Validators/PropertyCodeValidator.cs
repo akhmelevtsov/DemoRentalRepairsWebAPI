@@ -9,7 +9,7 @@ namespace Demo.RentalRepairs.Domain.Entities.Validators
     {
         public PropertyCodeValidator()
         {
-            RuleFor(p => p).NotNull().MinimumLength(5).MaximumLength(10);
+            RuleFor(p => p).NotNull().MinimumLength(5).MaximumLength(10).WithName("Code");
         }
     }
 }

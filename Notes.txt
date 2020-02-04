@@ -1,0 +1,44 @@
+Resident
+
+- Sign up					Common Sign Up
+
+- Login :					Common Login Page
+
+- Register residency		Resident Register Page			 done	
+
+- List of Requests			Resident Request List Page 
+
+- New Request				Resident Request Page
+
+
+Super
+
+- Sign up					Common Sign Up
+
+- Login :					Common Login Page
+
+- Register property			Register Property Page				done
+
+- Manage Requests			All property requests Page
+
+- Change request status		Edit Request Page
+
+
+Worker
+
+- Sign up					Common Sign Up
+
+- Login :					Common Login Page
+
+- List Of requests          Worker List of Requests
+
+- Change request status    Worker Request Page
+
+
+Anonimuous
+
+- Property List
+
+
+
+

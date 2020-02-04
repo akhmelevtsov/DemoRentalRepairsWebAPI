@@ -2,26 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using Demo.RentalRepairs.Domain.Framework;
+using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
 
 namespace Demo.RentalRepairs.Domain.Entities
 {
-    public class Tenant : Entity 
+    public class Tenant : Entity, ITenantFields
     {
         public PersonContactInfo ContactInfo { get; set;  }
-        public Guid PropertyId { get; set;  }
-        public Property Property { get; set;  }
+        public string PropertyCode { get; set;  }
         public string UnitNumber { get; private set;  }
+        public Property Property { get; set;  }
 
         public List<TenantRequest> ActiveRequests => _activeRequests;
 
         private readonly List<TenantRequest> _activeRequests = new List<TenantRequest>();
-        private List<TenantRequest> _closedRequests = new List<TenantRequest>();
+        private readonly List<TenantRequest> _closedRequests = new List<TenantRequest>();
 
-        internal  Tenant(Property property, PersonContactInfo contactInfo, string unitNumber)
+        internal  Tenant(Property property, PersonContactInfo contactInfo, string unitNumber) : base(PropertyDomainService.DateTimeProvider)
         {
             Property = property;
+            PropertyCode = property.Code;
             ContactInfo = contactInfo;
             UnitNumber = unitNumber;
         }
@@ -32,7 +34,8 @@ namespace Demo.RentalRepairs.Domain.Entities
         }
         public TenantRequest AddRequest(TenantRequestDoc tenantRequestDoc)
         {
-            var tTenantRequest = new TenantRequest() {Tenant = this, Code = (_activeRequests.Count + 1).ToString( )};
+            var tTenantRequest = new TenantRequest(this,  (_activeRequests.Count + 1).ToString());
+
             tTenantRequest.ChangeStatus( TenantRequestStatusEnum.RequestReceived ,tenantRequestDoc);
 
             _activeRequests.Add(tTenantRequest);

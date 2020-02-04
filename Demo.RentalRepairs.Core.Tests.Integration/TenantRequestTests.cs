@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Core.Services;
 using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.Services;
@@ -7,10 +8,13 @@ using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
 using Demo.RentalRepairs.Infrastructure.Mocks;
 using Demo.RentalRepairs.Infrastructure.Repositories;
+using Demo.RentalRepairs.Infrastructure.Repositories.EF;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Demo.RentalRepairs.Core.Tests.Integration
 {
+    
     [TestClass]
     public class TenantRequestTests
     {
@@ -20,7 +24,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
             //var repo = new PropertyRepositoryMock();
             //var ntfService = new NotifyPartiesServiceMock();
 
-            var propService = new PropertyDomainService();
+            var propService = new PropertyDomainService(new DateTimeProviderMock());
 
             var prop = propService.CreateProperty("Moonlight Apartments", "moonlight",
                 new PropertyAddress()
@@ -32,6 +36,8 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                     MobilePhone = "905-111-1112"
                 }, new List<string>() {"11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34"});
 
+            Assert.AreEqual(DateTimeProviderMock.CurrentDate , prop.DateCreated );
+
             var tenant = propService.AddTenant(prop,
                 new PersonContactInfo()
                 {
@@ -41,6 +47,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                 "21"
             );
 
+            Assert.AreEqual(DateTimeProviderMock.CurrentDate, tenant.DateCreated);
 
             var tenantRequest = propService.RegisterTenantRequest(tenant,
                 new TenantRequestDoc()
@@ -48,6 +55,8 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                     RequestItems = new string[] {"Power plug in kitchen", "Water leak in main bathroom"},
 
                 });
+            Assert.AreEqual(DateTimeProviderMock.CurrentDate, tenantRequest.DateCreated);
+
             tenantRequest = tenantRequest.ChangeStatus(TenantRequestStatusEnum.WorkScheduled,
                 new ServiceWorkOrder()
                 {
@@ -124,7 +133,42 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
             var repo = new PropertyRepositoryInMemory();
             var ntfService = new NotifyPartiesServiceMock();
 
+            TestEverythingWithRepo(repo, ntfService);
+        }
+
+        [TestMethod]
+        public void AllPathsTestWithEntityFrameworkRepo()
+        {
+
+
+            var connectionString = "Server=(localdb)\\mssqllocaldb; Database = PropertiesTest; Trusted_Connection = True; MultipleActiveResultSets = true";
+
+            var optionsBuilder = new DbContextOptionsBuilder<PropertiesContext>();
+            optionsBuilder.UseSqlServer(connectionString);
+
+
+            //PropertiesContext dbContext = new PropertiesContext(optionsBuilder.Options);
+
+            // Or you can also instantiate inside using
+
+            using (PropertiesContext dbContext = new PropertiesContext(optionsBuilder.Options))
+            {
+                dbContext.Database.EnsureDeleted() ;
+                dbContext.Database.EnsureCreated();
+                //...do stuff
+                var repo = new PropertyRepositoryEntityFramework(dbContext);
+                var ntfService = new NotifyPartiesServiceMock();
+
+                TestEverythingWithRepo(repo, ntfService);
+            }
+
+            
+        }
+
+        private static void TestEverythingWithRepo(IPropertyRepository repo, NotifyPartiesServiceMock ntfService)
+        {
             var propService = new PropertyService(repo, ntfService);
+
             var prop = propService.AddProperty("Moonlight Apartments", "moonlight",
                 new PropertyAddress()
                     {StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5"},
@@ -146,13 +190,12 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                 "21"
             );
 
-
             var tenantRequest = propService.RegisterTenantRequest(prop.Code, tenant.UnitNumber,
                 new TenantRequestDoc()
                 {
                     RequestItems = new string[] {"Power plug in kitchen", "Water leak in main bathroom"},
-
                 });
+
             var trId = tenantRequest.Id;
             tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.WorkScheduled,
@@ -180,7 +223,6 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                 new TenantRequestDoc()
                 {
                     RequestItems = new string[] {"Kitchen desk replace"},
-
                 });
             tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.WorkScheduled,
@@ -199,7 +241,8 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                 propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                     TenantRequestStatusEnum.WorkIncomplete, new ServiceWorkReport() {Notes = "Can't come"});
 
-            tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code, TenantRequestStatusEnum.WorkScheduled,
+            tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
+                TenantRequestStatusEnum.WorkScheduled,
                 new ServiceWorkOrder()
                 {
                     Person = new PersonContactInfo()
@@ -222,7 +265,6 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                 new TenantRequestDoc()
                 {
                     RequestItems = new string[] {"Full renovation needed"},
-
                 });
 
             tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
@@ -230,7 +272,6 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.Closed, null);
-
         }
 
         [TestMethod]

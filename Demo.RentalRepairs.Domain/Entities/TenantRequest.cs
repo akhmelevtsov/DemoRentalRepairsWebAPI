@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Demo.RentalRepairs.Domain.Framework;
+using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
 
 namespace Demo.RentalRepairs.Domain.Entities
@@ -47,6 +48,11 @@ namespace Demo.RentalRepairs.Domain.Entities
         public int ServiceWorkOrderCount { get; set; }
         public string Code { get; set; }
 
+        public TenantRequest(Tenant tenant, string code) : base(PropertyDomainService.DateTimeProvider)
+        {
+            Tenant = tenant;
+            Code = code;
+        }
         private void RegisterRequest(TenantRequestDoc tenantRequestDoc)
         {
             

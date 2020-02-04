@@ -7,6 +7,7 @@ using Demo.RentalRepairs.Core.Services;
 using Demo.RentalRepairs.Domain.Entities.Validators;
 using Demo.RentalRepairs.Infrastructure.Mocks;
 using Demo.RentalRepairs.Infrastructure.Repositories;
+using Demo.RentalRepairs.Infrastructure.Repositories.EF;
 using Demo.RentalRepairs.WebApi.Models;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
@@ -40,7 +42,9 @@ namespace Demo.RentalRepairs.WebMvc
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
+            services.AddDbContext<PropertiesContext>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("DemoRentalRepairsWebMvcContext")));
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             //    .AddFluentValidation(fv =>
@@ -52,9 +56,9 @@ namespace Demo.RentalRepairs.WebMvc
             //    });
             ////services.AddTransient<IValidator<PropertyModel>, PropertyValidator>();
             //services.AddTransient<IValidator<PropertyCodeValidator>>();
-
             services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();
-            services.AddSingleton<INotifyPartiesService, NotifyPartiesServiceMock>();
+            //services.AddTransient<IPropertyRepository, PropertyRepositoryEntityFramework>();
+            services.AddTransient<INotifyPartiesService, NotifyPartiesServiceMock>();
             services.AddTransient<IPropertyService, PropertyService>();
         }
 

@@ -13,6 +13,7 @@ namespace Demo.RentalRepairs.Core.Services
     {
         private readonly IPropertyRepository _propertyRepository;
         private readonly INotifyPartiesService _notifyPartiesService;
+        private readonly PropertyDomainService _propertyDomainService = new PropertyDomainService();
 
         private readonly ValidationService _validationService = new ValidationService();
 
@@ -41,7 +42,7 @@ namespace Demo.RentalRepairs.Core.Services
         {
             _validationService.ValidatePropertyCode(propertyCode);
           
-            var prop = new PropertyDomainService().CreateProperty(name, propertyCode, propertyAddress, phoneNumber, superintendentInfo, units);
+            var prop = _propertyDomainService.CreateProperty(name, propertyCode, propertyAddress, phoneNumber, superintendentInfo, units);
             _propertyRepository.AddProperty(prop);
             return prop;
         }
@@ -56,12 +57,13 @@ namespace Demo.RentalRepairs.Core.Services
         public Tenant AddTenant(string propertyCode, PersonContactInfo contactInfo, string unitNumber)
         {
 
-            _validationService.ValidatePersonContactInfo(contactInfo);
+            _validationService.ValidatePropertyCode(propertyCode);
             _validationService.ValidatePropertyUnit(unitNumber);
+            _validationService.ValidatePersonContactInfo(contactInfo);
 
             var property = GetPropertyByCode(propertyCode);
 
-            var tenant = new PropertyDomainService().AddTenant(property, contactInfo, unitNumber);
+            var tenant = _propertyDomainService .AddTenant(property, contactInfo, unitNumber);
             _propertyRepository.AddTenant(tenant);
             return tenant;
 
@@ -98,7 +100,7 @@ namespace Demo.RentalRepairs.Core.Services
             if (tenant == null)
                 Tenant.NotFoundException(tenantUnit, propCode);
 
-            var tenantRequest = new PropertyDomainService().RegisterTenantRequest(tenant, tenantRequestDoc);
+            var tenantRequest = _propertyDomainService.RegisterTenantRequest(tenant, tenantRequestDoc);
             _propertyRepository.AddTenantRequest(tenantRequest);
             _notifyPartiesService.NotifyRequestStatusChange(tenantRequest.BuildMessage());
             return tenantRequest;

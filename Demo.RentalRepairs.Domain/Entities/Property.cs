@@ -2,24 +2,27 @@
 using System.Collections.Generic;
 using System.Linq;
 using Demo.RentalRepairs.Domain.Framework;
+using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Demo.RentalRepairs.Domain.Entities
 {
-    public class Property : Entity, IProperty
+    public class Property : Entity, IPropertyFields
     {
-        public string Name { get;  private set; }
+        public string Name { get;   private set; }
         public string Code { get; private set; }
         public PropertyAddress Address { get; private set;  }
         public string PhoneNumber { get; private set;  }
         public PersonContactInfo Superintendent { get; private set;  }
+        public List<string> Units { get; private set; }
         public string NoReplyEmailAddress { get;  set; }
 
         public List<Tenant> Tenants { get; } = new List<Tenant>();
 
-        internal Property(string name, string code, string phoneNumber, PropertyAddress propertyAddress,
-            PersonContactInfo superintendent, List<string> units)
+
+        public  Property(string name, string code, string phoneNumber, PropertyAddress propertyAddress,
+            PersonContactInfo superintendent, List<string> units) : base(PropertyDomainService.DateTimeProvider)
         {
             Name = name;
             Code = code;
@@ -29,7 +32,13 @@ namespace Demo.RentalRepairs.Domain.Entities
             Units = units;
         }
 
-        public List<string> Units { get; private set; }
+        public Property(string name, string code, string phoneNumber, PropertyAddress propertyAddress,
+            PersonContactInfo superintendent, List<string> units, 
+            DateTime dateCreated, Guid idGuid) : this( name, code,  phoneNumber,  propertyAddress,
+             superintendent, units)  // create from repo
+        {
+            base.UpdateCreateInfo(dateCreated, idGuid);
+        }
 
         internal Property(string propertyCode) // for validations
         {
@@ -60,6 +69,18 @@ namespace Demo.RentalRepairs.Domain.Entities
         public static void DuplicateException(string propertyCode)
         {
             throw new DomainException("duplicate_property", $"Property already exist [{propertyCode}]");
+        }
+
+
+        private void AssignProperties(string name, string code, string phoneNumber, PropertyAddress propertyAddress,
+            PersonContactInfo superintendent, List<string> units)
+        {
+            Name = name;
+            Code = code;
+            PhoneNumber = phoneNumber;
+            Address = propertyAddress;
+            Superintendent = superintendent;
+            Units = units;
         }
     }
 }

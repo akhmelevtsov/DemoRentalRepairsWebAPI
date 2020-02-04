@@ -1,4 +1,5 @@
 ﻿using System;
+using Demo.RentalRepairs.Domain.Services;
 
 namespace Demo.RentalRepairs.Domain.Framework
 {
@@ -8,9 +9,20 @@ namespace Demo.RentalRepairs.Domain.Framework
         public DateTime LastUpdated { get; set;  }
         public DateTime DateCreated { get;  set; }
 
-        protected Entity()
+        public Entity()
         {
+            
+        }
+        protected Entity( IDateTimeProvider dateTimeProvider)
+        {
+            this.DateCreated = dateTimeProvider.GetDateTime();
             this.Id = Guid.NewGuid();
+        }
+
+        public void UpdateCreateInfo (DateTime created, Guid guid)
+        {
+            Id = guid;
+            DateCreated = created;
         }
         
     }

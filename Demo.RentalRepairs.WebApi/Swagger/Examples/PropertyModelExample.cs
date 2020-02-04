@@ -13,7 +13,7 @@ namespace Demo.RentalRepairs.WebApi.Swagger.Examples
             return new PropertyModel()
             {
                 Code = "moonlight", Name = "Moonlight Apartments",
-                Address = new PropertyAddress() {StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M95 4T1"}, NoReplyEmailAddress =
+                Address = new PropertyAddress() {StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5"}, NoReplyEmailAddress =
                 "",
                 PhoneNumber = "905-111-1111",
                 Superintendent =new PersonContactInfo()
