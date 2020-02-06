@@ -14,6 +14,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF.Entities
         public string UnitNumber { get;  set; }
 
         public  ICollection<TenantRequestTbl> Requests { get; set; }
+        public DateTime DateCreated { get; set; }
 
     }
 }

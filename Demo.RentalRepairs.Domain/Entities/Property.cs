@@ -18,7 +18,7 @@ namespace Demo.RentalRepairs.Domain.Entities
         public List<string> Units { get; private set; }
         public string NoReplyEmailAddress { get;  set; }
 
-        public List<Tenant> Tenants { get; } = new List<Tenant>();
+        //public List<Tenant> Tenants { get; } = new List<Tenant>();
 
 
         public  Property(string name, string code, string phoneNumber, PropertyAddress propertyAddress,
@@ -45,21 +45,21 @@ namespace Demo.RentalRepairs.Domain.Entities
             Code = propertyCode;
         }
 
-        public Tenant AddTenant(Tenant tenant )
-        {
-            tenant.Property = this;
-            Tenants.Add(tenant);
-            return tenant;
+        //public Tenant AddTenant(Tenant tenant )
+        //{
+        //    tenant.Property = this;
+        //    Tenants.Add(tenant);
+        //    return tenant;
 
-        }
+        //}
 
        
 
 
-        public  Tenant GetTenantByUnitNumber(string unitNumber)
-        {
-            return Tenants.FirstOrDefault(x => x.UnitNumber  == unitNumber);
-        }
+        //public  Tenant GetTenantByUnitNumber(string unitNumber)
+        //{
+        //    return Tenants.FirstOrDefault(x => x.UnitNumber  == unitNumber);
+        //}
 
         public static void NotFoundException(string propertyCode)
         {

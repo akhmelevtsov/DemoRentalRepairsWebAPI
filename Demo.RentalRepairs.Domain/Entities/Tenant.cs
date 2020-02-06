@@ -16,6 +16,7 @@ namespace Demo.RentalRepairs.Domain.Entities
         public Property Property { get; set;  }
 
         public List<TenantRequest> ActiveRequests => _activeRequests;
+        public int RequestsNum { get; set; }
 
         private readonly List<TenantRequest> _activeRequests = new List<TenantRequest>();
         private readonly List<TenantRequest> _closedRequests = new List<TenantRequest>();
@@ -27,15 +28,19 @@ namespace Demo.RentalRepairs.Domain.Entities
             ContactInfo = contactInfo;
             UnitNumber = unitNumber;
         }
-
+        public Tenant(Property property, PersonContactInfo contactInfo, string unitNumber, DateTime dateCreated, Guid idGuid) : 
+            this(property , contactInfo , unitNumber)
+        {
+            base.UpdateCreateInfo(dateCreated, idGuid);
+        }
         internal Tenant(string unitNumber)
         {
             UnitNumber = unitNumber;
         }
         public TenantRequest AddRequest(TenantRequestDoc tenantRequestDoc)
         {
-            var tTenantRequest = new TenantRequest(this,  (_activeRequests.Count + 1).ToString());
-
+            //var tTenantRequest = new TenantRequest(this,  (_activeRequests.Count + 1).ToString());
+            var tTenantRequest = new TenantRequest(this, (RequestsNum  + 1).ToString());
             tTenantRequest.ChangeStatus( TenantRequestStatusEnum.RequestReceived ,tenantRequestDoc);
 
             _activeRequests.Add(tTenantRequest);

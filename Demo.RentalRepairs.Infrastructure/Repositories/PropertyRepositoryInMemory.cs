@@ -7,6 +7,7 @@ using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Core.Services;
 using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.Entities.Extensions;
+using Demo.RentalRepairs.Domain.Framework;
 
 namespace Demo.RentalRepairs.Infrastructure.Repositories
 {
@@ -14,32 +15,34 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories
     {
         private readonly Dictionary< string,Property> _properties = new Dictionary<string, Property>();
 
-
+        private readonly List<Tenant> _tenants = new List<Tenant>();
+        private readonly Dictionary<Guid,TenantRequest >  _requests = new Dictionary<Guid, TenantRequest>();
 
 
         public void AddTenantRequest(TenantRequest tenantRequest)
         {
-            // Already added
+            _requests.Add(tenantRequest.Id, tenantRequest);
         }
 
         public void UpdateTenantRequest(TenantRequest tTenantRequest)
         {
-            //Already updated
+            if (!_requests.ContainsKey(tTenantRequest.Id))
+            
+                throw new DomainEntityNotFoundException("tenant_request_not_found",
+                    $"Tenant request not found by id: {tTenantRequest} ");
+           
+             _requests[tTenantRequest.Id] = tTenantRequest;
+            
         }
 
         public TenantRequest GetTenantRequestById(Guid tenantRequestId)
         {
-            foreach (var kvp in _properties)
-            {
-                foreach (var tenant in kvp.Value.Tenants)
-                {
-                    var tenantRequest = tenant.GetActiveRequestById(tenantRequestId);
-                    if (tenantRequest != null)
-                        return tenantRequest;
-                }
-            }
+            if (!_requests.ContainsKey(tenantRequestId))
+                throw new DomainEntityNotFoundException("tenant_request_not_found",
+                    $"Tenant request not found by id: {tenantRequestId} ");
 
-            return null;
+            return _requests[tenantRequestId];
+ 
         }
         
         public IEnumerable<Property> GetAllProperties()
@@ -76,51 +79,36 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories
 
         public IEnumerable<Tenant> GetPropertyTenants(string propertyCode)
         {
-            var property = this.GetPropertyByCode(propertyCode);
-            return property.Tenants;
+            return _tenants.Where(x => x.PropertyCode == propertyCode);
+
         }
         public void AddTenant(Tenant tenant)
         {
-            var property = this.GetPropertyByCode(tenant.Property.Code);
-            if (property.GetTenantByUnitNumber(tenant.UnitNumber) != null)
-                Tenant.DuplicateException(tenant.UnitNumber, property.Code);
-            property.AddTenant(tenant);
+            _tenants.Add(tenant);
+ 
         }
 
         public Tenant GetTenantByUnitNumber(string unitNumber, string propCode)
         {
-            var property = this.GetPropertyByCode(propCode);
-            var tenant =  property.GetTenantByUnitNumber(unitNumber);
-            if (tenant == null)
-                Tenant.NotFoundException(unitNumber, propCode);
+            var tenant = _tenants.FirstOrDefault(x => x.UnitNumber == unitNumber && x.PropertyCode == propCode);
+            if (tenant != null )
+               tenant.RequestsNum = GetTenantRequests(tenant.Id).Count();
             return tenant;
         }
 
- 
-
         public IEnumerable<TenantRequest> GetTenantRequests(Guid tenantId)
         {
-            foreach (var kvp in _properties)
-            {
-                foreach (var tenant in kvp.Value.Tenants)
-                {
-                    if (tenant.Id == tenantId)
-
-                        return tenant.ActiveRequests;
-                }
-            }
-
-            return null;
+            return _requests.Values.Where(x => x.Tenant.Id == tenantId);
 
         }
 
         public TenantRequest GetTenantRequest(string propCode, string tenantUnit, string requestCode)
         {
-            var property = this.GetPropertyByCode(propCode);
 
-            var tenant = property?.GetTenantByUnitNumber(tenantUnit);
-            return tenant?.GetRequestByCode(requestCode);
-           
+            var tenant = this.GetTenantByUnitNumber(tenantUnit, propCode);
+            return   _requests.Values.FirstOrDefault(  x => x.Tenant.Id == tenant.Id && x.Code == requestCode);
+ 
+
         }
 
        

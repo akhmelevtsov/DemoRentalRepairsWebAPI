@@ -47,6 +47,7 @@ namespace Demo.RentalRepairs.Domain.Services
         {
             if (tenant == null)
                 throw new ArgumentException(nameof (tenant ));
+
             var tTenantRequest = tenant.AddRequest(tenantRequestDoc);
             return tTenantRequest;
 

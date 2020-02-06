@@ -53,6 +53,11 @@ namespace Demo.RentalRepairs.Domain.Entities
             Tenant = tenant;
             Code = code;
         }
+        public TenantRequest(Tenant tenant, string code, TenantRequestStatusEnum requestStatus, DateTime dateCreated, Guid idGuid) : this(tenant,code)
+        {
+            _requestStatus = requestStatus;
+            UpdateCreateInfo(dateCreated, idGuid);
+        }
         private void RegisterRequest(TenantRequestDoc tenantRequestDoc)
         {
             
