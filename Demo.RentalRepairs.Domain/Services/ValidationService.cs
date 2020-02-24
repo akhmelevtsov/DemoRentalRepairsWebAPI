@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.Entities.Validators;
+using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Framework;
 using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.Domain.ValueObjects.Validators;
@@ -12,7 +13,8 @@ namespace Demo.RentalRepairs.Domain.Services
 {
     public class ValidationService
     {
-        readonly ValidationRulesService _validationRulesService = new ValidationRulesService();
+        private readonly ValidationRulesService _validationRulesService = new ValidationRulesService();
+
         public  void ValidateProperty( Property property)
         {
 

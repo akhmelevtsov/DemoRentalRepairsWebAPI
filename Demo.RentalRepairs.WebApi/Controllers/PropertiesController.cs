@@ -68,13 +68,13 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         public void Post([BindRequired, FromBody] PropertyModel prop)
         {
             
-            var validator = new PropertyValidator();
+            //var validator = new PropertyValidator();
 
-            var results = validator.Validate(prop);
-            if (!results.IsValid)
-            {
-                throw new DomainValidationException("create_property_validation", results.Errors);
-            }
+            //var results = validator.Validate(prop);
+            //if (!results.IsValid)
+            //{
+            //    throw new DomainValidationException("create_property_validation", results.Errors);
+            //}
             _propertyService.AddProperty(prop.Name, prop.Code, prop.Address, prop.PhoneNumber, prop.Superintendent, prop.Units.ToList() );
         }
         

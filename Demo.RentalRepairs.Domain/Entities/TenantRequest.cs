@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Demo.RentalRepairs.Domain.Enums;
+using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Framework;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
@@ -47,6 +49,7 @@ namespace Demo.RentalRepairs.Domain.Entities
         public ServiceWorkOrder ServiceWorkOrder { get; set; }
         public int ServiceWorkOrderCount { get; set; }
         public string Code { get; set; }
+        public string WorkerEmail { get; set; }
 
         public TenantRequest(Tenant tenant, string code) : base(PropertyDomainService.DateTimeProvider)
         {
@@ -77,8 +80,11 @@ namespace Demo.RentalRepairs.Domain.Entities
         {
             RequestStatus = TenantRequestStatusEnum.WorkScheduled ;
             ServiceWorkOrder = serviceWorkOrder;
-           
+            this.WorkerEmail = serviceWorkOrder.Person.EmailAddress;
+
         }
+
+       
 
         private void ReportWorkIncomplete(ServiceWorkReport serviceWorkReport)
         {

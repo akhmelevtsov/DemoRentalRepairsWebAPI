@@ -69,7 +69,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
             //{
             //    context.Enrollments.Add(e);
             //}
-            context.SaveChanges();
+            //context.SaveChanges();
         }
     }
 }

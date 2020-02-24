@@ -12,7 +12,7 @@ namespace Demo.RentalRepairs.Domain.Services
 {
     public class ValidationRulesService
     {
-        public  ValidationResult ValidateProperty( IPropertyFields property)
+        public  ValidationResult ValidateProperty  ( Property  property)
         {
             var validator = new PropertyValidator();
 

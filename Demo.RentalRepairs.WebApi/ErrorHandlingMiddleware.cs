@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Threading.Tasks;
+using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Framework;
 using Demo.RentalRepairs.WebApi.Models;
 using Microsoft.AspNetCore.Http;

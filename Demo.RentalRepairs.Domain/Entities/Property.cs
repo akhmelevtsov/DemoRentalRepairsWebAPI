@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Framework;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects;
@@ -8,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Demo.RentalRepairs.Domain.Entities
 {
-    public class Property : Entity, IPropertyFields
+    public class Property : Entity //, IPropertyFields
     {
         public string Name { get;   private set; }
         public string Code { get; private set; }
@@ -16,7 +17,11 @@ namespace Demo.RentalRepairs.Domain.Entities
         public string PhoneNumber { get; private set;  }
         public PersonContactInfo Superintendent { get; private set;  }
         public List<string> Units { get; private set; }
+
+        //-------------
+        public string LoginEmail { get; set;  }
         public string NoReplyEmailAddress { get;  set; }
+
 
         //public List<Tenant> Tenants { get; } = new List<Tenant>();
 

@@ -5,46 +5,85 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Demo.RentalRepairs.Core.Services;
+using Demo.RentalRepairs.Domain.Enums;
+using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Framework;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.WebApi.Models;
+using Demo.RentalRepairs.WebMvc.Framework;
 
 namespace Demo.RentalRepairs.WebMvc.Controllers
 {
-    public class PropertiesController : Controller
+    public class PropertiesController : BaseController
     {
         private readonly IPropertyService _propertyService;
+
+        private readonly IUserAuthCoreService _userAuthCoreService;
+
         //private readonly 
-        public PropertiesController(IPropertyService propertyService)
+        public PropertiesController(IPropertyService propertyService, IUserAuthCoreService userAuthCoreService) : base()
         {
             _propertyService = propertyService;
+            _userAuthCoreService = userAuthCoreService;
         }
         public IActionResult Index()
         {
+            SetUser();
+
             var list = _propertyService.GetAllProperties().Select(s => s.BuildModel()).ToList();
             return View(list);
+        }
+
+        private void SetUser()
+        {
+            var loggedUser = HttpContext.Session.GetComplexData<LoggedUser>("LoggedUser");
+            if (loggedUser == null)
+            {
+                loggedUser = _userAuthCoreService.SetUser(UserRolesEnum.Superintendent, "super@email.com");
+                HttpContext.Session.SetComplexData("LoggedUser", loggedUser);
+            }
+            else
+            {
+                _userAuthCoreService.SetUser(loggedUser);
+            }
+        }
+
+        public IActionResult Details(string id)
+        {
+            SetUser();
+            var tenant = _propertyService.GetPropertyByCode( id ).BuildModel();
+
+
+            if (tenant == null)
+            {
+                return NotFound();
+            }
+
+            return View(tenant);
         }
         // GET: Movies/Create
         public IActionResult Create()
         {
+            SetUser();
             var model =  new PropertyModel()
             {
-                Code = "moonlight",
-                Name = "Moonlight Apartments",
-                Address = new PropertyAddress() { StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5" },
-                NoReplyEmailAddress =
-                    "",
-                PhoneNumber = "905-111-1111",
-                Superintendent = new PersonContactInfo()
-                {
-                    EmailAddress = "propertymanagement@moonlightapartments.com",
-                    FirstName = "John",
-                    LastName = "Smith",
-                    MobilePhone = "647-222-5321"
-                },
-                Units = new List<string> { "11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34" },
-                UnitsStr = "11,12,13,14, 21, 22, 23, 24, 31, 32, 33, 34"
+                //Code = "moonlight",
+                //Name = "Moonlight Apartments",
+                //Address = new PropertyAddress() { StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5" },
+                //NoReplyEmailAddress =
+                //    "",
+                //PhoneNumber = "905-111-1111",
+                //Superintendent = new PersonContactInfo()
+                //{
+                //    EmailAddress = "propertymanagement@moonlightapartments.com",
+                //    FirstName = "John",
+                //    LastName = "Smith",
+                //    MobilePhone = "647-222-5321"
+                //},
+                //Units = new List<string> { "11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34" },
+                //UnitsStr = "11,12,13,14, 21, 22, 23, 24, 31, 32, 33, 34"
 
             };
             return View(model);
@@ -57,6 +96,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult Create( PropertyModel  prop)
         {
+            SetUser();
             if (!ModelState.IsValid)
             { // re-render the view when validation failed.
                 return View("Create", prop);
@@ -93,7 +133,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             {
                 ModelState.AddModelError("", dex.Message);
                 return View("Create", prop);
-                // ModelState.AddModelError
+               
             }
             catch (Exception ex)
             {
@@ -103,21 +143,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
 
 
-            //var service = new ValidationRulesService();
-
-            //var result = service.ValidateProperty(prop);
-
-            //if (result.IsValid == false)
-            //{
-               
-
-            //}
-            //ModelState.ClearValidationState();
-            //ModelState.AddModelError("Name", "Bad name");
-            //return View(prop);
            
-            //_propertyService.AddProperty(prop.Name, prop.Code, prop.Address, prop.PhoneNumber, prop.Superintendent, prop.Units.ToList());
-            //TempData["notice"] = "Person successfully created";
             return RedirectToAction("Index");
         }
 

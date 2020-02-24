@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Core.Services;
 using Demo.RentalRepairs.Domain.Entities;
+using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
@@ -140,8 +141,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
         public void AllPathsTestWithEntityFrameworkRepo()
         {
 
-
-            var connectionString = "Server=(localdb)\\mssqllocaldb; Database = PropertiesTest; Trusted_Connection = True; MultipleActiveResultSets = true";
+            const string connectionString = "Server=(localdb)\\mssqllocaldb; Database = PropertiesTest; Trusted_Connection = True; MultipleActiveResultSets = true";
 
             var optionsBuilder = new DbContextOptionsBuilder<PropertiesContext>();
             optionsBuilder.UseSqlServer(connectionString);
@@ -165,10 +165,17 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
             
         }
 
-        private static void TestEverythingWithRepo(IPropertyRepository repo, NotifyPartiesServiceMock ntfService)
+        private static void TestEverythingWithRepo(IPropertyRepository repo, INotifyPartiesService ntfService)
         {
-            var propService = new PropertyService(repo, ntfService);
 
+            var authorizationService = new UserAuthCoreService(repo, new UserAuthDomainService() );
+            var propService = new PropertyService(repo, ntfService, authorizationService);
+            const string superintendentLogin = "super@email.com";
+            const string tenantLogin = "tenant@email.com";
+            const string workerLogin = "worker@email.com";
+
+            authorizationService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
+           
             var prop = propService.AddProperty("Moonlight Apartments", "moonlight",
                 new PropertyAddress()
                     {StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5"},
@@ -181,6 +188,8 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                     MobilePhone = "905-111-1112"
                 }, new List<string>() {"11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34"});
 
+            authorizationService.SetUser(UserRolesEnum.Tenant, tenantLogin  );
+
             var tenant = propService.AddTenant(prop.Code,
                 new PersonContactInfo()
                 {
@@ -189,7 +198,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                 },
                 "21"
             );
-
+            authorizationService.SetUser(UserRolesEnum.Tenant, tenantLogin);
             var tenantRequest = propService.RegisterTenantRequest(prop.Code, tenant.UnitNumber,
                 new TenantRequestDoc()
                 {
@@ -197,13 +206,14 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                 });
 
             var trId = tenantRequest.Id;
+            authorizationService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.WorkScheduled,
                 new ServiceWorkOrder()
                 {
                     Person = new PersonContactInfo()
                     {
-                        LastName = "Douglas", FirstName = "Jordan", EmailAddress = "worker@Workers.com",
+                        LastName = "Douglas", FirstName = "Jordan", EmailAddress = workerLogin,
                         MobilePhone = "647-222-2222"
                     },
                     ServiceDate = DateTime.Today,
@@ -211,19 +221,23 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                     WorkerId = Guid.NewGuid()
                 });
             Assert.AreEqual(trId, tenantRequest.Id);
-
+            authorizationService.SetUser(UserRolesEnum.Worker,workerLogin );
             tenantRequest =
                 propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                     TenantRequestStatusEnum.WorkCompleted, new ServiceWorkReport() {Notes = "All done"});
 
+            authorizationService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.Closed, null);
 
+            authorizationService.SetUser(UserRolesEnum.Tenant, tenantLogin);
             tenantRequest = propService.RegisterTenantRequest(prop.Code, tenant.UnitNumber,
                 new TenantRequestDoc()
                 {
                     RequestItems = new string[] {"Kitchen desk replace"},
                 });
+
+            authorizationService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.WorkScheduled,
                 new ServiceWorkOrder()
@@ -237,10 +251,13 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                     WorkOrderNo = 1,
                     WorkerId = Guid.NewGuid()
                 });
+
+            authorizationService.SetUser(UserRolesEnum.Worker, workerLogin);
             tenantRequest =
                 propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                     TenantRequestStatusEnum.WorkIncomplete, new ServiceWorkReport() {Notes = "Can't come"});
 
+            authorizationService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.WorkScheduled,
                 new ServiceWorkOrder()
@@ -254,59 +271,35 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                     WorkOrderNo = 1,
                     WorkerId = Guid.NewGuid()
                 });
+
+            authorizationService.SetUser(UserRolesEnum.Worker, workerLogin);
             tenantRequest =
                 propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                     TenantRequestStatusEnum.WorkCompleted, new ServiceWorkReport() {Notes = "All done"});
+
+            authorizationService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             tenantRequest =
                 propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                     TenantRequestStatusEnum.Closed, null);
 
+            authorizationService.SetUser(UserRolesEnum.Tenant, tenantLogin);
             tenantRequest = propService.RegisterTenantRequest(prop.Code, tenant.UnitNumber,
                 new TenantRequestDoc()
                 {
                     RequestItems = new string[] {"Full renovation needed"},
                 });
 
+            authorizationService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.RequestRejected, new TenantRequestRejectNotes() {Notes = "We can't do that"});
 
+            authorizationService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.Closed, null);
+
+            propService.GetPropertyTenants("moonlight");
         }
 
-        [TestMethod]
-        public void TestDomainValidations()
-        {
-            var propService = new PropertyDomainService();
-
-            var prop = propService.CreateProperty("moonlight", "moonlight",
-                new PropertyAddress()
-                    {StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5"},
-                "905-111-1111",
-                new PersonContactInfo()
-                {
-                    EmailAddress = "propertymanagement@moonlightapartments.com",
-                    FirstName = "John",
-                    LastName = "Smith",
-                    MobilePhone = "905-111-1111"
-                }, new List<string>() {"11" , "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34"});
-            var tenant = propService.AddTenant(prop,
-                new PersonContactInfo()
-                {
-                    EmailAddress = "tenant123@hotmail.com",
-                    FirstName = "John",
-                    LastName = "Tenant",
-                    MobilePhone = "222-222-2222"
-                },
-                "22"
-            );
-
-        }
-
-        [TestMethod]
-        public void TestDomainUnitValidation()
-        {
-
-        }
+ 
     }
 }

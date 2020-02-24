@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<Demo.RentalRepairs.WebApi.Models.TenantModel>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Property Tenants";
 }
 
-<h1>Index</h1>
+<h4>Property Tenants</h4>
 
 <p>
     <a asp-action="Register">Register New Tenant</a>
@@ -14,6 +14,18 @@
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.UnitNumber)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ContactInfo.LastName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ContactInfo.FirstName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ContactInfo.MobilePhone )
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ContactInfo.EmailAddress )
             </th>
             <th></th>
         </tr>
@@ -25,8 +37,20 @@
                 @Html.DisplayFor(modelItem => item.UnitNumber)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.ContactInfo.LastName  )
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ContactInfo.FirstName   )
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ContactInfo.MobilePhone   )
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ContactInfo.EmailAddress    )
+            </td>
+            <td>
                 @Html.ActionLink("Edit", "Edit", new { /* id=item.PrimaryKey */ }) |
-                @Html.ActionLink("Details", "Details", new { /* id=item.PrimaryKey */ }) |
+                @Html.ActionLink("Details", "Details", new { propCode="moonlight", unitNumber="21" }) |
                 @Html.ActionLink("Delete", "Delete", new { /* id=item.PrimaryKey */ })
             </td>
         </tr>

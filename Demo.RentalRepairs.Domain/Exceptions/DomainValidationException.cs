@@ -2,7 +2,7 @@
 using FluentValidation;
 using FluentValidation.Results;
 
-namespace Demo.RentalRepairs.Domain.Framework
+namespace Demo.RentalRepairs.Domain.Exceptions
 {
     public class DomainValidationException : ValidationException
     {

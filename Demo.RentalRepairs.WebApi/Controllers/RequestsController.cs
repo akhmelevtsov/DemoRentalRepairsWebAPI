@@ -2,6 +2,7 @@
 using System.Linq;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Entities;
+using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
 using Demo.RentalRepairs.WebApi.Models;
 using Demo.RentalRepairs.WebApi.Swagger.Examples;

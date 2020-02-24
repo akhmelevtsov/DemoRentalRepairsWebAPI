@@ -1,4 +1,4 @@
-﻿namespace Demo.RentalRepairs.Domain.Entities
+﻿namespace Demo.RentalRepairs.Domain.Enums
 {
     public enum TenantRequestActionEnum
     {

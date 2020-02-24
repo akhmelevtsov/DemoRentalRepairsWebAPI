@@ -17,7 +17,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF.Entities
        
         public PersonContactInfo Superintendent { get;  set; }
         public string NoReplyEmailAddress { get; set; }
-
+        public string LoginEmail { get; set; }
         public ICollection<TenantTbl> Tenants { get; set; }
      
         public string Units { get;  set; }  //List<string>

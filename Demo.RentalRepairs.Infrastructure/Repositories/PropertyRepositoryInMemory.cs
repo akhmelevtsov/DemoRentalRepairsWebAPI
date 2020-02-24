@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Demo.RentalRepairs.Core.Exceptions;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Core.Services;
 using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.Entities.Extensions;
+using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Framework;
 
 namespace Demo.RentalRepairs.Infrastructure.Repositories
@@ -18,6 +18,11 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories
         private readonly List<Tenant> _tenants = new List<Tenant>();
         private readonly Dictionary<Guid,TenantRequest >  _requests = new Dictionary<Guid, TenantRequest>();
 
+
+        public Property FindPropertyByLoginEmail(string emailAddress)
+        {
+            return _properties.Values.FirstOrDefault(x => x.LoginEmail == emailAddress);
+        }
 
         public void AddTenantRequest(TenantRequest tenantRequest)
         {
@@ -33,6 +38,18 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories
            
              _requests[tTenantRequest.Id] = tTenantRequest;
             
+        }
+
+        public Tenant FindTenantByLoginEmail(string emailAddress)
+        {
+            return _tenants.FirstOrDefault(x => x.LoginEmail  == emailAddress);
+        }
+
+        public Worker FindWorkerByLoginEmail(string emailAddress)
+        {
+            var request = _requests.Values.FirstOrDefault(x =>
+                (x.ServiceWorkOrder != null && x.ServiceWorkOrder?.Person?.EmailAddress == emailAddress));
+            return request == null ? null : new Worker() {PersonContactInfo = request.ServiceWorkOrder.Person};
         }
 
         public TenantRequest GetTenantRequestById(Guid tenantRequestId)

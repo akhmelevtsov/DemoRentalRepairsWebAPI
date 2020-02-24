@@ -1,4 +1,5 @@
 ﻿using Demo.RentalRepairs.Domain.Entities.Validators;
+using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Framework;
 using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.Domain.ValueObjects.Validators;

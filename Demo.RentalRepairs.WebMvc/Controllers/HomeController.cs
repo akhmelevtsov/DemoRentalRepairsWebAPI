@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Demo.RentalRepairs.Domain.Enums;
+using Demo.RentalRepairs.Domain.ValueObjects;
+using Demo.RentalRepairs.WebMvc.Framework;
 using Microsoft.AspNetCore.Mvc;
 using Demo.RentalRepairs.WebMvc.Models;
 
@@ -10,6 +13,10 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 {
     public class HomeController : Controller
     {
+        public HomeController()
+        {
+           
+        }
         public IActionResult Index()
         {
             return View();

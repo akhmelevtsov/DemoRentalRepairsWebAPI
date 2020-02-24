@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using Demo.RentalRepairs.Domain.Entities;
+using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
 
 namespace Demo.RentalRepairs.Infrastructure.Repositories.EF.Entities
@@ -19,6 +20,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF.Entities
         public string ServiceWorkOrder { get; set; }    //ServiceWorkOrder
         public int ServiceWorkOrderCount { get; set; }
         public string Code { get; set; }
+        public string WorkerEmail { get; set; }
         public DateTime DateCreated { get; set; }
     }
 }

@@ -15,10 +15,13 @@ namespace Demo.RentalRepairs.Core.Interfaces
         IEnumerable<Tenant> GetPropertyTenants(string propertyCode);
 
         IEnumerable<TenantRequest> GetTenantRequests(Guid tenantId);
+        Property  FindPropertyByLoginEmail(string emailAddress);
         void AddTenantRequest(TenantRequest tTenantRequest);
         TenantRequest GetTenantRequest(string propCode, string tenantUnit, string requestCode);
         TenantRequest GetTenantRequestById(Guid tenantRequestId);
         void UpdateTenantRequest(TenantRequest tTenantRequest);
 
+        Tenant FindTenantByLoginEmail(string emailAddress);
+        Worker FindWorkerByLoginEmail(string emailAddress);
     }
 }

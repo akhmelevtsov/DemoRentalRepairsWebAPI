@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
 
 namespace Demo.RentalRepairs.Domain.Entities.Extensions

@@ -5,7 +5,7 @@ using FluentValidation;
 
 namespace Demo.RentalRepairs.Domain.Entities.Validators
 {
-    public class PropertyValidator : AbstractValidator<IPropertyFields>
+    public class PropertyValidator : AbstractValidator<Property>
     {
         public PropertyValidator()
         {

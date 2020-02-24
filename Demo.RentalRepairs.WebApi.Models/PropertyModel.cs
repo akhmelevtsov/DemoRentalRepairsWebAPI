@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 
 namespace Demo.RentalRepairs.WebApi.Models
 {
-    public class PropertyModel : IPropertyFields
+    public class PropertyModel //: IPropertyFields
     {
         //[Required]
         public string Name { get; set; }

@@ -10,6 +10,7 @@
     <PackageReference Include="FluentValidation.AspNetCore" Version="8.6.1" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.2.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
@@ -20,6 +21,11 @@
     <ProjectReference Include="..\Demo.RentalRepairs.Core\Demo.RentalRepairs.Core.csproj" />
     <ProjectReference Include="..\Demo.RentalRepairs.Infrastructure\Demo.RentalRepairs.Infrastructure.csproj" />
     <ProjectReference Include="..\Demo.RentalRepairs.WebApi.Models\Demo.RentalRepairs.WebApi.Models.csproj" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <Folder Include="Data\Migrations\" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Demo.RentalRepairs.Domain.Framework
+namespace Demo.RentalRepairs.Domain.Exceptions
 {
     public class DomainException : Exception
     {

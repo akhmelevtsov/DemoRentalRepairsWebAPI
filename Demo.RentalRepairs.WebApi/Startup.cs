@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Core.Services;
+using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Infrastructure.Mocks;
 using Demo.RentalRepairs.Infrastructure.Repositories;
 using Demo.RentalRepairs.Infrastructure.Repositories.EF;
@@ -55,9 +56,12 @@ namespace Demo.RentalRepairs.WebApi
                 //c.EnableAnnotations();
                 c.OrderActionsBy((apiDesc) => $"{apiDesc.SupportedRequestFormats}");
             });
+            services.AddTransient<IUserAuthDomainService, UserAuthDomainMockService>();
+            services.AddTransient<IUserAuthCoreService, UserAuthorizationMockService>();
+            services.AddTransient<IPropertyRepository, PropertyRepositoryEntityFramework>();
 
-            services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory >();
-            services.AddSingleton<INotifyPartiesService, NotifyPartiesServiceMock>();
+            //services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory >();
+            services.AddTransient<INotifyPartiesService, NotifyPartiesServiceMock>();
             services.AddTransient<IPropertyService, PropertyService>();
         }
 

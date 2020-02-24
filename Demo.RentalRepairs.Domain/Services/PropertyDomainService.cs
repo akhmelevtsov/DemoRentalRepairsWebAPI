@@ -11,24 +11,22 @@ namespace Demo.RentalRepairs.Domain.Services
     public class PropertyDomainService
     {
         public static  IDateTimeProvider DateTimeProvider { get; private set; }
-
-        public PropertyDomainService()
-        {
-            DateTimeProvider = new DateTimeProvider();
-        }
-
-        public PropertyDomainService(IDateTimeProvider dateTimeProvider)
-        {
-            DateTimeProvider = dateTimeProvider;
-        }
         readonly ValidationService _validationService = new ValidationService();
+
+       
+
+        public PropertyDomainService(IDateTimeProvider dateTimeProvider = null)
+        {
+
+            DateTimeProvider = dateTimeProvider ?? new DateTimeProvider();
+        }
 
         public Property CreateProperty(string name, string code, PropertyAddress propertyAddress, string phoneNumber,
             PersonContactInfo superintendentInfo, List<string> units)
         {
             var prop = new Property(name, code, phoneNumber, propertyAddress, superintendentInfo, units);
             _validationService.ValidateProperty(prop);
-            //prop.Validate();
+            
             return prop;
         }
 
@@ -37,7 +35,7 @@ namespace Demo.RentalRepairs.Domain.Services
            
             var tenant = new Tenant(property, contactInfo, unitNumber);
             _validationService.ValidateTenant(tenant);
-            //tenant.Validate();
+           
            
             return tenant;
 

@@ -12,7 +12,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF.Entities
         public string  PropertyTblID { get; set; }  //Code
         public PropertyTbl Property { get; set; }
         public string UnitNumber { get;  set; }
-
+        public string LoginEmail { get; set; }
         public  ICollection<TenantRequestTbl> Requests { get; set; }
         public DateTime DateCreated { get; set; }
 

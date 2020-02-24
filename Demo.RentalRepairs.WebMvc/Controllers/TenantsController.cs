@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Interfaces;
+using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Framework;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.WebApi.Models;
@@ -32,26 +33,49 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             _propertyService = propertyService;
         }
 
+
+        public IActionResult Index()
+        {
+            
+
+            List<TenantModel> list = null;
+            //try
+            //{
+                list = _propertyService.GetPropertyTenants("moonlight").Select(s => s.BuildModel()).ToList();
+            //}
+            //catch (DomainAuthorizationException ex1)
+            //{
+            //   //
+            //}
+
+            return View(list);
+        }
+
        
+        public IActionResult Details(string propCode, string unitNumber)
+        {
+
+            var tenant = _propertyService.GetTenantByPropertyUnit(propCode, unitNumber).BuildModel() ;
+
+         
+            if (tenant == null)
+            {
+                return NotFound();
+            }
+
+            return View(tenant);
+        }
         [HttpGet]
         public ActionResult GetUnits(string propCode)
         {
             var validationResult = _validationRulesService.ValidatePropertyCode(propCode);
 
-            if (validationResult.IsValid )
+            if (validationResult.IsValid)
             {
                 var units = GetUnitListItems(propCode);
                 return Json(units);
             }
             return null;
-        }
-
-   
-
-        public IActionResult Index()
-        {
-
-            return View(new List<TenantModel>());
         }
         // GET: Tenants/Register
         public IActionResult Register()

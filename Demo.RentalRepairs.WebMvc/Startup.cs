@@ -1,26 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Core.Services;
-using Demo.RentalRepairs.Domain.Entities.Validators;
+using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Infrastructure.Mocks;
-using Demo.RentalRepairs.Infrastructure.Repositories;
 using Demo.RentalRepairs.Infrastructure.Repositories.EF;
-using Demo.RentalRepairs.WebApi.Models;
-using FluentValidation;
-using FluentValidation.AspNetCore;
-
+using Demo.RentalRepairs.WebMvc.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.FileSystemGlobbing.Abstractions;
 
 namespace Demo.RentalRepairs.WebMvc
 {
@@ -42,6 +35,14 @@ namespace Demo.RentalRepairs.WebMvc
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("DefaultConnection")));
+            services.AddDefaultIdentity<IdentityUser>()
+                .AddDefaultUI(UIFramework.Bootstrap4)
+                .AddEntityFrameworkStores<ApplicationDbContext>();
+
             services.AddDbContext<PropertiesContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DemoRentalRepairsWebMvcContext")));
@@ -54,10 +55,17 @@ namespace Demo.RentalRepairs.WebMvc
             //        fv.ImplicitlyValidateChildProperties = true;
 
             //    });
+            services.AddSession(options => {
+                options.IdleTimeout = TimeSpan.FromMinutes(10);
+            });
             ////services.AddTransient<IValidator<PropertyModel>, PropertyValidator>();
             //services.AddTransient<IValidator<PropertyCodeValidator>>();
-            services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();
-            //services.AddTransient<IPropertyRepository, PropertyRepositoryEntityFramework>();
+            services.AddTransient<IUserAuthDomainService, UserAuthDomainMockService>();
+            //services.AddTransient<IUserAuthDomainService, UserAuthDomainService>();
+            services.AddTransient<IUserAuthCoreService, UserAuthorizationMockService>();
+            //services.AddTransient<IUserAuthCoreService, UserAuthCoreService>();
+            //services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();
+            services.AddTransient<IPropertyRepository, PropertyRepositoryEntityFramework>();
             services.AddTransient<INotifyPartiesService, NotifyPartiesServiceMock>();
             services.AddTransient<IPropertyService, PropertyService>();
         }
@@ -79,12 +87,14 @@ namespace Demo.RentalRepairs.WebMvc
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-
+            app.UseAuthentication();
+            app.UseSession();
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=Home}/{action=Index}/{id:alpha?}");
+               
             });
         }
     }

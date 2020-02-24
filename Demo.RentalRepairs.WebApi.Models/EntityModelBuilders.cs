@@ -37,7 +37,9 @@ namespace Demo.RentalRepairs.WebApi.Models
         {
             return new TenantRequestModel()
             {
+                RequestCode = tenantRequest.Code,
                 RequestStatus = tenantRequest.RequestStatus,
+                DateCreated = tenantRequest.DateCreated ,
                 RejectNotes = tenantRequest.RejectNotes,
                 RequestDoc = tenantRequest.RequestDoc,
                 ServiceWorkOrder = tenantRequest.ServiceWorkOrder,
