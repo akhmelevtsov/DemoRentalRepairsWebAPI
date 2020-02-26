@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Core.Services;
 using Demo.RentalRepairs.Domain.Services;
@@ -39,7 +40,13 @@ namespace Demo.RentalRepairs.WebMvc
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDefaultIdentity<IdentityUser>()
+
+            //services.AddDefaultIdentity<IdentityUser>()
+            //    .AddDefaultUI(UIFramework.Bootstrap4)
+            //    .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            services.AddDefaultIdentity<ApplicationUser>()
+                .AddRoles<IdentityRole>()
                 .AddDefaultUI(UIFramework.Bootstrap4)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -71,7 +78,7 @@ namespace Demo.RentalRepairs.WebMvc
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -96,6 +103,25 @@ namespace Demo.RentalRepairs.WebMvc
                     template: "{controller=Home}/{action=Index}/{id:alpha?}");
                
             });
+            //CreateUserRoles(serviceProvider).Wait();
+        }
+        private async Task CreateUserRoles(IServiceProvider serviceProvider)
+        {
+            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+            IdentityResult roleResult;
+            //Adding Admin Role
+            var roleCheck = await roleManager.RoleExistsAsync("Admin");
+            if (!roleCheck)
+            {
+                //create the roles and seed them to the database
+                roleResult = await roleManager.CreateAsync(new IdentityRole("Admin"));
+            }
+            //Assign Admin role to the main User here we have given our newly registered 
+            //login id for Admin management
+            ApplicationUser user = await userManager.FindByEmailAsync("a@email.com");
+            await userManager.AddToRoleAsync(user, "Admin");
         }
     }
 }

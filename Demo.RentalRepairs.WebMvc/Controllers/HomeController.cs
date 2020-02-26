@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Demo.RentalRepairs.Domain.Enums;
-using Demo.RentalRepairs.Domain.ValueObjects;
-using Demo.RentalRepairs.WebMvc.Framework;
+﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Demo.RentalRepairs.WebMvc.Models;
 
