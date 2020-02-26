@@ -29,39 +29,7 @@ namespace Demo.RentalRepairs.Core.Services
             _authService = authorizationService;
         }
 
-        //public void SetLoggedUser(LoggedUser userObject)
-        //{
-        //   _authorizationService.AuthDomainService.LoggedUser = userObject;
-        //}
-
-        //public void LoginToService(UserRolesEnum userRole, string emailAddress)
-        //{
-        //    switch (userRole)
-        //    {
-        //        case UserRolesEnum.Superintendent:
-        //            var prop = _propertyRepository.FindPropertyByLoginEmail(emailAddress);
-        //            // if not found, property is not registered yet
-        //           _authorizationService.AuthDomainService.LoggedUser = prop == null ? new LoggedUser(emailAddress, UserRolesEnum.Superintendent) : new LoggedUser(emailAddress, UserRolesEnum.Superintendent, propCode: prop.Code);
-        //            break;
-        //        case UserRolesEnum.Tenant:
-        //            var tenant = _propertyRepository.FindTenantByLoginEmail(emailAddress);
-        //            // if not found, tenant is not registered yet
-        //           _authorizationService.AuthDomainService.LoggedUser = tenant == null ? new LoggedUser(emailAddress, UserRolesEnum.Tenant ) : new LoggedUser(emailAddress, UserRolesEnum.Tenant , propCode: tenant.PropertyCode, unitNumber: tenant.UnitNumber );
-        //            break;
-        //        case UserRolesEnum.Worker :
-        //            var worker = _propertyRepository.FindWorkerByLoginEmail(emailAddress);
-        //            // if not found, tenant is not registered yet
-        //           _authorizationService.AuthDomainService.LoggedUser = worker == null
-        //                ? new LoggedUser(emailAddress, UserRolesEnum.Worker)
-        //                : new LoggedUser(emailAddress, UserRolesEnum.Worker) { };
-        //            break;
-
-        //        default:
-        //           _authorizationService.AuthDomainService.LoggedUser = new LoggedUser(emailAddress, userRole);
-        //            break;
-        //    }
-        //}
-        // property
+     
         public IEnumerable<Property> GetAllProperties()
         {
             _authService.AuthDomainService.VerifyUserAuthorizedFor_ListOfProperties();
