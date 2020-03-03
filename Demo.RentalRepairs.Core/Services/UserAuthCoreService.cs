@@ -38,7 +38,7 @@ namespace Demo.RentalRepairs.Core.Services
                     break;
                 case UserRolesEnum.Worker:
                     var worker = _propertyRepository.FindWorkerByLoginEmail(emailAddress);
-                    // if not found, tenant is not registered yet
+                    // if not found, worker is not registered yet
                     _authDomainService.LoggedUser = worker == null
                         ? new LoggedUser(emailAddress, UserRolesEnum.Worker)
                         : new LoggedUser(emailAddress, UserRolesEnum.Worker) { };

@@ -1,9 +1,12 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Demo.RentalRepairs.WebMvc.Models.AccountViewModels
 {
     public class RegisterViewModel
     {
+        public List<SelectListItem> Roles { get; set; }
         [Required]
         [EmailAddress]
         [Display(Name = "Email")]
@@ -19,5 +22,8 @@ namespace Demo.RentalRepairs.WebMvc.Models.AccountViewModels
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
+        [Required]
+        [Display(Name = "Register As")]
+        public string SelectedRole { get; set; }
     }
 }

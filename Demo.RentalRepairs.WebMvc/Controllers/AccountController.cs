@@ -1,14 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.WebMvc.Data;
 using Demo.RentalRepairs.WebMvc.Extensions;
+using Demo.RentalRepairs.WebMvc.Models;
 using Demo.RentalRepairs.WebMvc.Models.AccountViewModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 
 namespace Demo.RentalRepairs.WebMvc.Controllers
@@ -19,17 +24,21 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
         private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
+            RoleManager<IdentityRole> roleManager,
             IEmailSender emailSender,
             ILogger<AccountController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
             _emailSender = emailSender;
             _logger = logger;
         }
@@ -62,6 +71,10 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
+                    // Resolve the user via their email
+                    var user = await _userManager.FindByEmailAsync(model.Email);
+                    // Get the roles for the user
+                    var roles = await _userManager.GetRolesAsync(user);
                     return RedirectToLocal(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
@@ -205,10 +218,32 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [AllowAnonymous]
         public IActionResult Register(string returnUrl = null)
         {
+
+
+            var viewModel = new RegisterViewModel()
+            {
+                Roles = GetRoleDropDownItems()
+            };
             ViewData["ReturnUrl"] = returnUrl;
-            return View();
+            return View(viewModel);
         }
 
+
+
+        private List<SelectListItem> GetRoleDropDownItems()
+        {
+            var list = new List<string> { UserRolesEnum.Tenant.ToString(), UserRolesEnum.Superintendent.ToString() }
+                .Select(x => new SelectListItem() { Value = x, Text = x }).ToList();
+
+            //list = new List<SelectListItem>() {new SelectListItem() {Value = "1", Text = "Superintendent"}, new SelectListItem() { Value = 0, Text = "Tenant"}};
+            //var ddTip = new SelectListItem()
+            //{
+            //    Value = null,
+            //    Text = "User Role"
+            //};
+            //list.Insert(0, ddTip);
+            return list;
+        }
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -221,11 +256,24 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
+
+                        var roleCheck = await _roleManager.RoleExistsAsync(model.SelectedRole);
+                        if (!roleCheck)
+                        {
+                            //create the roles and seed them to the database
+                            var roleResult = await _roleManager.CreateAsync(new IdentityRole(model.SelectedRole));
+                           
+                        }
+
+                        user = await _userManager.FindByEmailAsync(model.Email);
+                        await _userManager.AddToRoleAsync(user, model.SelectedRole);
+                    
+
                     _logger.LogInformation("User created a new account with password.");
 
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
-                    await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
+                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    //var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
+                    //await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     _logger.LogInformation("User created a new account with password.");
