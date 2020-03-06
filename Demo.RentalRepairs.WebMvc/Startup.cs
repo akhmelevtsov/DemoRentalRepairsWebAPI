@@ -67,8 +67,7 @@ namespace Demo.RentalRepairs.WebMvc
             });
             ////services.AddTransient<IValidator<PropertyModel>, PropertyValidator>();
             //services.AddTransient<IValidator<PropertyCodeValidator>>();
-            services.AddTransient<IUserAuthDomainService, UserAuthDomainMockService>();
-            //services.AddTransient<IUserAuthDomainService, UserAuthDomainService>();
+           
             services.AddTransient<IUserAuthCoreService, UserAuthorizationMockService>();
             //services.AddTransient<IUserAuthCoreService, UserAuthCoreService>();
             //services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();
