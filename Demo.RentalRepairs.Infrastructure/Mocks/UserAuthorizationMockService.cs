@@ -8,7 +8,7 @@ using Demo.RentalRepairs.Domain.ValueObjects;
 
 namespace Demo.RentalRepairs.Infrastructure.Mocks
 {
-    public class UserAuthorizationMockService : IUserAuthCoreService
+    public class UserAuthorizationMockService : IUserAuthorizationService
     {
         public UserAuthorizationMockService()
         {
@@ -29,48 +29,63 @@ namespace Demo.RentalRepairs.Infrastructure.Mocks
             
         }
 
-        public void VerifyUserAuthorizedFor_ChangeTenantRequestStatus(string propCode, string tenantUnit,
+        public void UserCanChangeTenantRequestStatus(TenantRequestStatusEnum newStatus)
+        {
+            
+        }
+
+        public void UserCanChangeTenantRequestStatus(string propCode, string tenantUnit,
             TenantRequestStatusEnum newStatus)
         {
             
         }
 
-        public void VerifyUserAuthorizedFor_ListOfProperties()
+        public void UserCanGetListOfProperties()
         {
             
         }
 
-        public void VerifyUserAuthorizedFor_ListOfPropertyTenants(string propertyCode)
+        public void UserCanGetListOfPropertyTenants(string propertyCode)
         {
             
         }
 
-        public void VerifyUserAuthorizedFor_ListOfTenantRequests(string propertyCode, string tenantUnit)
+        public void UserCanGetListOfTenantRequests()
+        {
+           
+        }
+
+        public void UserCanGetListOfTenantRequests(string propertyCode, string tenantUnit)
         {
             
         }
 
-        public void VerifyUserAuthorizedFor_PropertyDetails(string propCode)
+        public void UserCanGetPropertyDetails(string propCode)
         {
             
         }
 
-        public void VerifyUserAuthorizedFor_RegisterProperty()
+        public void UserCanRegisterProperty()
         {
             
         }
 
-        public void VerifyUserAuthorizedFor_RegisterTenant(string propertyCode, string unitNumber)
+        public void UserCanRegisterTenant()
+        {
+           
+        }
+
+        public void UserCanRegisterTenant(string unitNumber)
         {
             
         }
 
-        public void VerifyUserAuthorizedFor_RegisterTenantRequest(string propCode, string tenantUnit)
+        public void UserCanRegisterTenantRequest(string propCode, string tenantUnit)
         {
             
         }
 
-        public void VerifyUserAuthorizedFor_TenantDetails(string propertyCode, string propertyUnit)
+        public void UserCanGetTenantDetails(string propertyCode, string propertyUnit)
         {
             
         }

@@ -14,14 +14,14 @@ namespace Demo.RentalRepairs.Core.Services
     {
         private readonly IPropertyRepository _propertyRepository;
         private readonly INotifyPartiesService _notifyPartiesService;
-        private readonly IUserAuthCoreService _authService;
+        private readonly IUserAuthorizationService _authService;
         private readonly PropertyDomainService _propertyDomainService = new PropertyDomainService();
 
-        private readonly ValidationService _validationService = new ValidationService();
-      
-       
-        
-        public PropertyService(IPropertyRepository propertyRepository, INotifyPartiesService notifyPartiesService, IUserAuthCoreService authorizationService)
+        private readonly DomainValidationService _validationService = new DomainValidationService();
+
+
+
+        public PropertyService(IPropertyRepository propertyRepository, INotifyPartiesService notifyPartiesService, IUserAuthorizationService authorizationService)
         {
 
             _propertyRepository = propertyRepository;
@@ -29,30 +29,65 @@ namespace Demo.RentalRepairs.Core.Services
             _authService = authorizationService;
         }
 
-     
+        public LoggedUser GetUser(UserRolesEnum userRole, string emailAddress)
+        {
+            LoggedUser loggedUser = null;
+            switch (userRole)
+            {
+                case UserRolesEnum.Superintendent:
+                    var prop = _propertyRepository.FindPropertyByLoginEmail(emailAddress);
+                    // if not found, property is not registered yet
+                    loggedUser = prop == null ? new LoggedUser(emailAddress, UserRolesEnum.Superintendent) : new LoggedUser(emailAddress, UserRolesEnum.Superintendent, propCode: prop.Code);
+                    break;
+                case UserRolesEnum.Tenant:
+                    var tenant = _propertyRepository.FindTenantByLoginEmail(emailAddress);
+                    // if not found, tenant is not registered yet
+                    loggedUser = tenant == null ? new LoggedUser(emailAddress, UserRolesEnum.Tenant) : new LoggedUser(emailAddress, UserRolesEnum.Tenant, propCode: tenant.PropertyCode, unitNumber: tenant.UnitNumber);
+                    break;
+                case UserRolesEnum.Worker:
+                    var worker = _propertyRepository.FindWorkerByLoginEmail(emailAddress);
+                    // if not found, worker is not registered yet
+                    loggedUser = worker == null
+                        ? new LoggedUser(emailAddress, UserRolesEnum.Worker)
+                        : new LoggedUser(emailAddress, UserRolesEnum.Worker) { };
+                    break;
+
+                default:
+                    loggedUser = new LoggedUser(emailAddress, userRole);
+                    break;
+            }
+
+            return loggedUser;
+        }
+
+        public LoggedUser SetUser(UserRolesEnum userRole, string emailAddress)
+        {
+            var user = this.GetUser(userRole, emailAddress);
+            _authService.SetUser( user);
+            return user;
+        }
         public IEnumerable<Property> GetAllProperties()
         {
-            _authService.VerifyUserAuthorizedFor_ListOfProperties();
+            _authService.UserCanGetListOfProperties();
             return _propertyRepository.GetAllProperties();
         }
 
         public Property GetPropertyByCode(string propCode)
         {
-           _authService.VerifyUserAuthorizedFor_PropertyDetails(propCode);
             _validationService.ValidatePropertyCode(propCode);
+            _authService.UserCanGetPropertyDetails(propCode);
+            var prop = _propertyRepository.GetPropertyByCode(propCode);
 
-            var prop =  _propertyRepository.GetPropertyByCode(propCode);
-           
             return prop;
         }
 
         public Property AddProperty(string name, string propertyCode, PropertyAddress propertyAddress, string phoneNumber, PersonContactInfo superintendentInfo, List<string> units)
         {
-           _authService.VerifyUserAuthorizedFor_RegisterProperty();
+            _authService.UserCanRegisterProperty();
             _validationService.ValidatePropertyCode(propertyCode);
-          
+
             var prop = _propertyDomainService.CreateProperty(name, propertyCode, propertyAddress, phoneNumber, superintendentInfo, units);
-            prop.LoginEmail =_authService.LoggedUser.Login; 
+            prop.LoginEmail = _authService.LoggedUser.Login;
             _propertyRepository.AddProperty(prop);
             return prop;
         }
@@ -60,62 +95,64 @@ namespace Demo.RentalRepairs.Core.Services
         // tenants
         public IEnumerable<Tenant> GetPropertyTenants(string propertyCode)
         {
-           _authService.VerifyUserAuthorizedFor_ListOfPropertyTenants(propertyCode);
+            _authService.UserCanGetListOfPropertyTenants(propertyCode);
             _validationService.ValidatePropertyCode(propertyCode);
             return _propertyRepository.GetPropertyTenants(propertyCode);
         }
 
         public Tenant AddTenant(string propertyCode, PersonContactInfo contactInfo, string unitNumber)
         {
-           _authService.VerifyUserAuthorizedFor_RegisterTenant(propertyCode, unitNumber );
+            _authService.UserCanRegisterTenant();
 
             _validationService.ValidatePropertyCode(propertyCode);
             _validationService.ValidatePropertyUnit(unitNumber);
             _validationService.ValidatePersonContactInfo(contactInfo);
 
-            //var property = GetPropertyByCode(propertyCode);
             var property = _propertyRepository.GetPropertyByCode(propertyCode);
-            var tenant = _propertyDomainService .AddTenant(property, contactInfo, unitNumber);
-            tenant.LoginEmail =_authService.LoggedUser.Login; 
+            var tenant = _propertyDomainService.AddTenant(property, contactInfo, unitNumber);
+            tenant.LoginEmail = _authService.LoggedUser.Login;
             _propertyRepository.AddTenant(tenant);
             return tenant;
 
         }
         public Tenant GetTenantByPropertyUnit(string propertyCode, string propertyUnit)
         {
-           _authService.VerifyUserAuthorizedFor_TenantDetails(propertyCode, propertyUnit);
+            _authService.UserCanGetTenantDetails(propertyCode, propertyUnit);
 
             _validationService.ValidatePropertyCode(propertyCode);
             var tenant = _propertyRepository.GetTenantByUnitNumber(propertyUnit, propertyCode);
-            if (tenant == null)
-                Tenant.NotFoundException(propertyUnit, propertyCode);
+
             return tenant;
 
         }
         //Requests
         public IEnumerable<TenantRequest> GetTenantRequests(string propertyCode, string tenantUnit)
         {
-           _authService.VerifyUserAuthorizedFor_ListOfTenantRequests(propertyCode, tenantUnit);
-            var retList = new List<TenantRequest>();
+            _authService.UserCanGetListOfTenantRequests();
             _validationService.ValidatePropertyCode(propertyCode);
             _validationService.ValidatePropertyUnit(tenantUnit);
 
             var tenant = _propertyRepository.GetTenantByUnitNumber(tenantUnit, propertyCode);
+
+            var retList = new List<TenantRequest>();
+
             if (tenant != null)
-                retList =  _propertyRepository.GetTenantRequests(tenant.Id).ToList() ;
-            else
-                Tenant.NotFoundException(tenantUnit, propertyCode);
+            {
+                _authService.UserCanGetListOfTenantRequests(propertyCode, tenantUnit);
+                retList = _propertyRepository.GetTenantRequests(tenant.Id).ToList();
+            }
+
             return retList;
         }
-        public TenantRequest RegisterTenantRequest(string propCode, string tenantUnit , TenantRequestDoc tenantRequestDoc)
+        public TenantRequest RegisterTenantRequest(string propCode, string tenantUnit, TenantRequestDoc tenantRequestDoc)
         {
-           _authService.VerifyUserAuthorizedFor_RegisterTenantRequest(propCode, tenantUnit);
+            _authService.UserCanRegisterTenantRequest(propCode, tenantUnit);
             _validationService.ValidatePropertyCode(propCode);
             _validationService.ValidatePropertyUnit(tenantUnit);
 
-            var  tenant = _propertyRepository.GetTenantByUnitNumber(tenantUnit, propCode);
+            var tenant = _propertyRepository.GetTenantByUnitNumber(tenantUnit, propCode);
             if (tenant == null)
-                Tenant.NotFoundException(tenantUnit, propCode);
+                return null;
 
             var tenantRequest = _propertyDomainService.RegisterTenantRequest(tenant, tenantRequestDoc);
             _propertyRepository.AddTenantRequest(tenantRequest);
@@ -126,19 +163,23 @@ namespace Demo.RentalRepairs.Core.Services
         public TenantRequest ChangeRequestStatus(string propCode, string tenantUnit, string requestCode,
             TenantRequestStatusEnum newStatus, TenantRequestBaseDoc tenantRequestBaseDoc)
         {
-           _authService.VerifyUserAuthorizedFor_ChangeTenantRequestStatus(propCode, tenantUnit, newStatus);
+            _authService.UserCanChangeTenantRequestStatus(newStatus);
             _validationService.ValidatePropertyCode(propCode);
             _validationService.ValidatePropertyUnit(tenantUnit);
 
             var tenantRequest = _propertyRepository.GetTenantRequest(propCode, tenantUnit, requestCode);
+            if (tenantRequest == null)
+                return null;
+
+            _authService.UserCanChangeTenantRequestStatus(propCode, tenantUnit, newStatus);
             tenantRequest = tenantRequest.ChangeStatus(newStatus, tenantRequestBaseDoc);
             _propertyRepository.UpdateTenantRequest(tenantRequest);
             _notifyPartiesService.NotifyRequestStatusChange(tenantRequest.BuildMessage());
             return tenantRequest;
         }
 
-    
-        
+
+
 
     }
 }

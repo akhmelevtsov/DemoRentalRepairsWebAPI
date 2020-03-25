@@ -11,7 +11,7 @@ using FluentValidation.Results;
 
 namespace Demo.RentalRepairs.Domain.Services
 {
-    public class ValidationService
+    public class DomainValidationService
     {
         private readonly ValidationRulesService _validationRulesService = new ValidationRulesService();
 

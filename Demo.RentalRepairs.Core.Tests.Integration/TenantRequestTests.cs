@@ -168,13 +168,13 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
         private static void TestEverythingWithRepo(IPropertyRepository repo, INotifyPartiesService ntfService)
         {
 
-            var authService = new UserAuthCoreService(repo );
+            var authService = new UserAuthorizationService(repo );
             var propService = new PropertyService(repo, ntfService, authService);
             const string superintendentLogin = "super@email.com";
             const string tenantLogin = "tenant@email.com";
             const string workerLogin = "worker@email.com";
 
-            authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
+            propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
            
             var prop = propService.AddProperty("Moonlight Apartments", "moonlight",
                 new PropertyAddress()
@@ -188,7 +188,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                     MobilePhone = "905-111-1112"
                 }, new List<string>() {"11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34"});
 
-            authService.SetUser(UserRolesEnum.Tenant, tenantLogin  );
+            propService.SetUser(UserRolesEnum.Tenant, tenantLogin  );
 
             var tenant = propService.AddTenant(prop.Code,
                 new PersonContactInfo()
@@ -198,7 +198,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                 },
                 "21"
             );
-            authService.SetUser(UserRolesEnum.Tenant, tenantLogin);
+            propService.SetUser(UserRolesEnum.Tenant, tenantLogin);
             var tenantRequest = propService.RegisterTenantRequest(prop.Code, tenant.UnitNumber,
                 new TenantRequestDoc()
                 {
@@ -206,7 +206,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                 });
 
             var trId = tenantRequest.Id;
-            authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
+            propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.WorkScheduled,
                 new ServiceWorkOrder()
@@ -221,23 +221,23 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                     WorkerId = Guid.NewGuid()
                 });
             Assert.AreEqual(trId, tenantRequest.Id);
-            authService.SetUser(UserRolesEnum.Worker,workerLogin );
+            propService.SetUser(UserRolesEnum.Worker,workerLogin );
             tenantRequest =
                 propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                     TenantRequestStatusEnum.WorkCompleted, new ServiceWorkReport() {Notes = "All done"});
 
-            authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
+            propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.Closed, null);
 
-            authService.SetUser(UserRolesEnum.Tenant, tenantLogin);
+            propService.SetUser(UserRolesEnum.Tenant, tenantLogin);
             tenantRequest = propService.RegisterTenantRequest(prop.Code, tenant.UnitNumber,
                 new TenantRequestDoc()
                 {
                     RequestItems = new string[] {"Kitchen desk replace"},
                 });
 
-            authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
+            propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.WorkScheduled,
                 new ServiceWorkOrder()
@@ -252,12 +252,12 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                     WorkerId = Guid.NewGuid()
                 });
 
-            authService.SetUser(UserRolesEnum.Worker, workerLogin);
+            propService.SetUser(UserRolesEnum.Worker, workerLogin);
             tenantRequest =
                 propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                     TenantRequestStatusEnum.WorkIncomplete, new ServiceWorkReport() {Notes = "Can't come"});
 
-            authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
+            propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.WorkScheduled,
                 new ServiceWorkOrder()
@@ -272,28 +272,28 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                     WorkerId = Guid.NewGuid()
                 });
 
-            authService.SetUser(UserRolesEnum.Worker, workerLogin);
+            propService.SetUser(UserRolesEnum.Worker, workerLogin);
             tenantRequest =
                 propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                     TenantRequestStatusEnum.WorkCompleted, new ServiceWorkReport() {Notes = "All done"});
 
-            authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
+            propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             tenantRequest =
                 propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                     TenantRequestStatusEnum.Closed, null);
 
-            authService.SetUser(UserRolesEnum.Tenant, tenantLogin);
+            propService.SetUser(UserRolesEnum.Tenant, tenantLogin);
             tenantRequest = propService.RegisterTenantRequest(prop.Code, tenant.UnitNumber,
                 new TenantRequestDoc()
                 {
                     RequestItems = new string[] {"Full renovation needed"},
                 });
 
-            authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
+            propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.RequestRejected, new TenantRequestRejectNotes() {Notes = "We can't do that"});
 
-            authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
+            propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.Closed, null);
 

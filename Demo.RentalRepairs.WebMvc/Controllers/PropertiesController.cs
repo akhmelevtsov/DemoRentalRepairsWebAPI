@@ -20,10 +20,10 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
     {
         private readonly IPropertyService _propertyService;
 
-        private readonly IUserAuthCoreService _userAuthCoreService;
+        private readonly IUserAuthorizationService _userAuthCoreService;
 
         //private readonly 
-        public PropertiesController(IPropertyService propertyService, IUserAuthCoreService userAuthCoreService) : base()
+        public PropertiesController(IPropertyService propertyService, IUserAuthorizationService userAuthCoreService) : base()
         {
             _propertyService = propertyService;
             _userAuthCoreService = userAuthCoreService;
@@ -41,7 +41,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             var loggedUser = HttpContext.Session.GetComplexData<LoggedUser>("LoggedUser");
             if (loggedUser == null)
             {
-                loggedUser = _userAuthCoreService.SetUser(UserRolesEnum.Superintendent, "super@email.com");
+                loggedUser = _propertyService.SetUser(UserRolesEnum.Superintendent, "super@email.com");
                 HttpContext.Session.SetComplexData("LoggedUser", loggedUser);
             }
             else

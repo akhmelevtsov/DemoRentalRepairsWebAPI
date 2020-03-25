@@ -57,7 +57,7 @@ namespace Demo.RentalRepairs.WebApi
                 c.OrderActionsBy((apiDesc) => $"{apiDesc.SupportedRequestFormats}");
             });
            
-            services.AddTransient<IUserAuthCoreService, UserAuthorizationMockService>();
+            services.AddTransient<IUserAuthorizationService, UserAuthorizationMockService>();
             services.AddTransient<IPropertyRepository, PropertyRepositoryEntityFramework>();
 
             //services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory >();

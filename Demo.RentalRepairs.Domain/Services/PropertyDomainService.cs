@@ -11,7 +11,7 @@ namespace Demo.RentalRepairs.Domain.Services
     public class PropertyDomainService
     {
         public static  IDateTimeProvider DateTimeProvider { get; private set; }
-        readonly ValidationService _validationService = new ValidationService();
+        readonly DomainValidationService _validationService = new DomainValidationService();
 
        
 
