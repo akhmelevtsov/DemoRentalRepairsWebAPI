@@ -19,6 +19,12 @@ namespace Demo.RentalRepairs.Domain.Services
             return validator.Validate(property);
           
         }
+        public ValidationResult ValidatePropertyInfo(PropertyInfo propertyInfo)
+        {
+            var validator = new PropertyInfoValidator();
+
+            return validator.Validate(propertyInfo);
+        }
         public ValidationResult ValidatePropertyCode(string propertyCode)
         {
 
@@ -51,5 +57,6 @@ namespace Demo.RentalRepairs.Domain.Services
           }
 
 
+   
     }
 }

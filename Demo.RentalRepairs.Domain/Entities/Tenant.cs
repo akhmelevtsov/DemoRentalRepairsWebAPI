@@ -21,22 +21,14 @@ namespace Demo.RentalRepairs.Domain.Entities
 
         public string LoginEmail { get; set;  }
 
-        internal  Tenant(Property property, PersonContactInfo contactInfo, string unitNumber) : base(PropertyDomainService.DateTimeProvider)
+        public  Tenant(Property property, PersonContactInfo contactInfo, string unitNumber, DateTime? dateCreated= null, Guid? id=null) : base(PropertyDomainService.DateTimeProvider,dateCreated, id)
         {
             Property = property;
             PropertyCode = property.Code;
             ContactInfo = contactInfo;
             UnitNumber = unitNumber;
         }
-        public Tenant(Property property, PersonContactInfo contactInfo, string unitNumber, DateTime dateCreated, Guid idGuid) : 
-            this(property , contactInfo , unitNumber)
-        {
-            base.UpdateCreateInfo(dateCreated, idGuid);
-        }
-        internal Tenant(string unitNumber)
-        {
-            UnitNumber = unitNumber;
-        }
+        
         public TenantRequest AddRequest(TenantRequestDoc tenantRequestDoc)
         {
             var tTenantRequest = new TenantRequest(this, (RequestsNum  + 1).ToString());

@@ -9,14 +9,11 @@ namespace Demo.RentalRepairs.Domain.Framework
         public DateTime LastUpdated { get; set;  }
         public DateTime DateCreated { get;  set; }
 
-        public Entity()
+       
+        protected Entity( IDateTimeProvider dateTimeProvider, DateTime? dateCreated = null, Guid? id = null )
         {
-            
-        }
-        protected Entity( IDateTimeProvider dateTimeProvider)
-        {
-            this.DateCreated = dateTimeProvider.GetDateTime();
-            this.Id = Guid.NewGuid();
+            this.DateCreated = dateCreated ?? dateTimeProvider.GetDateTime();
+            this.Id = id ?? Guid.NewGuid();
         }
 
         public void UpdateCreateInfo (DateTime created, Guid guid)

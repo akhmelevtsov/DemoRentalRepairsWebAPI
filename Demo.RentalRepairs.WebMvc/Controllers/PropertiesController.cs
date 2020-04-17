@@ -112,8 +112,8 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
             try
             {
-                _propertyService.AddProperty(prop.Name, prop.Code, prop.Address, prop.PhoneNumber, prop.Superintendent,
-                    prop.Units.ToList());
+                _propertyService.AddProperty(new PropertyInfo(prop.Name, prop.Code, prop.Address, prop.PhoneNumber, prop.Superintendent,
+                    prop.Units.ToList()));
             }
             catch (DomainValidationException vex)
             {

@@ -12,8 +12,10 @@ namespace Demo.RentalRepairs.Core.Interfaces
         LoggedUser GetUser(UserRolesEnum userRole, string emailAddress);
         LoggedUser SetUser(UserRolesEnum userRole, string emailAddress);
         IEnumerable<Property> GetAllProperties();                                                                   //anonymous
-        Property AddProperty(string name, string code, PropertyAddress propertyAddress, string phoneNumber,     
-            PersonContactInfo superintendentInfo, List<string> units);                                              // owner
+        //Property AddProperty(string name, string code, PropertyAddress propertyAddress, string phoneNumber,     
+        //    PersonContactInfo superintendentInfo, List<string> units);                                              // owner
+        Property AddProperty(PropertyInfo propertyInfo);                                                             // owner
+
         Property GetPropertyByCode(string propCode);                                                                //anonymous
 
         IEnumerable<Tenant> GetPropertyTenants(string propertyCode);                                                // owner , super       

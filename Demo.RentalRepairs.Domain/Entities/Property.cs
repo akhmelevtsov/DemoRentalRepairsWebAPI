@@ -9,8 +9,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Demo.RentalRepairs.Domain.Entities
 {
-    public class Property : Entity //, IPropertyFields
+    public class Property : Entity 
     {
+        readonly DomainValidationService _validationService = new DomainValidationService();
+
         public string Name { get;   private set; }
         public string Code { get; private set; }
         public PropertyAddress Address { get; private set;  }
@@ -22,50 +24,36 @@ namespace Demo.RentalRepairs.Domain.Entities
         public string LoginEmail { get; set;  }
         public string NoReplyEmailAddress { get;  set; }
 
-
-        //public List<Tenant> Tenants { get; } = new List<Tenant>();
-
-
-        public  Property(string name, string code, string phoneNumber, PropertyAddress propertyAddress,
-            PersonContactInfo superintendent, List<string> units) : base(PropertyDomainService.DateTimeProvider)
-        {
-            Name = name;
-            Code = code;
-            PhoneNumber = phoneNumber;
-            Address = propertyAddress;
-            Superintendent = superintendent;
-            Units = units;
-        }
-
-        public Property(string name, string code, string phoneNumber, PropertyAddress propertyAddress,
-            PersonContactInfo superintendent, List<string> units, 
-            DateTime dateCreated, Guid idGuid) : this( name, code,  phoneNumber,  propertyAddress,
-             superintendent, units)  // create from repo
-        {
-            base.UpdateCreateInfo(dateCreated, idGuid);
-        }
-
-        internal Property(string propertyCode) // for validations
-        {
-            Code = propertyCode;
-        }
-
-        //public Tenant AddTenant(Tenant tenant )
+        //public  Property(string name, string code, string phoneNumber, PropertyAddress propertyAddress,
+        //    PersonContactInfo superintendent, List<string> units, DateTime? dateCreated=null, Guid? id = null) : base(PropertyDomainService.DateTimeProvider,dateCreated, id )
         //{
-        //    tenant.Property = this;
-        //    Tenants.Add(tenant);
-        //    return tenant;
-
+        //    Name = name;
+        //    Code = code;
+        //    PhoneNumber = phoneNumber;
+        //    Address = propertyAddress;
+        //    Superintendent = superintendent;
+        //    Units = units;
         //}
 
-       
+        public Property(PropertyInfo propertyInfo, DateTime? dateCreated = null, Guid? id = null) : base(
+            PropertyDomainService.DateTimeProvider, dateCreated, id)
+        {
 
+            _validationService.ValidatePropertyInfo(propertyInfo);
+            Name = propertyInfo.Name;
+            Code = propertyInfo.Code;
+            PhoneNumber = propertyInfo.PhoneNumber;
+            Address = propertyInfo.Address;
+            Superintendent = propertyInfo.Superintendent ;
+            Units = propertyInfo.Units ;
+        }
+        public Tenant AddTenant(PersonContactInfo contactInfo, string unitNumber)
+        {
+            var tenant = new Tenant(this, contactInfo, unitNumber);
+            _validationService.ValidateTenant(tenant);
+            return tenant;
 
-        //public  Tenant GetTenantByUnitNumber(string unitNumber)
-        //{
-        //    return Tenants.FirstOrDefault(x => x.UnitNumber  == unitNumber);
-        //}
-
+        }
         public static void NotFoundException(string propertyCode)
         {
             throw new DomainEntityNotFoundException( "property_not_found", $"Property not found: {propertyCode }");
@@ -77,15 +65,5 @@ namespace Demo.RentalRepairs.Domain.Entities
         }
 
 
-        private void AssignProperties(string name, string code, string phoneNumber, PropertyAddress propertyAddress,
-            PersonContactInfo superintendent, List<string> units)
-        {
-            Name = name;
-            Code = code;
-            PhoneNumber = phoneNumber;
-            Address = propertyAddress;
-            Superintendent = superintendent;
-            Units = units;
-        }
     }
 }

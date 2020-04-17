@@ -5,7 +5,7 @@ using Demo.RentalRepairs.Domain.ValueObjects.Request;
 
 namespace Demo.RentalRepairs.Domain.Entities.Extensions
 {
-    public static class RequestStatusNotifications
+    public static class RequestStatusNotificationsBuilder
     {
         public static RequestStatusMessage BuildMessage(this TenantRequest tenantRequest)
         {
@@ -18,8 +18,8 @@ namespace Demo.RentalRepairs.Domain.Entities.Extensions
                     var message = new RequestStatusMessage
                     {
                         Title = "Your Request Registered",
-                        Sender = new RequestStatusMessage.EndPointInfo() { Email = tenantRequest.Tenant.Property.NoReplyEmailAddress },
-                        Receiver = new RequestStatusMessage.EndPointInfo() { Email = tenantRequest.Tenant.ContactInfo.EmailAddress, Phone = tenantRequest.Tenant.ContactInfo.MobilePhone },
+                        Sender = new RequestStatusMessage.PartyInfo() { Email = tenantRequest.Tenant.Property.NoReplyEmailAddress },
+                        Receiver = new RequestStatusMessage.PartyInfo() { Email = tenantRequest.Tenant.ContactInfo.EmailAddress, Phone = tenantRequest.Tenant.ContactInfo.MobilePhone },
                         MessageProperties = new Dictionary<string, string>()
                         {
                             { "TenantFullName", tenantRequest.Tenant.ContactInfo.GetFullName() },
@@ -34,8 +34,8 @@ namespace Demo.RentalRepairs.Domain.Entities.Extensions
                     message = new RequestStatusMessage
                     {
                         Title = "Your Request Declined",
-                        Sender = new RequestStatusMessage.EndPointInfo() { Email = tenantRequest.Tenant.Property.NoReplyEmailAddress },
-                        Receiver = new RequestStatusMessage.EndPointInfo() { Email = tenantRequest.Tenant.ContactInfo.EmailAddress, Phone = tenantRequest.Tenant.ContactInfo.MobilePhone },
+                        Sender = new RequestStatusMessage.PartyInfo() { Email = tenantRequest.Tenant.Property.NoReplyEmailAddress },
+                        Receiver = new RequestStatusMessage.PartyInfo() { Email = tenantRequest.Tenant.ContactInfo.EmailAddress, Phone = tenantRequest.Tenant.ContactInfo.MobilePhone },
                         MessageProperties = new Dictionary<string, string>()
                         {
                             { "TenantFullName", tenantRequest.Tenant.ContactInfo.GetFullName() },
@@ -51,8 +51,8 @@ namespace Demo.RentalRepairs.Domain.Entities.Extensions
                     message = new RequestStatusMessage
                     {
                         Title = "You have new work order",
-                        Sender = new RequestStatusMessage.EndPointInfo() { Email = tenantRequest.Tenant.Property.NoReplyEmailAddress },
-                        Receiver = new RequestStatusMessage.EndPointInfo() { Email = tenantRequest.ServiceWorkOrder.Person.EmailAddress , Phone = tenantRequest.ServiceWorkOrder.Person.MobilePhone  },
+                        Sender = new RequestStatusMessage.PartyInfo() { Email = tenantRequest.Tenant.Property.NoReplyEmailAddress },
+                        Receiver = new RequestStatusMessage.PartyInfo() { Email = tenantRequest.ServiceWorkOrder.Person.EmailAddress , Phone = tenantRequest.ServiceWorkOrder.Person.MobilePhone  },
                         MessageProperties = new Dictionary<string, string>()
                         {
                             { "WorkerFullName", tenantRequest.ServiceWorkOrder.Person.GetFullName() },
@@ -68,8 +68,8 @@ namespace Demo.RentalRepairs.Domain.Entities.Extensions
                     message = new RequestStatusMessage
                     {
                         Title = "Work order completed",
-                        Sender = new RequestStatusMessage.EndPointInfo() { Email = tenantRequest.Tenant.Property.NoReplyEmailAddress },
-                        Receiver = new RequestStatusMessage.EndPointInfo() { Email = tenantRequest.Tenant.Property.Superintendent.EmailAddress, Phone = tenantRequest.Tenant.Property.Superintendent.MobilePhone  },
+                        Sender = new RequestStatusMessage.PartyInfo() { Email = tenantRequest.Tenant.Property.NoReplyEmailAddress },
+                        Receiver = new RequestStatusMessage.PartyInfo() { Email = tenantRequest.Tenant.Property.Superintendent.EmailAddress, Phone = tenantRequest.Tenant.Property.Superintendent.MobilePhone  },
                         MessageProperties = new Dictionary<string, string>()
                         {
                             { "SuperintendentFullName", tenantRequest.Tenant.Property.Superintendent.GetFullName()  },
@@ -86,8 +86,8 @@ namespace Demo.RentalRepairs.Domain.Entities.Extensions
                     message = new RequestStatusMessage
                     {
                         Title = "Work can't be completed",
-                        Sender = new RequestStatusMessage.EndPointInfo() { Email = tenantRequest.Tenant.Property.NoReplyEmailAddress },
-                        Receiver = new RequestStatusMessage.EndPointInfo() { Email = tenantRequest.Tenant.Property.Superintendent.EmailAddress, Phone = tenantRequest.Tenant.Property.Superintendent.MobilePhone },
+                        Sender = new RequestStatusMessage.PartyInfo() { Email = tenantRequest.Tenant.Property.NoReplyEmailAddress },
+                        Receiver = new RequestStatusMessage.PartyInfo() { Email = tenantRequest.Tenant.Property.Superintendent.EmailAddress, Phone = tenantRequest.Tenant.Property.Superintendent.MobilePhone },
                         MessageProperties = new Dictionary<string, string>()
                         {
                             { "SuperintendentFullName", tenantRequest.Tenant.Property.Superintendent.GetFullName()  },

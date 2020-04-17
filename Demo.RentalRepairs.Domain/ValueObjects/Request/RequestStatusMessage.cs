@@ -8,14 +8,14 @@ namespace Demo.RentalRepairs.Domain.ValueObjects.Request
         {
             MessageProperties = new Dictionary<string, string>();
         }
-        public EndPointInfo  Sender { get; set; }
-        public EndPointInfo  Receiver { get; set;  }
+        public PartyInfo  Sender { get; set; }
+        public PartyInfo  Receiver { get; set;  }
 
         public string  Message { get; set; }
         public Dictionary<string,string> MessageProperties { get; set;  }
         public string Title { get; set; }
 
-        public class EndPointInfo
+        public class PartyInfo
         {
             public string  Email { get; set; }
             public string Phone { get; set; }

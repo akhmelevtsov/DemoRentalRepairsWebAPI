@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Entities.Validators;
 using Demo.RentalRepairs.Domain.Framework;
+using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.WebApi.Models;
 using Demo.RentalRepairs.WebApi.Swagger.Examples;
 using Microsoft.AspNetCore.Http;
@@ -75,7 +76,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
             //{
             //    throw new DomainValidationException("create_property_validation", results.Errors);
             //}
-            _propertyService.AddProperty(prop.Name, prop.Code, prop.Address, prop.PhoneNumber, prop.Superintendent, prop.Units.ToList() );
+            _propertyService.AddProperty(new PropertyInfo(prop.Name, prop.Code, prop.Address, prop.PhoneNumber, prop.Superintendent, prop.Units.ToList()) );
         }
         
     }

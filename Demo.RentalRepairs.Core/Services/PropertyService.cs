@@ -72,6 +72,8 @@ namespace Demo.RentalRepairs.Core.Services
             return _propertyRepository.GetAllProperties();
         }
 
+ 
+
         public Property GetPropertyByCode(string propCode)
         {
             _validationService.ValidatePropertyCode(propCode);
@@ -81,17 +83,28 @@ namespace Demo.RentalRepairs.Core.Services
             return prop;
         }
 
-        public Property AddProperty(string name, string propertyCode, PropertyAddress propertyAddress, string phoneNumber, PersonContactInfo superintendentInfo, List<string> units)
+        //public Property AddProperty(string name, string propertyCode, PropertyAddress propertyAddress, string phoneNumber, PersonContactInfo superintendentInfo, List<string> units)
+        //{
+        //    _authService.UserCanRegisterProperty();
+        //    _validationService.ValidatePropertyCode(propertyCode);
+
+        //    var prop = _propertyDomainService.CreateProperty(name, propertyCode, propertyAddress, phoneNumber, superintendentInfo, units);
+        //    prop.LoginEmail = _authService.LoggedUser.Login;
+        //    _propertyRepository.AddProperty(prop);
+        //    return prop;
+        //}
+        public Property AddProperty(PropertyInfo propertyInfo)
         {
             _authService.UserCanRegisterProperty();
-            _validationService.ValidatePropertyCode(propertyCode);
 
-            var prop = _propertyDomainService.CreateProperty(name, propertyCode, propertyAddress, phoneNumber, superintendentInfo, units);
-            prop.LoginEmail = _authService.LoggedUser.Login;
+            var prop = new Property(propertyInfo)
+            {
+                LoginEmail = _authService.LoggedUser.Login
+            };
             _propertyRepository.AddProperty(prop);
             return prop;
-        }
 
+        }
         // tenants
         public IEnumerable<Tenant> GetPropertyTenants(string propertyCode)
         {
@@ -109,7 +122,8 @@ namespace Demo.RentalRepairs.Core.Services
             _validationService.ValidatePersonContactInfo(contactInfo);
 
             var property = _propertyRepository.GetPropertyByCode(propertyCode);
-            var tenant = _propertyDomainService.AddTenant(property, contactInfo, unitNumber);
+            //var tenant = _propertyDomainService.AddTenant(property, contactInfo, unitNumber);
+            var tenant = property.AddTenant( contactInfo, unitNumber);
             tenant.LoginEmail = _authService.LoggedUser.Login;
             _propertyRepository.AddTenant(tenant);
             return tenant;
@@ -154,7 +168,7 @@ namespace Demo.RentalRepairs.Core.Services
             if (tenant == null)
                 return null;
 
-            var tenantRequest = _propertyDomainService.RegisterTenantRequest(tenant, tenantRequestDoc);
+            var tenantRequest = tenant.AddRequest( tenantRequestDoc);
             _propertyRepository.AddTenantRequest(tenantRequest);
             _notifyPartiesService.NotifyRequestStatusChange(tenantRequest.BuildMessage());
             return tenantRequest;

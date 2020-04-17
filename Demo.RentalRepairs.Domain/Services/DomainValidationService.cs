@@ -24,6 +24,14 @@ namespace Demo.RentalRepairs.Domain.Services
                 throw new DomainValidationException("create_property_validation", results.Errors);
             }
         }
+        public void ValidatePropertyInfo(PropertyInfo propertyInfo)
+        {
+            var results = _validationRulesService.ValidatePropertyInfo(propertyInfo);
+            if (!results.IsValid)
+            {
+                throw new DomainValidationException("create_property_validation", results.Errors);
+            }
+        }
         public  void ValidatePropertyCode(string propertyCode)
         {
 
@@ -64,5 +72,7 @@ namespace Demo.RentalRepairs.Domain.Services
                 throw new DomainValidationException("personContactInfo_validation", results.Errors);
             }
         }
+
+  
     }
 }

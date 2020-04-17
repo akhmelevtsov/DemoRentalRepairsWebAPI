@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Demo.RentalRepairs.Domain.Entities;
+using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
 using Demo.RentalRepairs.Infrastructure.Repositories.EF.Entities;
 using Newtonsoft.Json;
@@ -31,8 +32,8 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
         }
         internal Property CopyFrom(PropertyTbl p)
         {
-            var prop = new Property(p.Name, p.ID, p.PhoneNumber, p.Address,
-                p.Superintendent, JsonConvert.DeserializeObject<List<string>>(p.Units), p.DateCreated, p.IdCreated)
+            var prop = new Property(new PropertyInfo(p.Name, p.ID,  p.Address, p.PhoneNumber,
+                p.Superintendent, JsonConvert.DeserializeObject<List<string>>(p.Units)), p.DateCreated, p.IdCreated)
             {
                 NoReplyEmailAddress = p.NoReplyEmailAddress,
                 LoginEmail = p.LoginEmail

@@ -27,19 +27,21 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             var propService = new PropertyDomainService(new DateTimeProviderMock());
 
-            var prop = propService.CreateProperty("Moonlight Apartments", "moonlight",
+            var prop = new Property(new PropertyInfo("Moonlight Apartments", "moonlight",
                 new PropertyAddress()
-                    {StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5"},
+                    { StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5" },
                 "905-111-1111",
                 new PersonContactInfo()
                 {
-                    EmailAddress = "propertymanagement@moonlightapartments.com", FirstName = "John", LastName = "Smith",
+                    EmailAddress = "propertymanagement@moonlightapartments.com",
+                    FirstName = "John",
+                    LastName = "Smith",
                     MobilePhone = "905-111-1112"
-                }, new List<string>() {"11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34"});
+                }, new List<string>() { "11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34" }));
 
             Assert.AreEqual(DateTimeProviderMock.CurrentDate , prop.DateCreated );
 
-            var tenant = propService.AddTenant(prop,
+            var tenant = prop.AddTenant(
                 new PersonContactInfo()
                 {
                     EmailAddress = "tenant123@hotmail.com", FirstName = "John", LastName = "Tenant",
@@ -50,7 +52,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             Assert.AreEqual(DateTimeProviderMock.CurrentDate, tenant.DateCreated);
 
-            var tenantRequest = propService.RegisterTenantRequest(tenant,
+            var tenantRequest = tenant.AddRequest( 
                 new TenantRequestDoc()
                 {
                     RequestItems = new string[] {"Power plug in kitchen", "Water leak in main bathroom"},
@@ -74,8 +76,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             tenantRequest.ChangeStatus(TenantRequestStatusEnum.Closed, null);
 
-            tenantRequest = propService.RegisterTenantRequest(tenant,
-                new TenantRequestDoc()
+            tenantRequest = tenant.AddRequest(new TenantRequestDoc()
                 {
                     RequestItems = new string[] {"Kitchen desk replace"},
 
@@ -114,7 +115,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             tenantRequest.ChangeStatus(TenantRequestStatusEnum.Closed, null);
 
-            tenantRequest = propService.RegisterTenantRequest(tenant,
+            tenantRequest = tenant.AddRequest( 
                 new TenantRequestDoc()
                 {
                     RequestItems = new string[] {"Full renovation needed"},
@@ -176,9 +177,9 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
            
-            var prop = propService.AddProperty("Moonlight Apartments", "moonlight",
+            var prop = propService.AddProperty(new PropertyInfo("Moonlight Apartments", "moonlight",
                 new PropertyAddress()
-                    {StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5"},
+                    { StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5" },
                 "905-111-1111",
                 new PersonContactInfo()
                 {
@@ -186,7 +187,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                     FirstName = "John",
                     LastName = "Smith",
                     MobilePhone = "905-111-1112"
-                }, new List<string>() {"11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34"});
+                }, new List<string>() { "11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34" }));
 
             propService.SetUser(UserRolesEnum.Tenant, tenantLogin  );
 
