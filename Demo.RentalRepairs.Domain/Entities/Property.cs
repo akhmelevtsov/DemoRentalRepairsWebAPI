@@ -16,29 +16,15 @@ namespace Demo.RentalRepairs.Domain.Entities
         public string Name { get;   private set; }
         public string Code { get; private set; }
         public PropertyAddress Address { get; private set;  }
-        public string PhoneNumber { get; private set;  }
+            public string PhoneNumber { get; private set;  }
         public PersonContactInfo Superintendent { get; private set;  }
         public List<string> Units { get; private set; }
-
         //-------------
         public string LoginEmail { get; set;  }
         public string NoReplyEmailAddress { get;  set; }
 
-        //public  Property(string name, string code, string phoneNumber, PropertyAddress propertyAddress,
-        //    PersonContactInfo superintendent, List<string> units, DateTime? dateCreated=null, Guid? id = null) : base(PropertyDomainService.DateTimeProvider,dateCreated, id )
-        //{
-        //    Name = name;
-        //    Code = code;
-        //    PhoneNumber = phoneNumber;
-        //    Address = propertyAddress;
-        //    Superintendent = superintendent;
-        //    Units = units;
-        //}
-
-        public Property(PropertyInfo propertyInfo, DateTime? dateCreated = null, Guid? id = null) : base(
-            PropertyDomainService.DateTimeProvider, dateCreated, id)
+        public Property(PropertyInfo propertyInfo, DateTime? dateCreated = null, Guid? id = null) : base(dateCreated, id)
         {
-
             _validationService.ValidatePropertyInfo(propertyInfo);
             Name = propertyInfo.Name;
             Code = propertyInfo.Code;
@@ -46,11 +32,14 @@ namespace Demo.RentalRepairs.Domain.Entities
             Address = propertyInfo.Address;
             Superintendent = propertyInfo.Superintendent ;
             Units = propertyInfo.Units ;
+            NoReplyEmailAddress = propertyInfo.NoReplyEmailAddress;
+
         }
         public Tenant AddTenant(PersonContactInfo contactInfo, string unitNumber)
         {
             var tenant = new Tenant(this, contactInfo, unitNumber);
             _validationService.ValidateTenant(tenant);
+
             return tenant;
 
         }

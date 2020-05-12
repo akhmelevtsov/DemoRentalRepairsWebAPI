@@ -1,8 +1,7 @@
 ﻿using Demo.RentalRepairs.Domain.Enums;
-using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects;
 
-namespace Demo.RentalRepairs.Core.Services
+namespace Demo.RentalRepairs.Core.Interfaces
 {
     public interface IUserAuthorizationService
     {

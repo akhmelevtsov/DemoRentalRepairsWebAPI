@@ -7,7 +7,7 @@ namespace Demo.RentalRepairs.Domain.ValueObjects
 {
     public class PropertyInfo : Value
     {
-        public PropertyInfo(string name, string code, PropertyAddress address, string phoneNumber, PersonContactInfo superintendent, List<string> units)
+        public PropertyInfo(string name, string code, PropertyAddress address, string phoneNumber, PersonContactInfo superintendent, List<string> units, string noReplyEmailAddress)
         {
             Name = name;
             Code = code;
@@ -15,13 +15,14 @@ namespace Demo.RentalRepairs.Domain.ValueObjects
             PhoneNumber = phoneNumber;
             Superintendent = superintendent;
             Units = units;
+            NoReplyEmailAddress = noReplyEmailAddress;
         }
-        public string Name { get;  set; }
-        public string Code { get;  set; }
-        public PropertyAddress Address { get;  set; }
-        public string PhoneNumber { get;  set; }
-        public PersonContactInfo Superintendent { get;  set; }
-        public List<string> Units { get;  set; }
-
+        public string Name { get;  }
+        public string Code { get; }
+        public PropertyAddress Address { get;   }
+        public string PhoneNumber { get;   }
+        public PersonContactInfo Superintendent { get;   }
+        public List<string> Units { get; }
+        public string NoReplyEmailAddress { get; }
     }
 }

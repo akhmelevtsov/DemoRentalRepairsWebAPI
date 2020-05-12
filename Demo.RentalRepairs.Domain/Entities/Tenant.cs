@@ -21,7 +21,7 @@ namespace Demo.RentalRepairs.Domain.Entities
 
         public string LoginEmail { get; set;  }
 
-        public  Tenant(Property property, PersonContactInfo contactInfo, string unitNumber, DateTime? dateCreated= null, Guid? id=null) : base(PropertyDomainService.DateTimeProvider,dateCreated, id)
+        public  Tenant(Property property, PersonContactInfo contactInfo, string unitNumber, DateTime? dateCreated= null, Guid? id=null) : base(dateCreated, id)
         {
             Property = property;
             PropertyCode = property.Code;
@@ -38,9 +38,9 @@ namespace Demo.RentalRepairs.Domain.Entities
 
         }
 
-        public static void NotFoundException(string propertyUnit, string propertyCode)
-        {
-            throw new DomainEntityNotFoundException("tenant_not_found", $"Property : {propertyCode} - tenant not found by unit number: {propertyUnit}");
-        }
+        //public static void NotFoundException(string propertyUnit, string propertyCode)
+        //{
+        //    throw new DomainEntityNotFoundException("tenant_not_found", $"Property : {propertyCode} - tenant not found by unit number: {propertyUnit}");
+        //}
     }
 }

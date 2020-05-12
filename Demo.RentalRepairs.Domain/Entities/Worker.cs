@@ -7,7 +7,7 @@ namespace Demo.RentalRepairs.Domain.Entities
 {
     public class Worker :Entity
     {
-        public  Worker() : base(PropertyDomainService.DateTimeProvider)
+        public  Worker() : base()
         {
         }
 

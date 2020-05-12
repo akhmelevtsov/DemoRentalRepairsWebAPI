@@ -33,9 +33,9 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
         internal Property CopyFrom(PropertyTbl p)
         {
             var prop = new Property(new PropertyInfo(p.Name, p.ID,  p.Address, p.PhoneNumber,
-                p.Superintendent, JsonConvert.DeserializeObject<List<string>>(p.Units)), p.DateCreated, p.IdCreated)
+                p.Superintendent, JsonConvert.DeserializeObject<List<string>>(p.Units), p.NoReplyEmailAddress), p.DateCreated, p.IdCreated)
             {
-                NoReplyEmailAddress = p.NoReplyEmailAddress,
+               
                 LoginEmail = p.LoginEmail
             };
             return prop;

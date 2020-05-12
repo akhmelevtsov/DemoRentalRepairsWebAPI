@@ -24,36 +24,7 @@ namespace Demo.RentalRepairs.Core.Services
 
         public LoggedUser LoggedUser => _loggedUser;
 
-        //public LoggedUser SetUser(UserRolesEnum userRole, string emailAddress)
-        //{
-        //    switch (userRole)
-        //    {
-        //        case UserRolesEnum.Superintendent:
-        //            var prop = _propertyRepository.FindPropertyByLoginEmail(emailAddress);
-        //            // if not found, property is not registered yet
-        //            _loggedUser = prop == null ? new LoggedUser(emailAddress, UserRolesEnum.Superintendent) : new LoggedUser(emailAddress, UserRolesEnum.Superintendent, propCode: prop.Code);
-        //            break;
-        //        case UserRolesEnum.Tenant:
-        //            var tenant = _propertyRepository.FindTenantByLoginEmail(emailAddress);
-        //            // if not found, tenant is not registered yet
-        //            _loggedUser = tenant == null ? new LoggedUser(emailAddress, UserRolesEnum.Tenant) : new LoggedUser(emailAddress, UserRolesEnum.Tenant, propCode: tenant.PropertyCode, unitNumber: tenant.UnitNumber);
-        //            break;
-        //        case UserRolesEnum.Worker:
-        //            var worker = _propertyRepository.FindWorkerByLoginEmail(emailAddress);
-        //            // if not found, worker is not registered yet
-        //            _loggedUser = worker == null
-        //                ? new LoggedUser(emailAddress, UserRolesEnum.Worker)
-        //                : new LoggedUser(emailAddress, UserRolesEnum.Worker) { };
-        //            break;
-
-        //        default:
-        //            _loggedUser = new LoggedUser(emailAddress, userRole);
-        //            break;
-        //    }
-
-        //    return _loggedUser;
-        //}
-
+ 
         public void SetUser(LoggedUser loggedUser)
         {
             _loggedUser = loggedUser;

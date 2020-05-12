@@ -7,6 +7,7 @@ using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
+using Demo.RentalRepairs.Infrastructure;
 using Demo.RentalRepairs.Infrastructure.Mocks;
 using Demo.RentalRepairs.Infrastructure.Repositories;
 using Demo.RentalRepairs.Infrastructure.Repositories.EF;
@@ -25,7 +26,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
             //var repo = new PropertyRepositoryMock();
             //var ntfService = new NotifyPartiesServiceMock();
 
-            var propService = new PropertyDomainService(new DateTimeProviderMock());
+            PropertyDomainService.DateTimeProvider = new DateTimeProviderMock();
 
             var prop = new Property(new PropertyInfo("Moonlight Apartments", "moonlight",
                 new PropertyAddress()
@@ -37,7 +38,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                     FirstName = "John",
                     LastName = "Smith",
                     MobilePhone = "905-111-1112"
-                }, new List<string>() { "11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34" }));
+                }, new List<string>() { "11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34" }, "noreply@moonlightapartments.com"));
 
             Assert.AreEqual(DateTimeProviderMock.CurrentDate , prop.DateCreated );
 
@@ -59,7 +60,8 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
                 });
             Assert.AreEqual(DateTimeProviderMock.CurrentDate, tenantRequest.DateCreated);
-
+            Assert.IsNotNull(tenantRequest.Id);
+          
             tenantRequest = tenantRequest.ChangeStatus(TenantRequestStatusEnum.WorkScheduled,
                 new ServiceWorkOrder()
                 {
@@ -133,9 +135,11 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
         public void AllPathsTestWithInMemoryRepo()
         {
             var repo = new PropertyRepositoryInMemory();
-            var ntfService = new NotifyPartiesServiceMock();
+            var emailService = new EmailServiceMock();
+            var templateDataService = new TemplateDataService();
+            var ntfService = new NotifyPartiesService(emailService, templateDataService);
 
-            TestEverythingWithRepo(repo, ntfService);
+            TestEverythingWithRepo(repo, ntfService, emailService);
         }
 
         [TestMethod]
@@ -158,15 +162,18 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                 dbContext.Database.EnsureCreated();
                 //...do stuff
                 var repo = new PropertyRepositoryEntityFramework(dbContext);
-                var ntfService = new NotifyPartiesServiceMock();
+                var emailService = new EmailServiceMock();
+                var templateDataService = new TemplateDataService();
+                var ntfService = new NotifyPartiesService(emailService, templateDataService);
 
-                TestEverythingWithRepo(repo, ntfService);
+                TestEverythingWithRepo(repo, ntfService, emailService);
             }
 
             
         }
 
-        private static void TestEverythingWithRepo(IPropertyRepository repo, INotifyPartiesService ntfService)
+        private static void TestEverythingWithRepo(IPropertyRepository repo, INotifyPartiesService ntfService,
+            EmailServiceMock emailService)
         {
 
             var authService = new UserAuthorizationService(repo );
@@ -175,6 +182,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
             const string tenantLogin = "tenant@email.com";
             const string workerLogin = "worker@email.com";
 
+            //----------
             propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
            
             var prop = propService.AddProperty(new PropertyInfo("Moonlight Apartments", "moonlight",
@@ -187,8 +195,8 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                     FirstName = "John",
                     LastName = "Smith",
                     MobilePhone = "905-111-1112"
-                }, new List<string>() { "11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34" }));
-
+                }, new List<string>() { "11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34" }, "noreply@moonlightapartments.com"));
+            //----------
             propService.SetUser(UserRolesEnum.Tenant, tenantLogin  );
 
             var tenant = propService.AddTenant(prop.Code,
@@ -199,13 +207,15 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                 },
                 "21"
             );
+            //----------
             propService.SetUser(UserRolesEnum.Tenant, tenantLogin);
             var tenantRequest = propService.RegisterTenantRequest(prop.Code, tenant.UnitNumber,
                 new TenantRequestDoc()
                 {
                     RequestItems = new string[] {"Power plug in kitchen", "Water leak in main bathroom"},
                 });
-
+            AssertEmailPropsNotNull(emailService);
+            //----------
             var trId = tenantRequest.Id;
             propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
@@ -222,22 +232,29 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                     WorkerId = Guid.NewGuid()
                 });
             Assert.AreEqual(trId, tenantRequest.Id);
+            AssertEmailPropsNotNull(emailService);
+            //----------
             propService.SetUser(UserRolesEnum.Worker,workerLogin );
             tenantRequest =
                 propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                     TenantRequestStatusEnum.WorkCompleted, new ServiceWorkReport() {Notes = "All done"});
+            AssertEmailPropsNotNull(emailService);
 
+            //----------
             propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.Closed, null);
 
+            //----------
             propService.SetUser(UserRolesEnum.Tenant, tenantLogin);
             tenantRequest = propService.RegisterTenantRequest(prop.Code, tenant.UnitNumber,
                 new TenantRequestDoc()
                 {
                     RequestItems = new string[] {"Kitchen desk replace"},
                 });
+            AssertEmailPropsNotNull(emailService);
 
+            //----------
             propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.WorkScheduled,
@@ -252,12 +269,16 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                     WorkOrderNo = 1,
                     WorkerId = Guid.NewGuid()
                 });
+            AssertEmailPropsNotNull(emailService);
 
+            //----------
             propService.SetUser(UserRolesEnum.Worker, workerLogin);
             tenantRequest =
                 propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                     TenantRequestStatusEnum.WorkIncomplete, new ServiceWorkReport() {Notes = "Can't come"});
+            AssertEmailPropsNotNull(emailService);
 
+            //----------
             propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.WorkScheduled,
@@ -272,35 +293,50 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                     WorkOrderNo = 1,
                     WorkerId = Guid.NewGuid()
                 });
-
+            //----------
             propService.SetUser(UserRolesEnum.Worker, workerLogin);
             tenantRequest =
                 propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                     TenantRequestStatusEnum.WorkCompleted, new ServiceWorkReport() {Notes = "All done"});
+            AssertEmailPropsNotNull(emailService);
 
+            //----------
             propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             tenantRequest =
                 propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                     TenantRequestStatusEnum.Closed, null);
-
+            //----------
             propService.SetUser(UserRolesEnum.Tenant, tenantLogin);
             tenantRequest = propService.RegisterTenantRequest(prop.Code, tenant.UnitNumber,
                 new TenantRequestDoc()
                 {
                     RequestItems = new string[] {"Full renovation needed"},
                 });
+            AssertEmailPropsNotNull(emailService);
 
+            //----------
             propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             tenantRequest = propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.RequestRejected, new TenantRequestRejectNotes() {Notes = "We can't do that"});
+            AssertEmailPropsNotNull(emailService);
 
+            //----------
             propService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
             propService.ChangeRequestStatus(prop.Code, tenant.UnitNumber, tenantRequest.Code,
                 TenantRequestStatusEnum.Closed, null);
 
             propService.GetPropertyTenants("moonlight");
+
+            
         }
 
- 
+        private static void AssertEmailPropsNotNull(EmailServiceMock emailService)
+        {
+            Assert.IsNotNull(emailService.LastSentEmail);
+            Assert.IsNotNull(emailService.LastSentEmail.RecipientEmail);
+            Assert.IsNotNull(emailService.LastSentEmail.SenderEmail);
+            Assert.IsNotNull(emailService.LastSentEmail.Subject);
+            Assert.IsNotNull(emailService.LastSentEmail.Body);
+        }
     }
 }
