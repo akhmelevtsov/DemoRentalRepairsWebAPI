@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Demo.RentalRepairs.Domain.Entities;
-using Demo.RentalRepairs.Domain.Entities.Extensions;
-using Demo.RentalRepairs.Domain.Framework;
-using Demo.RentalRepairs.Domain.ValueObjects;
-using Demo.RentalRepairs.Domain.ValueObjects.Request;
+﻿using Demo.RentalRepairs.Domain.Framework;
 
 namespace Demo.RentalRepairs.Domain.Services
 {

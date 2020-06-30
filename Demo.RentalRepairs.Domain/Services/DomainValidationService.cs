@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Demo.RentalRepairs.Domain.Entities;
-using Demo.RentalRepairs.Domain.Entities.Validators;
+﻿using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.Exceptions;
-using Demo.RentalRepairs.Domain.Framework;
 using Demo.RentalRepairs.Domain.ValueObjects;
-using Demo.RentalRepairs.Domain.ValueObjects.Validators;
-using FluentValidation.Results;
 
 namespace Demo.RentalRepairs.Domain.Services
 {

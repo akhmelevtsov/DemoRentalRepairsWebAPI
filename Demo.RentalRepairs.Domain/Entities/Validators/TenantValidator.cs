@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Demo.RentalRepairs.Domain.ValueObjects.Validators;
+﻿using Demo.RentalRepairs.Domain.ValueObjects.Validators;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 
 namespace Demo.RentalRepairs.Domain.Entities.Validators
 {

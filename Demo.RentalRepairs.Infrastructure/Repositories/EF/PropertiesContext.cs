@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
-using Demo.RentalRepairs.Domain.ValueObjects;
-using Demo.RentalRepairs.Domain.ValueObjects.Request;
-using Demo.RentalRepairs.Infrastructure.Repositories.EF.Entities;
+﻿using Demo.RentalRepairs.Infrastructure.Repositories.EF.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Demo.RentalRepairs.Infrastructure.Repositories.EF

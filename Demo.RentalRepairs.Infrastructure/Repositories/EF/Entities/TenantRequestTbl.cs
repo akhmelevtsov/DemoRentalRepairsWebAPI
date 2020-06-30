@@ -1,8 +1,5 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations.Schema;
-using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.Enums;
-using Demo.RentalRepairs.Domain.ValueObjects.Request;
 
 namespace Demo.RentalRepairs.Infrastructure.Repositories.EF.Entities
 {

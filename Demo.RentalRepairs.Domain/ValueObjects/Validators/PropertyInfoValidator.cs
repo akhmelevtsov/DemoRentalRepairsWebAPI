@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.Entities.Validators;
 using FluentValidation;
 

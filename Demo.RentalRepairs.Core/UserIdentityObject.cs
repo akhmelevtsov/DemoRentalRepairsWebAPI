@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
-using Demo.RentalRepairs.Domain.Enums;
+﻿using Demo.RentalRepairs.Domain.Enums;
 
 namespace Demo.RentalRepairs.Core
 {

@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using Demo.RentalRepairs.Core.Interfaces;
-using Demo.RentalRepairs.Core.Services;
 using Demo.RentalRepairs.Domain.Entities;
-using Demo.RentalRepairs.Domain.Entities.Extensions;
 using Demo.RentalRepairs.Domain.Exceptions;
-using Demo.RentalRepairs.Domain.Framework;
 
 namespace Demo.RentalRepairs.Infrastructure.Repositories
 {
@@ -36,7 +32,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories
                 throw new DomainEntityNotFoundException("tenant_request_not_found",
                     $"Tenant request not found by id: {tTenantRequest} ");
            
-             _requests[tTenantRequest.Id] = tTenantRequest;
+            _requests[tTenantRequest.Id] = tTenantRequest;
             
         }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Text.RegularExpressions;
@@ -7,7 +6,6 @@ using Demo.RentalRepairs.Core.Enums;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.Enums;
-using Demo.RentalRepairs.Domain.ValueObjects;
 
 namespace Demo.RentalRepairs.Core
 {

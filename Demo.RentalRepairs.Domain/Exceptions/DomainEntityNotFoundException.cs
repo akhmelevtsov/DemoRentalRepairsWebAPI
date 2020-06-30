@@ -1,6 +1,4 @@
-﻿using Demo.RentalRepairs.Domain.Framework;
-
-namespace Demo.RentalRepairs.Domain.Exceptions
+﻿namespace Demo.RentalRepairs.Domain.Exceptions
 {
     public class DomainEntityNotFoundException : DomainException  
     {

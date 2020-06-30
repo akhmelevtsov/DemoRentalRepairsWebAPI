@@ -1,7 +1,5 @@
 ﻿using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Entities;
-using Demo.RentalRepairs.Domain.Entities.Extensions;
-using Demo.RentalRepairs.Domain.ValueObjects;
 
 namespace Demo.RentalRepairs.Core.Services
 {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 using Demo.RentalRepairs.Domain.ValueObjects;
 
 namespace Demo.RentalRepairs.Infrastructure.Repositories.EF.Entities

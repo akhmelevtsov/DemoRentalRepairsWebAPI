@@ -2,7 +2,6 @@
 using System.Linq;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Entities;
-using Demo.RentalRepairs.Domain.Entities.Extensions;
 using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects;
