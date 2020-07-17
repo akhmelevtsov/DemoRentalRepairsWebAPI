@@ -58,7 +58,7 @@ namespace Demo.RentalRepairs.WebApi
             });
            
             services.AddTransient<IUserAuthorizationService, UserAuthorizationMockService>();
-            services.AddTransient<IPropertyRepository, PropertyRepositoryEntityFramework>();
+            services.AddTransient<IPropertyRepository, PropertyRepositoryEf>();
 
             //services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory >();
             services.AddTransient<INotifyPartiesService, NotifyPartiesServiceMock>();

@@ -33,7 +33,7 @@ namespace Demo.RentalRepairs.Domain.Entities
             NoReplyEmailAddress = propertyInfo.NoReplyEmailAddress;
 
         }
-        public Tenant AddTenant(PersonContactInfo contactInfo, string unitNumber)
+        public Tenant RegisterTenant(PersonContactInfo contactInfo, string unitNumber)
         {
             var tenant = new Tenant(this, contactInfo, unitNumber);
             _validationService.ValidateTenant(tenant);
@@ -41,6 +41,7 @@ namespace Demo.RentalRepairs.Domain.Entities
             return tenant;
 
         }
+        
         public static void NotFoundException(string propertyCode)
         {
             throw new DomainEntityNotFoundException( "property_not_found", $"Property not found: {propertyCode }");

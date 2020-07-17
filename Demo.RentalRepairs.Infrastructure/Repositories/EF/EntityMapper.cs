@@ -10,6 +10,8 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
 {
     internal class EntityMapper
     {
+
+       
         //-----------------------------------------------------------
         internal PropertyTbl CopyFrom(Property prop)
         {
@@ -38,6 +40,30 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
             };
             return prop;
         }
+        //----
+        internal WorkerTbl CopyFrom(Worker worker)
+        {
+            WorkerTbl tenantTbl = new WorkerTbl()
+            {
+               
+                ContactInfo = worker.PersonContactInfo ,
+                ID = worker.Id
+                
+            };
+            return tenantTbl;
+        }
+        internal Worker CopyFrom(WorkerTbl workerTbl)
+        {
+            return new Worker(
+
+                workerTbl.ContactInfo,
+                workerTbl.DateCreated,
+                workerTbl.ID)
+            {
+              
+            };
+        }
+
         //----
         internal TenantTbl CopyFrom(Tenant tenant)
         {

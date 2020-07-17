@@ -90,11 +90,12 @@ namespace Demo.RentalRepairs.Domain.Entities
             RejectNotes = rejectNotes;
         }
 
-        private void ScheduleWork(ServiceWorkOrder serviceWorkOrder)
+        public TenantRequest ScheduleWork(ServiceWorkOrder serviceWorkOrder)
         {
             RequestStatus = TenantRequestStatusEnum.WorkScheduled;
             ServiceWorkOrder = serviceWorkOrder;
             this.WorkerEmail = serviceWorkOrder.Person.EmailAddress;
+            return this;
 
         }
 

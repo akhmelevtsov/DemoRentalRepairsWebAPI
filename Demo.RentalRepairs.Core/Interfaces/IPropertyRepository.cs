@@ -23,5 +23,7 @@ namespace Demo.RentalRepairs.Core.Interfaces
 
         Tenant FindTenantByLoginEmail(string emailAddress);
         Worker FindWorkerByLoginEmail(string emailAddress);
+        void AddWorker(Worker worker);
+        IEnumerable<Worker> GetAllWorkers();
     }
 }

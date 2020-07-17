@@ -71,7 +71,7 @@ namespace Demo.RentalRepairs.WebMvc
             services.AddTransient<IUserAuthorizationService, UserAuthorizationMockService>();
             //services.AddTransient<IUserAuthCoreService, UserAuthCoreService>();
             //services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();
-            services.AddTransient<IPropertyRepository, PropertyRepositoryEntityFramework>();
+            services.AddTransient<IPropertyRepository, PropertyRepositoryEf>();
             services.AddTransient<INotifyPartiesService, NotifyPartiesServiceMock>();
             services.AddTransient<IPropertyService, PropertyService>();
         }

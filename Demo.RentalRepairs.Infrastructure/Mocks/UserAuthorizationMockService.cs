@@ -85,5 +85,15 @@ namespace Demo.RentalRepairs.Infrastructure.Mocks
         {
             
         }
+
+        public void UserCanRegisterWorker()
+        {
+           
+        }
+
+        public void UserCanGetListOfAllWorkers()
+        {
+           
+        }
     }
 }

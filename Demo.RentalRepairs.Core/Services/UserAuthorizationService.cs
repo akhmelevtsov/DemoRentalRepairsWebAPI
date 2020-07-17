@@ -93,6 +93,23 @@ namespace Demo.RentalRepairs.Core.Services
             }
         }
 
+        public void UserCanRegisterWorker()
+        {
+            if (_loggedUser.UserRole == UserRolesEnum.Worker )
+            {
+                return;
+            }
+            throw new DomainAuthorizationException("register_worker_is_not_allowed", "only worker role can register worker");
+        }
+
+        public void UserCanGetListOfAllWorkers()
+        {
+            if (_loggedUser.UserRole != UserRolesEnum.Superintendent   )
+            {
+                throw new DomainAuthorizationException("view_list_of_workers_is_not_allowed", "Only superintendent is allowed to list all workers");
+            }
+        }
+
         public void UserCanGetTenantDetails(string propertyCode, string propertyUnit)
         {
 
@@ -114,6 +131,8 @@ namespace Demo.RentalRepairs.Core.Services
 
             throw new DomainAuthorizationException("view_property_tenant_details_not_allowed", "No permissions to view property tenant details");
         }
+
+  
 
         public void UserCanGetListOfTenantRequests()
         {

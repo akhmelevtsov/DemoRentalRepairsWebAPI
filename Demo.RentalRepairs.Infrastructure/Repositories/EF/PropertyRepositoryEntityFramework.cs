@@ -9,16 +9,25 @@ using Newtonsoft.Json;
 
 namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
 {
-    public class PropertyRepositoryEntityFramework : IPropertyRepository
+    public class PropertyRepositoryEf : IPropertyRepository
     {
         private readonly PropertiesContext _context;
         private readonly EntityMapper _entityMapper = new EntityMapper();
 
-        public PropertyRepositoryEntityFramework(PropertiesContext context)
+        public PropertyRepositoryEf(PropertiesContext context)
         {
             _context = context;
         }
+        public void AddWorker(Worker worker)
+        {
+            _context.WorkerTbl .Add(_entityMapper.CopyFrom(worker));
+            _context.SaveChanges();
+        }
 
+        public IEnumerable<Worker> GetAllWorkers()
+        {
+            return _context.WorkerTbl .Select(x => _entityMapper.CopyFrom(x));
+        }
         public IEnumerable<Property> GetAllProperties()
         {
             return _context.PropertyTbl.Select(x => _entityMapper.CopyFrom( x));
@@ -114,9 +123,11 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
 
             return req == null
                 ? null
-                : new Worker()
-                    {  PersonContactInfo = JsonConvert.DeserializeObject<ServiceWorkOrder>(req.ServiceWorkOrder).Person};
+                : new Worker(JsonConvert.DeserializeObject<ServiceWorkOrder>(req.ServiceWorkOrder).Person);
+            //{  PersonContactInfo = JsonConvert.DeserializeObject<ServiceWorkOrder>(req.ServiceWorkOrder).Person};
 
         }
+
+      
     }
 }

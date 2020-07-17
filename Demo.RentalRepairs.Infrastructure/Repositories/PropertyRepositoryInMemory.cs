@@ -14,6 +14,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories
         private readonly List<Tenant> _tenants = new List<Tenant>();
         private readonly Dictionary<Guid,TenantRequest >  _requests = new Dictionary<Guid, TenantRequest>();
 
+        private List< Worker> _workers = new List<Worker>();
 
         public Property FindPropertyByLoginEmail(string emailAddress)
         {
@@ -45,7 +46,17 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories
         {
             var request = _requests.Values.FirstOrDefault(x =>
                 (x.ServiceWorkOrder != null && x.ServiceWorkOrder?.Person?.EmailAddress == emailAddress));
-            return request == null ? null : new Worker() {PersonContactInfo = request.ServiceWorkOrder.Person};
+            return request == null ? null : new Worker(request.ServiceWorkOrder.Person);
+        }
+
+        public void AddWorker(Worker worker)
+        {
+            _workers.Add(worker);
+        }
+
+        public IEnumerable<Worker> GetAllWorkers()
+        {
+            return _workers;
         }
 
         public TenantRequest GetTenantRequestById(Guid tenantRequestId)

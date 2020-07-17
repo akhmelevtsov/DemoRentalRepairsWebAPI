@@ -81,8 +81,19 @@ namespace Demo.RentalRepairs.Core.Services
 
             return prop;
         }
+        public Worker AddWorker(PersonContactInfo workerInfo)
+        {
+            _authService.UserCanRegisterWorker();
+            var worker = new Worker(workerInfo);
+            _propertyRepository.AddWorker(worker);
+            return worker;
+        }
 
-        
+        public IEnumerable<Worker> GetAllWorkers()
+        {
+            _authService.UserCanGetListOfAllWorkers();
+            return _propertyRepository.GetAllWorkers();
+        }
         public Property AddProperty(PropertyInfo propertyInfo)
         {
             _authService.UserCanRegisterProperty();
@@ -112,7 +123,7 @@ namespace Demo.RentalRepairs.Core.Services
             _validationService.ValidatePersonContactInfo(contactInfo);
 
             var property = _propertyRepository.GetPropertyByCode(propertyCode);
-            var tenant = property.AddTenant( contactInfo, unitNumber);
+            var tenant = property.RegisterTenant( contactInfo, unitNumber);
             tenant.LoginEmail = _authService.LoggedUser.Login;
             _propertyRepository.AddTenant(tenant);
             
@@ -189,7 +200,6 @@ namespace Demo.RentalRepairs.Core.Services
         }
 
 
-
-
+      
     }
 }

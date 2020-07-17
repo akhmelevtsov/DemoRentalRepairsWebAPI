@@ -20,5 +20,7 @@ namespace Demo.RentalRepairs.Core.Interfaces
         void UserCanRegisterTenant();
         void UserCanRegisterTenantRequest(string propCode, string tenantUnit);
         void UserCanGetTenantDetails(string propertyCode, string propertyUnit);
+        void UserCanRegisterWorker();
+        void UserCanGetListOfAllWorkers();
     }
 }
