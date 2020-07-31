@@ -6,7 +6,6 @@ namespace Demo.RentalRepairs.WebMvc.Models.AccountViewModels
 {
     public class RegisterViewModel
     {
-        public List<SelectListItem> Roles { get; set; }
         [Required]
         [EmailAddress]
         [Display(Name = "Email")]
@@ -25,5 +24,7 @@ namespace Demo.RentalRepairs.WebMvc.Models.AccountViewModels
         [Required]
         [Display(Name = "Register As")]
         public string SelectedRole { get; set; }
+        public SelectList Roles { get; set; }
+
     }
 }

@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Framework;
+using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
 
 namespace Demo.RentalRepairs.Domain.Entities
 {
     public class TenantRequest : Entity
     {
+        readonly DomainValidationService _validationService = new DomainValidationService();
+
         private TenantRequestStatusEnum _requestStatus = TenantRequestStatusEnum.Undefined;
 
 
@@ -18,22 +22,22 @@ namespace Demo.RentalRepairs.Domain.Entities
                 new
                     List<(TenantRequestActionEnum, TenantRequestStatusEnum, TenantRequestStatusEnum)>
                     {
-                        (TenantRequestActionEnum.RegisterRequest, TenantRequestStatusEnum.RequestReceived,
+                        (TenantRequestActionEnum.RegisterRequest, TenantRequestStatusEnum.Submitted,
                             TenantRequestStatusEnum.Undefined),
-                        (TenantRequestActionEnum.RejectRequest, TenantRequestStatusEnum.RequestRejected,
-                            TenantRequestStatusEnum.RequestReceived),
-                        (TenantRequestActionEnum.ScheduleWork, TenantRequestStatusEnum.WorkScheduled,
-                            TenantRequestStatusEnum.RequestReceived),
-                        (TenantRequestActionEnum.ReportWorkIncomplete, TenantRequestStatusEnum.WorkIncomplete,
-                            TenantRequestStatusEnum.WorkScheduled),
-                        (TenantRequestActionEnum.ReportWorkComplete, TenantRequestStatusEnum.WorkCompleted,
-                            TenantRequestStatusEnum.WorkScheduled),
-                        (TenantRequestActionEnum.ScheduleWork, TenantRequestStatusEnum.WorkScheduled,
-                            TenantRequestStatusEnum.WorkIncomplete),
+                        (TenantRequestActionEnum.RejectRequest, TenantRequestStatusEnum.Declined,
+                            TenantRequestStatusEnum.Submitted),
+                        (TenantRequestActionEnum.ScheduleWork, TenantRequestStatusEnum.Scheduled,
+                            TenantRequestStatusEnum.Submitted),
+                        (TenantRequestActionEnum.ReportWorkIncomplete, TenantRequestStatusEnum.Failed,
+                            TenantRequestStatusEnum.Scheduled),
+                        (TenantRequestActionEnum.ReportWorkComplete, TenantRequestStatusEnum.Done,
+                            TenantRequestStatusEnum.Scheduled),
+                        (TenantRequestActionEnum.ScheduleWork, TenantRequestStatusEnum.Scheduled,
+                            TenantRequestStatusEnum.Failed),
                         (TenantRequestActionEnum.CloseRequest, TenantRequestStatusEnum.Closed,
-                            TenantRequestStatusEnum.WorkCompleted),
+                            TenantRequestStatusEnum.Done),
                         (TenantRequestActionEnum.CloseRequest, TenantRequestStatusEnum.Closed,
-                            TenantRequestStatusEnum.RequestRejected)
+                            TenantRequestStatusEnum.Declined)
                     };
 
 
@@ -53,15 +57,12 @@ namespace Demo.RentalRepairs.Domain.Entities
         }
 
         public Tenant Tenant { get; set; }
-        public TenantRequestDoc RequestDoc { get; set; }
-        public TenantRequestRejectNotes RejectNotes { get; set; }
-        public ServiceWorkReport WorkReport { get; set; }
-        public ServiceWorkOrder ServiceWorkOrder { get; set; }
+ 
         public int ServiceWorkOrderCount { get; set; }
         public string Code { get; set; }
-        public string WorkerEmail { get; set; }
+       
+        public List<TenantRequestChange> RequestChanges { get; set; } = new List<TenantRequestChange>();
 
-        
 
         public TenantRequest(Tenant tenant, string code, DateTime? dateCreated = null, Guid? id = null) : base(
             dateCreated, id)
@@ -76,90 +77,92 @@ namespace Demo.RentalRepairs.Domain.Entities
             _requestStatus = requestStatus;
         }
 
-        private void RegisterRequest(TenantRequestDoc tenantRequestDoc)
+        public TenantRequest ExecuteCommand(ITenantRequestCommand command)
         {
-
-            RequestStatus = TenantRequestStatusEnum.RequestReceived;
-            RequestDoc = tenantRequestDoc;
-
-        }
-
-        private void RejectRequest(TenantRequestRejectNotes rejectNotes)
-        {
-            RequestStatus = TenantRequestStatusEnum.RequestRejected;
-            RejectNotes = rejectNotes;
-        }
-
-        public TenantRequest ScheduleWork(ServiceWorkOrder serviceWorkOrder)
-        {
-            RequestStatus = TenantRequestStatusEnum.WorkScheduled;
-            ServiceWorkOrder = serviceWorkOrder;
-            this.WorkerEmail = serviceWorkOrder.Person.EmailAddress;
-            return this;
-
-        }
-
-        private void ReportWorkIncomplete(ServiceWorkReport serviceWorkReport)
-        {
-            RequestStatus = TenantRequestStatusEnum.WorkIncomplete;
-            WorkReport = serviceWorkReport;
-
-        }
-
-        private void ReportWorkComplete(ServiceWorkReport serviceWorkReport)
-        {
-            RequestStatus = TenantRequestStatusEnum.WorkCompleted;
-            WorkReport = serviceWorkReport;
-        }
-
-        private void CloseRequest()
-        {
-            RequestStatus = TenantRequestStatusEnum.Closed;
-        }
-
-        public TenantRequest ChangeStatus(TenantRequestStatusEnum newStatus, TenantRequestBaseDoc tenantRequestBaseDoc)
-        {
-            switch (newStatus)
+            var type = command.GetType();
+            if (type == typeof(RegisterTenantRequestCommand))
             {
-
-                case TenantRequestStatusEnum.RequestReceived:
-                    RegisterRequest((TenantRequestDoc) tenantRequestBaseDoc);
-                    break;
-                case TenantRequestStatusEnum.RequestRejected:
-                    RejectRequest((TenantRequestRejectNotes) tenantRequestBaseDoc);
-                    break;
-                case TenantRequestStatusEnum.WorkScheduled:
-                    ScheduleWork((ServiceWorkOrder) tenantRequestBaseDoc);
-                    break;
-                case TenantRequestStatusEnum.WorkCompleted:
-                    ReportWorkComplete((ServiceWorkReport) tenantRequestBaseDoc);
-                    break;
-                case TenantRequestStatusEnum.WorkIncomplete:
-                    ReportWorkIncomplete((ServiceWorkReport) tenantRequestBaseDoc);
-                    break;
-                case TenantRequestStatusEnum.Closed:
-                    CloseRequest();
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(newStatus), newStatus, null);
+                _validationService.Validate((RegisterTenantRequestCommand)command);
+                RequestStatus = TenantRequestStatusEnum.Submitted;
+                RequestChanges.Add(new TenantRequestChange(RequestStatus, command));
+                return this;
             }
 
-            return this;
+            if (type == typeof(RejectTenantRequestCommand))
+            {
+               
+                RequestStatus = TenantRequestStatusEnum.Declined;
+                RequestChanges.Add(new TenantRequestChange(RequestStatus, command));
+                return this;
+            }
+
+            if (type == typeof(ScheduleServiceWorkCommand))
+            {
+                _validationService.Validate((ScheduleServiceWorkCommand)command);
+                RequestStatus = TenantRequestStatusEnum.Scheduled;
+                ServiceWorkOrderCount++;
+                RequestChanges.Add(new TenantRequestChange(RequestStatus, command,ServiceWorkOrderCount ));
+               return this;
+            }
+
+            if (type == typeof(ReportServiceWorkCommand)  && ((ReportServiceWorkCommand)command).Success)
+            {
+                _validationService.Validate((ReportServiceWorkCommand)command);
+                RequestStatus = TenantRequestStatusEnum.Done;
+                RequestChanges.Add(new TenantRequestChange(RequestStatus, command, ServiceWorkOrderCount));
+
+                return this;
+            }
+            if (type == typeof(ReportServiceWorkCommand) && !((ReportServiceWorkCommand)command).Success)
+            {
+                _validationService.Validate((ReportServiceWorkCommand)command);
+                RequestStatus = TenantRequestStatusEnum.Failed;
+                RequestChanges.Add(new TenantRequestChange(RequestStatus, command, ServiceWorkOrderCount));
+
+                return this;
+            }
+            if (type == typeof(CloseTenantRequestCommand) )
+            {
+                RequestStatus = TenantRequestStatusEnum.Closed ;
+                RequestChanges.Add(new TenantRequestChange(RequestStatus, command));
+
+                return this;
+            }
+            throw new ArgumentOutOfRangeException(nameof(command));
         }
 
         public string TenantFullName => Tenant?.ContactInfo?.GetFullName();
         public string RequestDate => DateCreated.ToLongTimeString();
+        public string RequestTitle => GetRegisterCommand().Title;
+        public string RequestDescription => GetRegisterCommand().Description ;
         public string PropertyName => Tenant?.Property?.Name;
-        public string WorkerFullName => ServiceWorkOrder?.Person?.GetFullName();
         public string SuperintendentFullName => Tenant?.Property?.Superintendent?.GetFullName();
-        public string WorkOrderNumber => ServiceWorkOrder?.WorkOrderNo.ToString();
+
+        public string WorkOrderNumber => GetScheduleWorkCommand()?.WorkOrderNo.ToString();
+        public string WorkOrderDate => GetScheduleWorkCommand()?.ServiceDate.ToShortDateString();
+        public string WorkerEmail => GetScheduleWorkCommand()?.WorkerEmailAddress ;
+
         public string PropertyId => Tenant?.Property?.Id.ToString();
         public string TenantId => Tenant?.Id.ToString();
-        public string WorkerId => ServiceWorkOrder?.Person?.EmailAddress;
+        public string TenantUnit => Tenant?.UnitNumber;
+    
         public string PropertyNoReplyEmail => Tenant?.Property?.NoReplyEmailAddress;
         public string TenantEmail => Tenant?.ContactInfo?.EmailAddress;
         public string PropertyPhone => Tenant?.Property?.PhoneNumber;
         public string SuperintendentEmail => Tenant?.Property?.Superintendent?.EmailAddress;
-        public string WorkOrderDate => ServiceWorkOrder?.ServiceDate.ToShortDateString() ;
+
+        private RegisterTenantRequestCommand GetRegisterCommand() => RequestChanges.OrderBy(x => x.DateCreated)
+            .Where(x => x.TenantRequestStatus == TenantRequestStatusEnum.Submitted)
+            .Select(x => (RegisterTenantRequestCommand) x.Command).First();
+        private ScheduleServiceWorkCommand GetScheduleWorkCommand()
+        {
+            var tenantRequestChanges = RequestChanges.OrderBy(x => x.DateCreated)
+                .Where(x => x.TenantRequestStatus == TenantRequestStatusEnum.Scheduled && x.Num == ServiceWorkOrderCount);
+
+            var requestChanges = tenantRequestChanges.ToList();
+            return  requestChanges.Any() ?  requestChanges.Select(x => (ScheduleServiceWorkCommand) x.Command).Last() : null ;
+        }
+
+   
     }
 }

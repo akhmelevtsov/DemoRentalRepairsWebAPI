@@ -1,6 +1,7 @@
 ﻿using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.ValueObjects;
+using Demo.RentalRepairs.Domain.ValueObjects.Request;
 
 namespace Demo.RentalRepairs.Domain.Services
 {
@@ -11,15 +12,15 @@ namespace Demo.RentalRepairs.Domain.Services
         public  void ValidateProperty( Property property)
         {
 
-            var results = _validationRulesService.ValidateProperty(property);
+            var results = _validationRulesService.Validate(property);
             if (!results.IsValid)
             {
                 throw new DomainValidationException("create_property_validation", results.Errors);
             }
         }
-        public void ValidatePropertyInfo(PropertyInfo propertyInfo)
+        public void Validate(AddPropertyCommand propertyInfo)
         {
-            var results = _validationRulesService.ValidatePropertyInfo(propertyInfo);
+            var results = _validationRulesService.Validate(propertyInfo);
             if (!results.IsValid)
             {
                 throw new DomainValidationException("create_property_validation", results.Errors);
@@ -36,10 +37,10 @@ namespace Demo.RentalRepairs.Domain.Services
 
         }
 
-        public  void ValidateTenant( Tenant tenant)
+        public  void Validate( Tenant tenant)
         {
             
-            var results = _validationRulesService.ValidateTenant(tenant);
+            var results = _validationRulesService.Validate(tenant);
             if (!results.IsValid)
             {
                 throw new DomainValidationException("add_tenant_validation", results.Errors);
@@ -56,16 +57,42 @@ namespace Demo.RentalRepairs.Domain.Services
             }
         }
 
-        public  void ValidatePersonContactInfo(PersonContactInfo personContactInfo)
+        public  void Validate(PersonContactInfo personContactInfo)
         {
             
-            var results = _validationRulesService.ValidatePersonContactInfo(personContactInfo);
+            var results = _validationRulesService.Validate(personContactInfo);
             if (!results.IsValid)
             {
                 throw new DomainValidationException("personContactInfo_validation", results.Errors);
             }
         }
+        public void Validate(RegisterTenantRequestCommand tenantRequestCommand)
+        {
 
-  
+            var results = _validationRulesService.Validate(tenantRequestCommand);
+            if (!results.IsValid)
+            {
+                throw new DomainValidationException("tenantRequestDoc_validation", results.Errors);
+            }
+        }
+        public void Validate(ScheduleServiceWorkCommand  serviceWorkOrder)
+        {
+
+            var results = _validationRulesService.Validate(serviceWorkOrder);
+            if (!results.IsValid)
+            {
+                throw new DomainValidationException("serviceWorkOrder_validation", results.Errors);
+            }
+        }
+        public void Validate(ReportServiceWorkCommand serviceWorkCommand)
+        {
+
+            var results = _validationRulesService.Validate(serviceWorkCommand);
+            if (!results.IsValid)
+            {
+                throw new DomainValidationException("serviceWorkOrder_validation", results.Errors);
+            }
+        }
+
     }
 }

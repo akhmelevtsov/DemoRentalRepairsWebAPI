@@ -7,17 +7,20 @@ namespace Demo.RentalRepairs.Core.Services
     {
         private readonly IEmailService _emailService;
         private readonly ITemplateDataService _templateDataService;
+        private readonly IPropertyRepository _propertyRepository;
 
-        public NotifyPartiesService(IEmailService emailService, ITemplateDataService templateDataService)
+
+        public NotifyPartiesService(IEmailService emailService, ITemplateDataService templateDataService,IPropertyRepository propertyRepository)
         {
             _emailService = emailService;
             _templateDataService = templateDataService;
+            _propertyRepository = propertyRepository;
         }
 
         public EmailInfo CreateAndSendEmail(TenantRequest tenantRequest)
         {
           
-            var email = new PropertyMessageFactory(_templateDataService, tenantRequest).CreateTenantRequestEmail();
+            var email = new PropertyMessageFactory(_templateDataService,  tenantRequest, _propertyRepository ).CreateTenantRequestEmail();
             _emailService.SendEmail(email);
             return email;
         }

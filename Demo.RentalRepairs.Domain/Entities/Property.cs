@@ -21,22 +21,22 @@ namespace Demo.RentalRepairs.Domain.Entities
         public string LoginEmail { get; set;  }
         public string NoReplyEmailAddress { get;  set; }
 
-        public Property(PropertyInfo propertyInfo, DateTime? dateCreated = null, Guid? id = null) : base(dateCreated, id)
+        public Property(AddPropertyCommand addPropertyCommand, DateTime? dateCreated = null, Guid? id = null) : base(dateCreated, id)
         {
-            _validationService.ValidatePropertyInfo(propertyInfo);
-            Name = propertyInfo.Name;
-            Code = propertyInfo.Code;
-            PhoneNumber = propertyInfo.PhoneNumber;
-            Address = propertyInfo.Address;
-            Superintendent = propertyInfo.Superintendent ;
-            Units = propertyInfo.Units ;
-            NoReplyEmailAddress = propertyInfo.NoReplyEmailAddress;
+            _validationService.Validate(addPropertyCommand);
+            Name = addPropertyCommand.Name;
+            Code = addPropertyCommand.Code;
+            PhoneNumber = addPropertyCommand.PhoneNumber;
+            Address = addPropertyCommand.Address;
+            Superintendent = addPropertyCommand.Superintendent ;
+            Units = addPropertyCommand.Units ;
+            NoReplyEmailAddress = addPropertyCommand.NoReplyEmailAddress;
 
         }
         public Tenant RegisterTenant(PersonContactInfo contactInfo, string unitNumber)
         {
             var tenant = new Tenant(this, contactInfo, unitNumber);
-            _validationService.ValidateTenant(tenant);
+            _validationService.Validate(tenant);
 
             return tenant;
 

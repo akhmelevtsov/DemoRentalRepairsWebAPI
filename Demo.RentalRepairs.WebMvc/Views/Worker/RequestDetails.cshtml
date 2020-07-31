@@ -1,0 +1,14 @@
+﻿@model Demo.RentalRepairs.WebMvc.Models.PropertyTenantRequestViewModel
+
+@{
+    ViewData["Title"] = "Service Request";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div>
+    <h4>@ViewData["Title"]</h4>
+    <hr />
+    <partial name="~/Views/Shared/_RequestDetailsPartial.cshtml" />
+</div>
+<div>
+    <a asp-action="Requests">Back to List</a>
+</div>

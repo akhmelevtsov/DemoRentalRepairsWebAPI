@@ -60,9 +60,9 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status500InternalServerError)]
-        public void ScheduleWork(string propertyCode, string tenantUnit,string requestCode,  [FromBody] ServiceWorkOrder  serviceWorkOrder)
+        public void ScheduleWork(string propertyCode, string tenantUnit,string requestCode,  [FromBody] ScheduleServiceWorkCommand  serviceWorkOrder)
         {
-            _propertyService.ChangeRequestStatus(propertyCode,tenantUnit , requestCode, TenantRequestStatusEnum.WorkScheduled, serviceWorkOrder);
+            _propertyService.ExecuteTenantRequestCommand(propertyCode,tenantUnit , requestCode, serviceWorkOrder);
         }
         // PATCH api/properties/moonlight/tenants/21/requests/1/reject
         /// <summary>
@@ -72,9 +72,9 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status500InternalServerError)]
-        public void RejectRequest(string propertyCode, string tenantUnit, [FromRoute] string requestCode, [FromBody] TenantRequestRejectNotes  tenantRequestRejectNotes)
+        public void RejectRequest(string propertyCode, string tenantUnit, [FromRoute] string requestCode, [FromBody] RejectTenantRequestCommand  tenantRequestRejectNotes)
         {
-            _propertyService.ChangeRequestStatus(propertyCode, tenantUnit, requestCode, TenantRequestStatusEnum.RequestRejected , tenantRequestRejectNotes);
+            _propertyService.ExecuteTenantRequestCommand(propertyCode, tenantUnit, requestCode, tenantRequestRejectNotes);
         }
         // PATCH api/properties/moonlight/tenants/21/requests/1/done
         /// <summary>
@@ -85,9 +85,9 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status500InternalServerError)]
-        public void ReportWorkCompleted(string propertyCode, string tenantUnit, [FromRoute] string requestCode, [FromBody] ServiceWorkReport serviceWorkReport )
+        public void ReportWorkCompleted(string propertyCode, string tenantUnit, [FromRoute] string requestCode, [FromBody] ReportServiceWorkCommand serviceWorkReport )
         {
-            _propertyService.ChangeRequestStatus(propertyCode, tenantUnit, requestCode, TenantRequestStatusEnum.WorkCompleted  , serviceWorkReport);
+            _propertyService.ExecuteTenantRequestCommand(propertyCode, tenantUnit, requestCode, serviceWorkReport);
         }
         // PATCH api/properties/moonlight/tenants/21/requests/1/failed
         /// <summary>
@@ -98,9 +98,9 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status500InternalServerError)]
-        public void ReportWorkIncomplete(string propertyCode, string tenantUnit, [FromRoute] string requestCode, [FromBody] ServiceWorkReport serviceWorkReport)
+        public void ReportWorkIncomplete(string propertyCode, string tenantUnit, [FromRoute] string requestCode, [FromBody] ReportServiceWorkCommand serviceWorkReport)
         {
-            _propertyService.ChangeRequestStatus(propertyCode, tenantUnit, requestCode, TenantRequestStatusEnum.WorkIncomplete , serviceWorkReport);
+            _propertyService.ExecuteTenantRequestCommand(propertyCode, tenantUnit, requestCode, serviceWorkReport);
         }
         // PATCH api/properties/moonlight/tenants/21/requests/1/close
         /// <summary>
@@ -113,7 +113,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status500InternalServerError)]
         public void CloseRequest(string propertyCode, string tenantUnit, [FromRoute] string requestCode)
         {
-            _propertyService.ChangeRequestStatus(propertyCode, tenantUnit, requestCode, TenantRequestStatusEnum.Closed , null);
+            _propertyService.ExecuteTenantRequestCommand(propertyCode, tenantUnit, requestCode, null);
         }
      
     }

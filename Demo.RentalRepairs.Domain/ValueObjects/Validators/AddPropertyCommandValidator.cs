@@ -5,9 +5,9 @@ using FluentValidation;
 
 namespace Demo.RentalRepairs.Domain.ValueObjects.Validators
 {
-    public class PropertyInfoValidator : AbstractValidator<PropertyInfo>
+    public class AddPropertyCommandValidator : AbstractValidator<AddPropertyCommand>
     {
-        public PropertyInfoValidator()
+        public AddPropertyCommandValidator()
         {
             RuleFor(p => p.Code).NotNull().SetValidator(new PropertyCodeValidator());
             RuleFor(p => p.Name).NotNull().MinimumLength(5).MaximumLength(50);

@@ -65,6 +65,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
             return View(tenant);
         }
+
         [HttpGet]
         public ActionResult GetUnits(string propCode)
         {

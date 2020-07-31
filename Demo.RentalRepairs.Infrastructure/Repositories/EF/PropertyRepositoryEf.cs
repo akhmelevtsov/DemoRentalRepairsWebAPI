@@ -28,6 +28,12 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
         {
             return _context.WorkerTbl .Select(x => _entityMapper.CopyFrom(x));
         }
+
+        public Worker GetWorkerByEmail(string email)
+        {
+            return _context.WorkerTbl.Where(x => x.ContactInfo.EmailAddress == email).Select( x => _entityMapper.CopyFrom(x)).FirstOrDefault();
+        }
+
         public IEnumerable<Property> GetAllProperties()
         {
             return _context.PropertyTbl.Select(x => _entityMapper.CopyFrom( x));
@@ -51,15 +57,39 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
 
         public Tenant GetTenantByUnitNumber(string unitNumber, string propCode)
         {
-           return _context.TenantTbl.Where( ten => ten.PropertyTblID == propCode && ten.UnitNumber == unitNumber).Include(p => p.Property )
+           return _context.TenantTbl
+               .Where( ten => ten.PropertyTblID == propCode && ten.UnitNumber == unitNumber)
+               .Include(p => p.Property )
+               .Include( p=> p.Requests )
                .Select( y => _entityMapper.CopyFrom(y)).FirstOrDefault();
        
         }
 
         public IEnumerable<Tenant> GetPropertyTenants(string propertyCode)
         {
-           return  _context.TenantTbl.Where(t => t.PropertyTblID == propertyCode).Include(p => p.Property).Select(t => _entityMapper.CopyFrom(t)).ToList();
+           return  _context.TenantTbl
+               .Where(t => t.PropertyTblID == propertyCode)
+               .Include(p => p.Property)
+               .Select(t => _entityMapper.CopyFrom(t)).ToList();
         }
+        public IEnumerable<TenantRequest> GetPropertyRequests(string propertyCode)
+        {
+            return _context.TenantRequestTbl
+                .Where(t => t.Tenant.Property.ID == propertyCode)
+                .Include(x => x.Tenant.Property )
+              
+                .Select(x => _entityMapper.CopyFrom(x));
+        }
+
+        public IEnumerable<TenantRequest> GetWorkerRequests(string workerEmail)
+        {
+            return _context.TenantRequestTbl
+                .Where(x => x.RequestChanges.Contains( workerEmail ))
+                .Include(x => x.Tenant.Property )
+                .Select(x => _entityMapper.CopyFrom(x)).ToList();
+        }
+
+     
 
         public IEnumerable<TenantRequest> GetTenantRequests(Guid tenantId)
         {
@@ -87,9 +117,11 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
         public TenantRequest GetTenantRequest(string propCode, string tenantUnit, string requestCode)
         {
             return _context.TenantRequestTbl
-                .Include(p => p.Tenant)
+               
                 .Where( x =>
                 x.Tenant.Property.ID == propCode && x.Tenant.UnitNumber == tenantUnit && x.Code == requestCode)
+                .Include(p => p.Tenant)
+                .Include(p =>p.Tenant.Property )
                 .Select(y => _entityMapper.CopyFrom(y)).FirstOrDefault();
         }
 
@@ -112,21 +144,21 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
 
         public Tenant FindTenantByLoginEmail(string emailAddress)
         {
-            return _context.TenantTbl.Where(x => x.LoginEmail  == emailAddress)
-                .Select(t => _entityMapper.CopyFrom(t)).FirstOrDefault();
+            return _context.TenantTbl.Where(x => x.LoginEmail  == emailAddress).Include( x => x.Property )
+                .Select(x => _entityMapper.CopyFrom(x)).FirstOrDefault();
         }
 
-        public Worker FindWorkerByLoginEmail(string emailAddress)
-        {
-            var req = _context.TenantRequestTbl.FirstOrDefault(x => x.WorkerEmail == emailAddress && x.ServiceWorkOrder != null  );
+        //public Worker FindWorkerByLoginEmail(string emailAddress)
+        //{
+        //    var req = _context.TenantRequestTbl.FirstOrDefault(x => x.WorkerEmail == emailAddress && x.ServiceWorkOrder != null  );
 
 
-            return req == null
-                ? null
-                : new Worker(JsonConvert.DeserializeObject<ServiceWorkOrder>(req.ServiceWorkOrder).Person);
-            //{  PersonContactInfo = JsonConvert.DeserializeObject<ServiceWorkOrder>(req.ServiceWorkOrder).Person};
+        //    return req == null
+        //        ? null
+        //        : new Worker(JsonConvert.DeserializeObject<ScheduleServiceWorkCommand>(req.ServiceWorkOrder).Person);
+        //    //{  PersonContactInfo = JsonConvert.DeserializeObject<ServiceWorkOrder>(req.ServiceWorkOrder).Person};
 
-        }
+        //}
 
       
     }

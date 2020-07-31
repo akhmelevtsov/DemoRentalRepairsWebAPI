@@ -3,11 +3,11 @@
     public enum TenantRequestStatusEnum 
     {
         Undefined,
-        RequestReceived,
-        RequestRejected,
-        WorkScheduled,
-        WorkCompleted,
-        WorkIncomplete,
+        Submitted,
+        Declined,
+        Scheduled,
+        Done,
+        Failed,
         Closed
     }
 }

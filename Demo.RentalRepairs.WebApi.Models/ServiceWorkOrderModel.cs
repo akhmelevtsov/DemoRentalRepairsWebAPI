@@ -2,7 +2,7 @@
 
 namespace Demo.RentalRepairs.WebApi.Models
 {
-    public class ServiceWorkOrderModel : ServiceWorkOrder
+    public class ServiceWorkOrderModel : ScheduleServiceWorkCommand
     {
 
     }

@@ -1,6 +1,6 @@
 ﻿using Demo.RentalRepairs.Domain.Enums;
 
-namespace Demo.RentalRepairs.Domain.ValueObjects
+namespace Demo.RentalRepairs.Core
 {
     public class LoggedUser
     {
@@ -15,5 +15,12 @@ namespace Demo.RentalRepairs.Domain.ValueObjects
         public string PropCode { get; private set; }
         public string UnitNumber { get; private set; }
         public  UserRolesEnum UserRole { get; private set;  }
+
+        public bool IsRegisteredTenant()
+        {
+            return UserRole == UserRolesEnum.Tenant && !string.IsNullOrEmpty(PropCode) &&
+                   !string.IsNullOrEmpty(UnitNumber);
+        }
     }
 }
+ 

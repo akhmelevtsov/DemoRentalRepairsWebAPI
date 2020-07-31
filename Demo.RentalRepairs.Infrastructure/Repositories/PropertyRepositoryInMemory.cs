@@ -42,12 +42,12 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories
             return _tenants.FirstOrDefault(x => x.LoginEmail  == emailAddress);
         }
 
-        public Worker FindWorkerByLoginEmail(string emailAddress)
-        {
-            var request = _requests.Values.FirstOrDefault(x =>
-                (x.ServiceWorkOrder != null && x.ServiceWorkOrder?.Person?.EmailAddress == emailAddress));
-            return request == null ? null : new Worker(request.ServiceWorkOrder.Person);
-        }
+        //public Worker FindWorkerByLoginEmail(string emailAddress)
+        //{
+        //    var request = _requests.Values.FirstOrDefault(x =>
+        //        (x.ScheduleWorkCommand != null && x.ScheduleWorkCommand?.Person?.EmailAddress == emailAddress));
+        //    return request == null ? null : new Worker(request.ScheduleWorkCommand.Person);
+        //}
 
         public void AddWorker(Worker worker)
         {
@@ -57,6 +57,21 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories
         public IEnumerable<Worker> GetAllWorkers()
         {
             return _workers;
+        }
+
+        public IEnumerable<TenantRequest> GetPropertyRequests(string propertyCode)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<TenantRequest> GetWorkerRequests(string workerEmail)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Worker GetWorkerByEmail(string email)
+        {
+            return _workers.FirstOrDefault(x => x.PersonContactInfo.EmailAddress == email);
         }
 
         public TenantRequest GetTenantRequestById(Guid tenantRequestId)

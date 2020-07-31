@@ -1,4 +1,6 @@
-﻿using Demo.RentalRepairs.Core.Interfaces;
+﻿using System;
+using Demo.RentalRepairs.Core;
+using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.ValueObjects;
 
@@ -11,13 +13,11 @@ namespace Demo.RentalRepairs.Infrastructure.Mocks
            
         }
 
-      
-
         public LoggedUser LoggedUser => new LoggedUser("");
 
-        public LoggedUser SetUser(UserRolesEnum userRole, string emailAddress)
+        public LoggedUser SetUser(UserRolesEnum userRole, string emailAddress, string propertyCode, string unitNumber)
         {
-           return new LoggedUser("");
+           return new LoggedUser(emailAddress, userRole,propertyCode , unitNumber );
         }
 
         public void SetUser(LoggedUser loggedUser)
@@ -25,75 +25,34 @@ namespace Demo.RentalRepairs.Infrastructure.Mocks
             
         }
 
-        public void UserCanChangeTenantRequestStatus(TenantRequestStatusEnum newStatus)
-        {
-            
-        }
-
-        public void UserCanChangeTenantRequestStatus(string propCode, string tenantUnit,
-            TenantRequestStatusEnum newStatus)
-        {
-            
-        }
-
-        public void UserCanGetListOfProperties()
-        {
-            
-        }
-
-        public void UserCanGetListOfPropertyTenants(string propertyCode)
-        {
-            
-        }
-
-        public void UserCanGetListOfTenantRequests()
+        public void Check(Func<bool> action)
         {
            
         }
 
-        public void UserCanGetListOfTenantRequests(string propertyCode, string tenantUnit)
+        public bool IsRegisteredTenant(string propCode, string tenantUnit)
         {
-            
+            return true;
         }
 
-        public void UserCanGetPropertyDetails(string propCode)
+        public bool IsLoggedTenant()
         {
-            
+            return true;
         }
 
-        public void UserCanRegisterProperty()
+        public bool IsRegisteredSuperintendent(string propCode)
         {
-            
+            return true;
         }
 
-        public void UserCanRegisterTenant()
+        public bool IsRegisteredWorker(string email=null)
         {
-           
+            return true;
         }
 
-        public void UserCanRegisterTenant(string unitNumber)
+        public bool IsUserCommand(Type getType)
         {
-            
-        }
-
-        public void UserCanRegisterTenantRequest(string propCode, string tenantUnit)
-        {
-            
-        }
-
-        public void UserCanGetTenantDetails(string propertyCode, string propertyUnit)
-        {
-            
-        }
-
-        public void UserCanRegisterWorker()
-        {
-           
-        }
-
-        public void UserCanGetListOfAllWorkers()
-        {
-           
+            return true;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Demo.RentalRepairs.WebApi.Swagger.Examples
         {
             return new TenantRequestDocModel()
             {
-                RequestItems = new string[] {"Power plug in kitchen", "Water leak in main bathroom"}
+                Title = "Power plug in kitchen"
             };
         }
     }

@@ -3,15 +3,18 @@ using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Core.Services;
 using Demo.RentalRepairs.Domain.Services;
+using Demo.RentalRepairs.Infrastructure;
 using Demo.RentalRepairs.Infrastructure.Mocks;
 using Demo.RentalRepairs.Infrastructure.Repositories.EF;
 using Demo.RentalRepairs.WebMvc.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -41,9 +44,6 @@ namespace Demo.RentalRepairs.WebMvc
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
 
-            //services.AddDefaultIdentity<IdentityUser>()
-            //    .AddDefaultUI(UIFramework.Bootstrap4)
-            //    .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddDefaultIdentity<ApplicationUser>()
                 .AddRoles<IdentityRole>()
@@ -54,7 +54,15 @@ namespace Demo.RentalRepairs.WebMvc
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DemoRentalRepairsWebMvcContext")));
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc(config =>
+            {
+                // using Microsoft.AspNetCore.Mvc.Authorization;
+                // using Microsoft.AspNetCore.Authorization;
+                var policy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .Build();
+                config.Filters.Add(new AuthorizeFilter(policy));
+            }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             //    .AddFluentValidation(fv =>
             //    {
             //        fv.ConfigureClientsideValidation(enabled: false);
@@ -65,15 +73,28 @@ namespace Demo.RentalRepairs.WebMvc
             services.AddSession(options => {
                 options.IdleTimeout = TimeSpan.FromMinutes(10);
             });
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("RequireTenantRole",
+                    policy => policy.RequireRole("Tenant"));
+                options.AddPolicy("RequireSuperintendentRole",
+                    policy => policy.RequireRole("Superintendent"));
+                options.AddPolicy("RequireWorkerRole",
+                    policy => policy.RequireRole("Worker"));
+            });
+
+
             ////services.AddTransient<IValidator<PropertyModel>, PropertyValidator>();
             //services.AddTransient<IValidator<PropertyCodeValidator>>();
-           
-            services.AddTransient<IUserAuthorizationService, UserAuthorizationMockService>();
+
+            services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
             //services.AddTransient<IUserAuthCoreService, UserAuthCoreService>();
             //services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();
             services.AddTransient<IPropertyRepository, PropertyRepositoryEf>();
-            services.AddTransient<INotifyPartiesService, NotifyPartiesServiceMock>();
-            services.AddTransient<IPropertyService, PropertyService>();
+            services.AddTransient<ITemplateDataService , TemplateDataService >();
+            services.AddTransient<IEmailService, EmailServiceMock>();
+            services.AddTransient<INotifyPartiesService, NotifyPartiesService>();
+            services.AddScoped< IPropertyService, PropertyService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

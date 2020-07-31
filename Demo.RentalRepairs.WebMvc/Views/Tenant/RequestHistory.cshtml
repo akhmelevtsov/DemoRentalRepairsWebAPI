@@ -1,0 +1,15 @@
+﻿@model IEnumerable<Demo.RentalRepairs.WebMvc.Models.TenantRequestChangeViewModel>
+
+@{
+    ViewData["Title"] = "Request History";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4>@ViewData["Title"]</h4>
+
+
+<partial name="~/Views/Shared/_RequestHistoryPartial.cshtml"  />
+
+<div>
+    <a asp-action="RequestDetails" >Back to Details</a>
+</div>

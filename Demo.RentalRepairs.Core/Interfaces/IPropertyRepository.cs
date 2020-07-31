@@ -8,22 +8,28 @@ namespace Demo.RentalRepairs.Core.Interfaces
     {
         IEnumerable<Property> GetAllProperties();
         void AddProperty(Property prop);
+        void AddTenant(Tenant tenant);
+        void AddTenantRequest(TenantRequest tTenantRequest);
+        void UpdateTenantRequest(TenantRequest tTenantRequest);
+        void AddWorker(Worker worker);
+
+
         Property GetPropertyByCode(string propertyCode);
 
-        void AddTenant(Tenant tenant);
         Tenant GetTenantByUnitNumber(string tenantCode, string propCode);
         IEnumerable<Tenant> GetPropertyTenants(string propertyCode);
-
         IEnumerable<TenantRequest> GetTenantRequests(Guid tenantId);
-        Property  FindPropertyByLoginEmail(string emailAddress);
-        void AddTenantRequest(TenantRequest tTenantRequest);
+
         TenantRequest GetTenantRequest(string propCode, string tenantUnit, string requestCode);
         TenantRequest GetTenantRequestById(Guid tenantRequestId);
-        void UpdateTenantRequest(TenantRequest tTenantRequest);
 
+        Property  FindPropertyByLoginEmail(string emailAddress);
         Tenant FindTenantByLoginEmail(string emailAddress);
-        Worker FindWorkerByLoginEmail(string emailAddress);
-        void AddWorker(Worker worker);
+        //Worker FindWorkerByLoginEmail(string emailAddress);
+
         IEnumerable<Worker> GetAllWorkers();
+        IEnumerable<TenantRequest> GetPropertyRequests(string propertyCode);
+        IEnumerable<TenantRequest> GetWorkerRequests(string workerEmail);
+        Worker GetWorkerByEmail(string email);
     }
 }

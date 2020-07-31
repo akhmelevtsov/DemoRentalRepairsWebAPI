@@ -35,15 +35,30 @@
                         @*<li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>*@
-                        <li class="nav-item">
+                        @*<li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Properties" asp-action="Index">Properties</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Tenants" asp-action="Index">Tenants</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Requests" asp-action="Index">Requests</a>
-                        </li>
+                        </li>*@
+                        @if (User.IsInRole("Tenant"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Tenant" asp-action="Requests">Requests</a>
+                            </li>
+                        } else if (User.IsInRole("Superintendent"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Superintendent" asp-action="Requests">Requests</a>
+                            </li>                           
+                        }
+                        else if (User.IsInRole("Worker"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Worker" asp-action="Requests">Requests</a>
+                            </li>      
+                        }
+ 
                     </ul>
                 </div>
             </div>

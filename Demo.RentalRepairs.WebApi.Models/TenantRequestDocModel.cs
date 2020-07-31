@@ -2,7 +2,7 @@
 
 namespace Demo.RentalRepairs.WebApi.Models
 {
-    public class TenantRequestDocModel : TenantRequestDoc 
+    public class TenantRequestDocModel : RegisterTenantRequestCommand 
     {
         
 

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using Demo.RentalRepairs.Core;
 using Demo.RentalRepairs.Core.Services;
 using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.Exceptions;
@@ -41,7 +42,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             var loggedUser = HttpContext.Session.GetComplexData<LoggedUser>("LoggedUser");
             if (loggedUser == null)
             {
-                loggedUser = _propertyService.SetUser(UserRolesEnum.Superintendent, "super@email.com");
+                loggedUser = _userAuthCoreService.SetUser(UserRolesEnum.Superintendent, "super@email.com");
                 HttpContext.Session.SetComplexData("LoggedUser", loggedUser);
             }
             else
@@ -89,9 +90,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             return View(model);
         }
 
-        // POST: Movies/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+      
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create( PropertyModel  prop)
@@ -112,7 +111,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
             try
             {
-                _propertyService.AddProperty(new PropertyInfo(prop.Name, prop.Code, prop.Address, prop.PhoneNumber, prop.Superintendent,
+                _propertyService.AddProperty(new AddPropertyCommand(prop.Name, prop.Code, prop.Address, prop.PhoneNumber, prop.Superintendent,
                     prop.Units.ToList(), prop.NoReplyEmailAddress ));
             }
             catch (DomainValidationException vex)

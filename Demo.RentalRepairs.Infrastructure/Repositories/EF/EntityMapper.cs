@@ -4,6 +4,7 @@ using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
 using Demo.RentalRepairs.Infrastructure.Repositories.EF.Entities;
+using Microsoft.CodeAnalysis.CSharp;
 using Newtonsoft.Json;
 
 namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
@@ -32,8 +33,12 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
         }
         internal Property CopyFrom(PropertyTbl p)
         {
-            var prop = new Property(new PropertyInfo(p.Name, p.ID,  p.Address, p.PhoneNumber,
-                p.Superintendent, JsonConvert.DeserializeObject<List<string>>(p.Units), p.NoReplyEmailAddress), p.DateCreated, p.IdCreated)
+            var prop = new Property(new AddPropertyCommand(p.Name, p.ID,  p.Address, p.PhoneNumber,
+                p.Superintendent,
+                JsonConvert.DeserializeObject<List<string>>(p.Units),
+                p.NoReplyEmailAddress),
+                p.DateCreated, 
+                p.IdCreated)
             {
                
                 LoginEmail = p.LoginEmail
@@ -98,17 +103,23 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
                 new TenantRequest(
                     CopyFrom(r.Tenant), r.Code, r.RequestStatus, r.DateCreated, r.ID)
                 {
-                    RequestDoc = r.RequestDoc == null ? null : JsonConvert.DeserializeObject<TenantRequestDoc>(r.RequestDoc),
-                    RejectNotes = r.RejectNotes == null ? null : JsonConvert.DeserializeObject<TenantRequestRejectNotes>(r.RejectNotes),
-                    ServiceWorkOrder = r.ServiceWorkOrder == null ? null : JsonConvert.DeserializeObject<ServiceWorkOrder>(r.ServiceWorkOrder),
+                    //RequestCommand = r.RequestDoc == null ? null : JsonConvert.DeserializeObject<RegisterTenantRequestCommand>(r.RequestDoc),
+                    //RejectNotesCommand = r.RejectNotes == null ? null : JsonConvert.DeserializeObject<RejectTenantRequestCommand>(r.RejectNotes),
+                    //ScheduleWorkCommand = r.ServiceWorkOrder == null ? null : JsonConvert.DeserializeObject<ScheduleServiceWorkCommand>(r.ServiceWorkOrder),
+                    RequestChanges = r.RequestChanges == null ? null : DeserializeObject(r.RequestChanges ),
+
                     ServiceWorkOrderCount = r.ServiceWorkOrderCount,
-                    WorkerEmail = r.WorkerEmail 
+                   
                 };
 
             return req;
         }
+
+      
+
         internal TenantRequestTbl CopyFrom(TenantRequest req)
         {
+            
             return new TenantRequestTbl()
             {
                 Code = req.Code,
@@ -117,13 +128,33 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
                 TenantID = req.Tenant.Id,
 
                 RequestStatus = req.RequestStatus,
-                RequestDoc = req.RequestDoc == null ? null : JsonConvert.SerializeObject(req.RequestDoc),
-                RejectNotes = req.RejectNotes == null ? null : JsonConvert.SerializeObject(req.RejectNotes),
-                ServiceWorkOrder = req.ServiceWorkOrder == null ? null : JsonConvert.SerializeObject(req.ServiceWorkOrder),
-                ServiceWorkOrderCount = req.ServiceWorkOrderCount,
-                WorkerEmail = req.WorkerEmail 
+                RequestChanges = req.RequestChanges == null? null: SerializeObject(req.RequestChanges ),
+                ServiceWorkOrderCount = req.ServiceWorkOrderCount
+              
 
             };
+        }
+
+        private string SerializeObject(List<TenantRequestChange> changes)
+        {
+            
+            var r = JsonConvert.SerializeObject(changes,JsonSettings() );
+            return r;
+        }
+        private List<TenantRequestChange> DeserializeObject(string changes)
+        {
+            var list =  JsonConvert.DeserializeObject<List<TenantRequestChange>>(changes,JsonSettings() );
+
+            return list;
+        }
+
+        private  JsonSerializerSettings JsonSettings()
+        {
+            JsonSerializerSettings settings = new JsonSerializerSettings
+            {
+                TypeNameHandling = TypeNameHandling.Auto 
+            };
+            return settings;
         }
     }
 }

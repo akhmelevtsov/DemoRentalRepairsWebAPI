@@ -6,6 +6,7 @@ using Demo.RentalRepairs.Core.Enums;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.Enums;
+using Demo.RentalRepairs.Domain.Exceptions;
 
 namespace Demo.RentalRepairs.Core
 {
@@ -13,15 +14,28 @@ namespace Demo.RentalRepairs.Core
     {
         private readonly ITemplateDataService _templateDataService;
         private readonly TenantRequest _tenantRequest;
+        private readonly IPropertyRepository _propertyRepository;
+        private Worker _worker;
 
-        public PropertyMessageFactory(ITemplateDataService templateDataService, TenantRequest tenantRequest)
+        public PropertyMessageFactory(ITemplateDataService templateDataService, TenantRequest tenantRequest, IPropertyRepository propertyRepository)
         {
             _templateDataService = templateDataService;
             _tenantRequest = tenantRequest;
+            _propertyRepository = propertyRepository;
         }
 
         public EmailInfo CreateTenantRequestEmail()
         {
+            if (_tenantRequest.RequestStatus == TenantRequestStatusEnum.Scheduled
+                || _tenantRequest.RequestStatus == TenantRequestStatusEnum.Done
+                || _tenantRequest.RequestStatus == TenantRequestStatusEnum.Failed)
+            {
+  
+                    _worker = _propertyRepository.GetWorkerByEmail(_tenantRequest.WorkerEmail);
+                    if (_worker == null)
+                        throw new DomainEntityNotFoundException("worker_not_found", "Worker not found");
+
+            }
             var message = CreateMessageOnStatusChange();
             return message == null ? null : CreateEmail(message);
         }
@@ -61,8 +75,8 @@ namespace Demo.RentalRepairs.Core
                 if (!Enum.TryParse(parameterStr, true, out PropertyMessageParamsEnum parameter))
                         throw new InvalidEnumArgumentException(nameof(parameterStr));
                 string value = GetParameterValue(parameter);
-                if (value == null)
-                    throw new NoNullAllowedException($"Null value for placeholder {placeholder}");
+                if (string.IsNullOrEmpty( value))
+                    throw new NoNullAllowedException($"Empty value for placeholder {placeholder}");
 
                 bodyTemplate = bodyTemplate.Replace(placeholder, value);
             }
@@ -82,7 +96,7 @@ namespace Demo.RentalRepairs.Core
                 case PropertyMessageParamsEnum.PropertyName:
                     return _tenantRequest.PropertyName;
                 case PropertyMessageParamsEnum.WorkerFullName:
-                    return _tenantRequest.WorkerFullName ;
+                    return _worker.PersonContactInfo.GetFullName() ;
                 case PropertyMessageParamsEnum.SuperintendentFullName:
                     return _tenantRequest.SuperintendentFullName;
                 case PropertyMessageParamsEnum.WorkOrderNumber:
@@ -110,11 +124,12 @@ namespace Demo.RentalRepairs.Core
         }
         private  PropertyMessage CreateMessageOnStatusChange()
         {
+            
             switch (_tenantRequest.RequestStatus)
             {
                 case TenantRequestStatusEnum.Undefined:
                     break;
-                case TenantRequestStatusEnum.RequestReceived:
+                case TenantRequestStatusEnum.Submitted:
                     //"Hi [TenantFullName], /r/n Your service request from [RequestDate] has been registered. Sincerely, /r/n [PropertyName] "
                     //Title = "Your Request Registered",
                     return new PropertyMessage
@@ -124,7 +139,7 @@ namespace Demo.RentalRepairs.Core
                         new PartyInfo(_tenantRequest.TenantId,_tenantRequest.TenantEmail)
                     );
 
-                case TenantRequestStatusEnum.RequestRejected:
+                case TenantRequestStatusEnum.Declined:
                     //"Hi [TenantFullName], /r/n Unfortunately, we cannot start your service request from [RequestDate]. Please call us [PropertyPhone] at your convenience. /r/n  Sincerely, /r/n [PropertyName]  "
                     //Title = "Your Request Declined",
                     return new PropertyMessage
@@ -134,33 +149,33 @@ namespace Demo.RentalRepairs.Core
                         new PartyInfo( _tenantRequest.TenantId, _tenantRequest.TenantEmail)
                     );
 
-                case TenantRequestStatusEnum.WorkScheduled:
+                case TenantRequestStatusEnum.Scheduled:
                     //" Hello [WorkerFullName], /r/n A new work order is scheduled for you. Please visit [WorkOrderPageUrl] for details. Sincerely, /r/n [PropertyName]"
                     //Title = ""You have new work order"",
                     return new PropertyMessage
                     (
                         PropertyMessageTypeEnum.Property2WorkerOnRequestScheduledMessage,
                         new PartyInfo(_tenantRequest.PropertyId,_tenantRequest.PropertyNoReplyEmail),
-                        new PartyInfo(_tenantRequest.WorkerId,_tenantRequest.WorkerEmail)
+                        new PartyInfo(_worker.Id.ToString( ),_tenantRequest.WorkerEmail)
                         );
-                case TenantRequestStatusEnum.WorkCompleted:
+                case TenantRequestStatusEnum.Done:
                     //"Hello [SuperintendentFullName], /r/n I completed work order [WorkOrderNumber]. For report, please visit [WorkReportPageUrl].  Sincerely, /r/n [WorkerFullName]"
                     //Title = "Work order completed",
 
                     return new PropertyMessage
                     (
                         PropertyMessageTypeEnum.Worker2PropertyWorkDoneMessage,
-                        new PartyInfo( _tenantRequest.WorkerId, _tenantRequest.PropertyNoReplyEmail),
+                        new PartyInfo(_worker.Id.ToString(), _tenantRequest.PropertyNoReplyEmail),
                         new PartyInfo( _tenantRequest.PropertyId, _tenantRequest.SuperintendentEmail)
                     );
-                case TenantRequestStatusEnum.WorkIncomplete:
+                case TenantRequestStatusEnum.Failed:
                     //"Hello [SuperintendentFullName], /r/n Unfortunately, the work order N[WorkOrderNumber] from [WorkOrderDate] can't be completed. For the report, please visit [WorkReportPageUrl].  Sincerely, /r/n [WorkerFullName]"
                     //Title = "Work can't be completed",
 
                     return new PropertyMessage
                     (
                         PropertyMessageTypeEnum.Worker2PropertyWorkIncompleteMessage,
-                        new PartyInfo( _tenantRequest.WorkerId,_tenantRequest.PropertyNoReplyEmail),
+                        new PartyInfo(_worker.Id.ToString(), _tenantRequest.PropertyNoReplyEmail),
                         new PartyInfo( _tenantRequest.PropertyId, _tenantRequest.SuperintendentEmail)
                     );
 

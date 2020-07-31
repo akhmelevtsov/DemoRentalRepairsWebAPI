@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Demo.RentalRepairs.Core;
+using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Enums;
+using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.WebMvc.Data;
 using Demo.RentalRepairs.WebMvc.Extensions;
+using Demo.RentalRepairs.WebMvc.Framework;
 using Demo.RentalRepairs.WebMvc.Models;
 using Demo.RentalRepairs.WebMvc.Models.AccountViewModels;
 using Microsoft.AspNetCore.Authentication;
@@ -22,6 +26,8 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
     [Route("[controller]/[action]")]
     public class AccountController : Controller
     {
+        private readonly IPropertyService _propertyService;
+        private readonly IUserAuthorizationService _userAuthCoreService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -30,12 +36,16 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         private readonly ILogger _logger;
 
         public AccountController(
+            IPropertyService propertyService,
+            IUserAuthorizationService userAuthCoreService,
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager,
             IEmailSender emailSender,
             ILogger<AccountController> logger)
         {
+            _propertyService = propertyService;
+            _userAuthCoreService = userAuthCoreService;
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
@@ -75,6 +85,10 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                     var user = await _userManager.FindByEmailAsync(model.Email);
                     // Get the roles for the user
                     var roles = await _userManager.GetRolesAsync(user);
+                    var claims = await _userManager.GetClaimsAsync(user);
+                    if (roles.Any() && Enum.TryParse(roles.FirstOrDefault(), out UserRolesEnum userRole))
+                        return RedirectLoggedInUser(userRole);
+
                     return RedirectToLocal(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
@@ -218,11 +232,19 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [AllowAnonymous]
         public IActionResult Register(string returnUrl = null)
         {
+            var roles = new List<string>
+                {
+                    UserRolesEnum.Tenant.ToString(),
+                    UserRolesEnum.Superintendent.ToString(),
+                    UserRolesEnum.Worker.ToString()
+                };
 
+
+            var roles1=  roles.Select(x => new  {Value = x, Text = x}).ToList();
 
             var viewModel = new RegisterViewModel()
             {
-                Roles = GetRoleDropDownItems()
+               Roles= new SelectList( roles1,"Value","Text")
             };
             ViewData["ReturnUrl"] = returnUrl;
             return View(viewModel);
@@ -230,20 +252,20 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
 
 
-        private List<SelectListItem> GetRoleDropDownItems()
-        {
-            var list = new List<string> { UserRolesEnum.Tenant.ToString(), UserRolesEnum.Superintendent.ToString() }
-                .Select(x => new SelectListItem() { Value = x, Text = x }).ToList();
+        //private List<SelectListItem> GetRoleDropDownItems()
+        //{
+        //    var list = new List<string> { UserRolesEnum.Tenant.ToString(), UserRolesEnum.Superintendent.ToString() }
+        //        .Select(x => new SelectListItem() { Value = x, Text = x }).ToList();
 
-            //list = new List<SelectListItem>() {new SelectListItem() {Value = "1", Text = "Superintendent"}, new SelectListItem() { Value = 0, Text = "Tenant"}};
-            //var ddTip = new SelectListItem()
-            //{
-            //    Value = null,
-            //    Text = "User Role"
-            //};
-            //list.Insert(0, ddTip);
-            return list;
-        }
+        //    //list = new List<SelectListItem>() {new SelectListItem() {Value = "1", Text = "Superintendent"}, new SelectListItem() { Value = 0, Text = "Tenant"}};
+        //    //var ddTip = new SelectListItem()
+        //    //{
+        //    //    Value = null,
+        //    //    Text = "User Role"
+        //    //};
+        //    //list.Insert(0, ddTip);
+        //    return list;
+        //}
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
@@ -252,22 +274,27 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
+                if (!Enum.TryParse(model.SelectedRole, out UserRolesEnum userRole))
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    return View(model);
+                }
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
 
-                        var roleCheck = await _roleManager.RoleExistsAsync(model.SelectedRole);
-                        if (!roleCheck)
-                        {
-                            //create the roles and seed them to the database
-                            var roleResult = await _roleManager.CreateAsync(new IdentityRole(model.SelectedRole));
-                           
-                        }
+                    var roleCheck = await _roleManager.RoleExistsAsync(model.SelectedRole);
+                    if (!roleCheck)
+                    {
+                        //create the roles and seed them to the database
+                        var roleResult = await _roleManager.CreateAsync(new IdentityRole(model.SelectedRole));
 
-                        user = await _userManager.FindByEmailAsync(model.Email);
-                        await _userManager.AddToRoleAsync(user, model.SelectedRole);
-                    
+                    }
+
+                    user = await _userManager.FindByEmailAsync(model.Email);
+                    await _userManager.AddToRoleAsync(user, model.SelectedRole);
+
 
                     _logger.LogInformation("User created a new account with password.");
 
@@ -277,7 +304,10 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     _logger.LogInformation("User created a new account with password.");
-                    return RedirectToLocal(returnUrl);
+
+                    return RedirectLoggedInUser(userRole);
+                    //return RedirectToLocal(returnUrl);
+
                 }
                 AddErrors(result);
             }
@@ -505,5 +535,54 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         }
 
         #endregion
+
+        //private LoggedUser SetUser(UserRolesEnum userRole, string loginEmail)
+        //{
+        //    var loggedUser = HttpContext.Session.GetComplexData<LoggedUser>("LoggedUser");
+        //    if (loggedUser == null)
+        //    {
+        //        loggedUser = _userAuthCoreService.SetUser(userRole, loginEmail);
+        //        HttpContext.Session.SetComplexData("LoggedUser", loggedUser);
+        //    }
+        //    else
+        //    {
+        //        _userAuthCoreService.SetUser(loggedUser);
+        //    }
+
+        //    return loggedUser;
+        //}
+
+        private IActionResult RedirectLoggedInUser(UserRolesEnum role)
+        {
+
+            switch (role)
+            {
+                case UserRolesEnum.Tenant:
+                    return RedirectToAction("Requests", "Tenant");
+                case UserRolesEnum.Superintendent:
+                    return RedirectToAction("Requests", "Superintendent");
+                case UserRolesEnum.Worker:
+                    return RedirectToAction("Requests", "Worker");
+                case UserRolesEnum.Anonymous:
+                    break;
+                case UserRolesEnum.Administrator:
+                    break;
+                default:
+                    break;
+            }
+
+
+
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+
+
+
+     
+        }
+
+        private IActionResult RedirectToTenantAddRequestPage()
+        {
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+        }
     }
 }

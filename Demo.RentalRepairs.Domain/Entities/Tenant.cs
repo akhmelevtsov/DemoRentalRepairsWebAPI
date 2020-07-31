@@ -1,6 +1,7 @@
 ﻿using System;
 using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.Framework;
+using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
 
@@ -8,6 +9,7 @@ namespace Demo.RentalRepairs.Domain.Entities
 {
     public class Tenant : Entity, ITenantFields
     {
+        readonly DomainValidationService _validationService = new DomainValidationService();
         public PersonContactInfo ContactInfo { get; set;  }
         public string PropertyCode { get; set;  }
         public string UnitNumber { get; private set;  }
@@ -25,10 +27,12 @@ namespace Demo.RentalRepairs.Domain.Entities
             UnitNumber = unitNumber;
         }
         
-        public TenantRequest AddRequest(TenantRequestDoc tenantRequestDoc)
+        public TenantRequest AddRequest(RegisterTenantRequestCommand registerTenantRequestCommand)
         {
-            var tTenantRequest = new TenantRequest(this, (RequestsNum  + 1).ToString());
-            tTenantRequest.ChangeStatus( TenantRequestStatusEnum.RequestReceived ,tenantRequestDoc);
+            _validationService.Validate(registerTenantRequestCommand);
+            RequestsNum++;
+            var tTenantRequest = new TenantRequest(this, (RequestsNum).ToString());
+            tTenantRequest.ExecuteCommand( registerTenantRequestCommand);
 
             return tTenantRequest;
 

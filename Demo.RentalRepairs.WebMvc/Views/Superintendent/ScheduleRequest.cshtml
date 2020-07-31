@@ -1,0 +1,44 @@
+﻿@model Demo.RentalRepairs.WebMvc.Models.PropertyTenantRequestViewModel
+
+@{
+    ViewData["Title"] = "Schedule Request";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <h4>@ViewData["Title"]</h4>
+    <hr />
+    <partial name="~/Views/Shared/_RequestDetailsPartial.cshtml" />
+</div>
+
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="ScheduleRequest">
+            <input asp-for="UnitNumber" type="hidden" />
+            <input asp-for="RequestCode" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                @*<label asp-for="SelectedWorkerEmail" class="control-label">Worker</label>*@
+                <select asp-for="SelectedWorkerEmail" asp-items="Model.WorkerList" class="form-control"></select>
+                <span asp-validation-for="SelectedWorkerEmail" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ScheduledDate">Choose a time for service work:</label>
+                <input type="datetime-local" asp-for="ScheduledDate" id="request-date" />
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Schedule" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Requests">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

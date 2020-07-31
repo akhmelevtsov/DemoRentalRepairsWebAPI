@@ -1,5 +1,6 @@
 ﻿using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
+using FluentValidation.Internal;
 
 namespace Demo.RentalRepairs.WebApi.Models
 {
@@ -25,11 +26,11 @@ namespace Demo.RentalRepairs.WebApi.Models
             };
         }
 
-        public static TenantRequestDocModel BuildModel(this TenantRequestDoc tenantRequest)
+        public static TenantRequestDocModel BuildModel(this RegisterTenantRequestCommand tenantRequest)
         {
             return new TenantRequestDocModel()
             { 
-                RequestItems = tenantRequest.RequestItems 
+                Title = tenantRequest.Title 
             };
         }
 
@@ -38,12 +39,12 @@ namespace Demo.RentalRepairs.WebApi.Models
             return new TenantRequestModel()
             {
                 RequestCode = tenantRequest.Code,
-                RequestStatus = tenantRequest.RequestStatus,
+                RequestStatus = tenantRequest.RequestStatus.ToString().SplitPascalCase(),
                 DateCreated = tenantRequest.DateCreated ,
-                RejectNotes = tenantRequest.RejectNotes,
-                RequestDoc = tenantRequest.RequestDoc,
-                ServiceWorkOrder = tenantRequest.ServiceWorkOrder,
-                WorkReport = tenantRequest.WorkReport
+              
+                RequestTitle = tenantRequest.RequestTitle ,
+            
+               
 
             };
         }

@@ -10,7 +10,7 @@ namespace Demo.RentalRepairs.WebMvc.Models
 {
     public class TenantEditViewModel
     {
-        public PersonContactInfo ContactInfo { get; set; }
+        public PersonContactInfo ContactInfo { get; set; } = new PersonContactInfo();
         public string UnitNumber { get; set; }
         
 

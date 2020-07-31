@@ -1,9 +1,11 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Demo.RentalRepairs.WebMvc.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Demo.RentalRepairs.WebMvc.Controllers
 {
+    [AllowAnonymous]
     public class HomeController : Controller
     {
         public HomeController()

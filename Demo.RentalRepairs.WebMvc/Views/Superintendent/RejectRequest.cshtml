@@ -1,0 +1,36 @@
+﻿@model Demo.RentalRepairs.WebMvc.Models.PropertyTenantRequestViewModel
+
+@{
+    ViewData["Title"] = "Reject Request";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div>
+    <h4>@ViewData["Title"]</h4>
+    <hr />
+    <partial name="~/Views/Shared/_RequestDetailsPartial.cshtml" />
+</div>
+
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="RejectRequest">
+            <input asp-for="UnitNumber" type="hidden" />
+            <input asp-for="RequestCode" type="hidden" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="RejectNotes" class="control-label"></label>
+                <textarea asp-for="RejectNotes" class="form-control"></textarea>
+                <span asp-validation-for="RejectNotes" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Reject" class="btn btn-primary"/>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Requests">Back to List</a>
+</div>
