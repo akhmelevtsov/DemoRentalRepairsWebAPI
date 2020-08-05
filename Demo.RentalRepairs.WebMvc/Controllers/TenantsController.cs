@@ -104,7 +104,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Register(TenantEditViewModel tenant)
+        public async Task<IActionResult> Register(TenantEditViewModel tenant)
         {
 
             tenant.PropertyList = GetPropertyList();
@@ -119,7 +119,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             var unitNumber =  (tenant.SelectedUnitNumber == null || tenant.SelectedUnitNumber.StartsWith("--")) ? "" : tenant.SelectedUnitNumber; 
             try
             {
-                _propertyService.AddTenant(propCode, tenant.ContactInfo, unitNumber);
+                await _propertyService.AddTenantAsync(propCode, tenant.ContactInfo, unitNumber);
             }
             catch (DomainValidationException vex)
             {

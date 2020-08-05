@@ -7,7 +7,7 @@ using Demo.RentalRepairs.Core;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.ValueObjects;
-using Demo.RentalRepairs.WebMvc.Data;
+using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
 using Demo.RentalRepairs.WebMvc.Extensions;
 using Demo.RentalRepairs.WebMvc.Framework;
 using Demo.RentalRepairs.WebMvc.Models;
@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
+using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace Demo.RentalRepairs.WebMvc.Controllers
 {
@@ -34,6 +35,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
         private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
+        private readonly ISecurityService _securityService;
 
         public AccountController(
             IPropertyService propertyService,
@@ -42,7 +44,8 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager,
             IEmailSender emailSender,
-            ILogger<AccountController> logger)
+            ILogger<AccountController> logger, 
+            ISecurityService securityService)
         {
             _propertyService = propertyService;
             _userAuthCoreService = userAuthCoreService;
@@ -51,6 +54,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             _roleManager = roleManager;
             _emailSender = emailSender;
             _logger = logger;
+            _securityService = securityService;
         }
 
         [TempData]
@@ -75,22 +79,28 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("User logged in.");
-                    // Resolve the user via their email
-                    var user = await _userManager.FindByEmailAsync(model.Email);
-                    // Get the roles for the user
-                    var roles = await _userManager.GetRolesAsync(user);
-                    var claims = await _userManager.GetClaimsAsync(user);
-                    if (roles.Any() && Enum.TryParse(roles.FirstOrDefault(), out UserRolesEnum userRole))
-                        return RedirectLoggedInUser(userRole);
+                //var securityService = new SecurityService(_userManager, null, _roleManager, _signInManager, _logger);
 
-                    return RedirectToLocal(returnUrl);
-                }
+                var res = await _securityService.SignInUser(model.Email, model.Password, model.RememberMe);
+                if (res.Succeeded)
+                    return RedirectLoggedInUser(res.UserRole );
+                var result = (SignInResult)_securityService.SigninResult;
+                //// This doesn't count login failures towards account lockout
+                //// To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                ////var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+                //if (result.Succeeded)
+                //{
+                //    _logger.LogInformation("User logged in.");
+                //    // Resolve the user via their email
+                //    var user = await _userManager.FindByEmailAsync(model.Email);
+                //    // Get the roles for the user
+                //    var roles = await _userManager.GetRolesAsync(user);
+                //    var claims = await _userManager.GetClaimsAsync(user);
+                //    if (roles.Any() && Enum.TryParse(roles.FirstOrDefault(), out UserRolesEnum userRole))
+                //        return RedirectLoggedInUser(userRole);
+
+                //    return RedirectToLocal(returnUrl);
+                //}
                 if (result.RequiresTwoFactor)
                 {
                     return RedirectToAction(nameof(LoginWith2fa), new { returnUrl, model.RememberMe });
@@ -279,49 +289,28 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                     return View(model);
                 }
-                var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
-                var result = await _userManager.CreateAsync(user, model.Password);
-                if (result.Succeeded)
-                {
 
-                    var roleCheck = await _roleManager.RoleExistsAsync(model.SelectedRole);
-                    if (!roleCheck)
-                    {
-                        //create the roles and seed them to the database
-                        var roleResult = await _roleManager.CreateAsync(new IdentityRole(model.SelectedRole));
+                //var securityService = new SecurityService(_userManager, null, _roleManager , _signInManager, _logger  );
 
-                    }
-
-                    user = await _userManager.FindByEmailAsync(model.Email);
-                    await _userManager.AddToRoleAsync(user, model.SelectedRole);
-
-
-                    _logger.LogInformation("User created a new account with password.");
-
-                    //var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    //var callbackUrl = Url.EmailConfirmationLink(user.Id, code, Request.Scheme);
-                    //await _emailSender.SendEmailConfirmationAsync(model.Email, callbackUrl);
-
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    _logger.LogInformation("User created a new account with password.");
-
+                //IdentityResult result;
+                var res = await _securityService.RegisterUser(userRole, model.Email , model.Password );
+                if (res.Succeeded )
                     return RedirectLoggedInUser(userRole);
-                    //return RedirectToLocal(returnUrl);
-
-                }
-                AddErrors(result);
+                AddErrors(res);
             }
 
             // If we got this far, something failed, redisplay form
             return View(model);
         }
 
+   
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await _signInManager.SignOutAsync();
-            _logger.LogInformation("User logged out.");
+            await _securityService.LogoutUser();
+           
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 
@@ -521,7 +510,13 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 ModelState.AddModelError(string.Empty, error.Description);
             }
         }
-
+        private void AddErrors(OperationResult  result)
+        {
+            foreach (var error in result.ErrorsValueTuples )
+            {
+                ModelState.AddModelError(string.Empty, error.Item2);
+            }
+        }
         private IActionResult RedirectToLocal(string returnUrl)
         {
             if (Url.IsLocalUrl(returnUrl))

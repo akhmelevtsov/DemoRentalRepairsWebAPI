@@ -65,7 +65,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         [HttpPost]
         public void Post(string propertyCode,  [FromBody] TenantModel tenant)
         {
-            _propertyService.AddTenant(propertyCode, tenant.ContactInfo , tenant.UnitNumber );
+            _propertyService.AddTenantAsync(propertyCode, tenant.ContactInfo , tenant.UnitNumber );
         }
     }
 }

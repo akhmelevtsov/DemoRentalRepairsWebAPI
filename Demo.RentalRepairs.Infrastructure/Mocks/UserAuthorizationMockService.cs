@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Demo.RentalRepairs.Core;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Enums;
@@ -13,16 +14,27 @@ namespace Demo.RentalRepairs.Infrastructure.Mocks
            
         }
 
-        public LoggedUser LoggedUser => new LoggedUser("");
+        public UserClaims LoggedUser => new UserClaims("");
 
-        public LoggedUser SetUser(UserRolesEnum userRole, string emailAddress, string propertyCode, string unitNumber)
+        public UserClaims SetUser(UserRolesEnum userRole, string emailAddress, string propertyCode, string unitNumber)
         {
-           return new LoggedUser(emailAddress, userRole,propertyCode , unitNumber );
+           return new UserClaims(emailAddress, userRole,propertyCode , unitNumber );
         }
 
-        public void SetUser(LoggedUser loggedUser)
+        public void SetUser(UserClaims loggedUser)
         {
             
+        }
+
+        public async Task<OperationResult> RegisterUser(UserRolesEnum userRole, string email, string password)
+        {
+            await Task.CompletedTask;
+            return new OperationResult() {Succeeded = true};
+        }
+
+        public Task<UserClaims> GetUserClaims(string email)
+        {
+            throw new NotImplementedException();
         }
 
         public void Check(Func<bool> action)
@@ -35,7 +47,7 @@ namespace Demo.RentalRepairs.Infrastructure.Mocks
             return true;
         }
 
-        public bool IsLoggedTenant()
+        public bool IsAuthenticatedTenant()
         {
             return true;
         }
@@ -53,6 +65,16 @@ namespace Demo.RentalRepairs.Infrastructure.Mocks
         public bool IsUserCommand(Type getType)
         {
             return true;
+        }
+
+        public bool IsAuthenticatedSuperintendent()
+        {
+            return true;
+        }
+
+        public async Task AddUserClaims(string propCode, string userNumber)
+        {
+            await Task.CompletedTask;
         }
     }
 }

@@ -14,6 +14,7 @@ namespace Demo.RentalRepairs.Domain.ValueObjects.Validators
             RuleFor(p => p.PhoneNumber).NotNull().Matches(@"^[2-9]\d{2}-\d{3}-\d{4}$");
             RuleFor(p => p.Address).SetValidator(new PropertyAddressValidator());
             RuleFor(p => p.Superintendent).SetValidator(new PersonContactInfoValidator());
+            RuleFor(p => p.NoReplyEmailAddress).NotNull().EmailAddress();
             RuleFor(p => p.Units).NotNull()
                 .Must(p => p.Count >= 2).WithMessage("No less than 2 units are allowed")
                 .ForEach(u => u.SetValidator(new UnitNumberValidator())).Must(p => !HasDuplicates(p)).WithMessage("All unit numbers should be unique");

@@ -2,9 +2,9 @@
 
 namespace Demo.RentalRepairs.Core
 {
-    public class LoggedUser
+    public class UserClaims
     {
-        public LoggedUser(string emailAddress, UserRolesEnum userRole = UserRolesEnum.Anonymous ,  string propCode = "", string unitNumber = "")
+        public UserClaims(string emailAddress, UserRolesEnum userRole = UserRolesEnum.Anonymous ,  string propCode = "", string unitNumber = "")
         {
             Login = emailAddress;
             UserRole = userRole;

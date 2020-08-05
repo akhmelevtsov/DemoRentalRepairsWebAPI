@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Exceptions;
 using Demo.RentalRepairs.Core.Interfaces;
+using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
-using Demo.RentalRepairs.WebMvc.Data;
+using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
 using Demo.RentalRepairs.WebMvc.Models;
-using Demo.RentalRepairs.WebMvc.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -25,7 +25,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         private readonly IPropertyService _propertyService;
         private readonly IUserAuthorizationService _userAuthCoreService;
         //private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SecurityService _securityService;
+        //private readonly ISecurityService _securityService;
 
         private readonly Dictionary<string, string> _vDict = new Dictionary<string, string>()
         {
@@ -40,17 +40,18 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
         };
 
-        public TenantController(IPropertyService propertyService, IUserAuthorizationService userAuthCoreService, UserManager<ApplicationUser> userManager)
+        public TenantController(IPropertyService propertyService, IUserAuthorizationService userAuthCoreService, UserManager<ApplicationUser> userManager//, ISecurityService securityService
+        )
         {
             _propertyService = propertyService;
             _userAuthCoreService = userAuthCoreService;
-            _securityService = new SecurityService(userManager, userAuthCoreService);
+            //_securityService = securityService;
 
         }
 
         public async Task<IActionResult> Requests()
         {
-            var loggedUser = await _securityService.GetLoggedTenant(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name );
 
             if (!loggedUser.IsRegisteredTenant())
             {
@@ -83,7 +84,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateRequest(RegisterTenantRequestCommand requestCommand)
         {
-            var loggedUser = await _securityService.GetLoggedTenant(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
             if (!loggedUser.IsRegisteredTenant())
             {
                 return base.RedirectToAction(actionName: nameof(this.Register), controllerName: "Tenant");
@@ -96,7 +97,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
             try
             {
-                _propertyService.RegisterTenantRequest(loggedUser.PropCode, loggedUser.UnitNumber,
+                await _propertyService.RegisterTenantRequestAsync(loggedUser.PropCode, loggedUser.UnitNumber,
                     new RegisterTenantRequestCommand() { Title = requestCommand.Title, Description = requestCommand.Description });
                 return RedirectToAction(nameof(Requests));
 
@@ -130,7 +131,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<IActionResult> Register()
         {
-            var loggedUser = await _securityService.GetLoggedTenant(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
             try
             {
                 var list = GetPropertyList();
@@ -158,28 +159,36 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(TenantEditViewModel tenantVm)
         {
-            var loggedUser = await _securityService.GetLoggedTenant(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
             if (!ModelState.IsValid)
             {
                 // re-render the view when validation failed.
                 return View("Register", tenantVm);
             }
+
             try
             {
                 tenantVm.PropertyList = GetPropertyList();
                 tenantVm.UnitList = GetUnitListItems(tenantVm.SelectedPropertyCode);
                 var propCode = tenantVm.SelectedPropertyCode == _selectPropertyTip ? "" : tenantVm.SelectedPropertyCode;
-                var unitNumber = (tenantVm.SelectedUnitNumber == null || tenantVm.SelectedUnitNumber.StartsWith("--")) ? "" : tenantVm.SelectedUnitNumber;
+                var unitNumber = (tenantVm.SelectedUnitNumber == null || tenantVm.SelectedUnitNumber.StartsWith("--"))
+                    ? ""
+                    : tenantVm.SelectedUnitNumber;
 
-                _propertyService.AddTenant(propCode, tenantVm.ContactInfo, unitNumber);
-                await _securityService.AddTenantClaims(User, propCode, unitNumber);
-                return RedirectToAction("Requests", "Tenant"); 
+                await _propertyService.AddTenantAsync(propCode, tenantVm.ContactInfo, unitNumber);
+                //await _securityService.SetLoggedUserClaims( User.Identity.Name ,UserRolesEnum.Tenant,  propCode, unitNumber);
+                return RedirectToAction("Requests", "Tenant");
 
 
             }
             catch (CoreAuthorizationException)
             {
                 return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+            }
+            catch (DomainEntityDuplicateException)
+            {
+                ModelState.AddModelError("SelectedUnitNumber", "The Unit is already taken");
+                return View("Register", tenantVm);
             }
             catch (DomainValidationException vex)
             {
@@ -205,7 +214,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<ActionResult> GetUnits(string propCode)
         {
-            var loggedUser = await _securityService.GetLoggedTenant(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
             var validationResult = _validationRulesService.ValidatePropertyCode(propCode );
 
             if (validationResult.IsValid)
@@ -218,7 +227,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<IActionResult> RequestDetails(string requestCode)
         {
-            var loggedUser = await _securityService.GetLoggedTenant(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
             try
             {
                 var tenantRequest =
@@ -237,7 +246,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<ActionResult> RequestHistory(string requestCode)
         {
-            var loggedUser = await _securityService.GetLoggedTenant(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
 
             var tenantRequest =
                 _propertyService.GetTenantRequest(loggedUser.PropCode, loggedUser.UnitNumber, requestCode);

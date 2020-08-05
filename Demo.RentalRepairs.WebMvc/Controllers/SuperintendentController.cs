@@ -8,10 +8,9 @@ using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
+using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
 using Demo.RentalRepairs.WebApi.Models;
-using Demo.RentalRepairs.WebMvc.Data;
 using Demo.RentalRepairs.WebMvc.Models;
-using Demo.RentalRepairs.WebMvc.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -24,19 +23,21 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
     {
         private readonly IPropertyService _propertyService;
         private readonly IUserAuthorizationService _userAuthCoreService;
-        private readonly SecurityService _securityService;
+        //private readonly ISecurityService _securityService;
 
         public SuperintendentController(IPropertyService propertyService, IUserAuthorizationService userAuthCoreService,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager//, ISecurityService securityService
+            )
         {
             _propertyService = propertyService;
             _userAuthCoreService = userAuthCoreService;
-            _securityService = new SecurityService(userManager, userAuthCoreService);
+            //_securityService = securityService;
+
         }
 
         public async Task<IActionResult> Requests()
         {
-            var loggedUser = await _securityService.GetLoggedSuperintendent(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
 
             if (string.IsNullOrEmpty(loggedUser.PropCode))
             {
@@ -60,26 +61,26 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
         public async Task<IActionResult> Register()
         {
-            var loggedUser = await _securityService.GetLoggedSuperintendent(User);
-           
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+
 
             var model = new PropertyModel()
             {
-                //Code = "sunlight",
-                //Name = "Sun Light Apartments",
-                //Address = new PropertyAddress()
-                //{ StreetNumber = "1", StreetName = "Sunlight Creek", City = "Toronto", PostalCode = "M9A 4J5" },
-                //NoReplyEmailAddress = loggedUser.Login,
-                //PhoneNumber = "905-111-1111",
-                //Superintendent = new PersonContactInfo()
-                //{
-                //    EmailAddress = loggedUser.Login,
-                //    FirstName = "John",
-                //    LastName = "Smith",
-                //    MobilePhone = "647-222-5321"
-                //},
-                //Units = new List<string> { "11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34" },
-                //UnitsStr = "11,12,13,14, 21, 22, 23, 24, 31, 32, 33, 34"
+                Code = "sunlight",
+                Name = "Sun Light Apartments",
+                Address = new PropertyAddress()
+                { StreetNumber = "1", StreetName = "Sunlight Creek", City = "Toronto", PostalCode = "M9A 4J5" },
+                NoReplyEmailAddress = loggedUser.Login,
+                PhoneNumber = "905-111-1111",
+                Superintendent = new PersonContactInfo()
+                {
+                    EmailAddress = loggedUser.Login,
+                    FirstName = "John",
+                    LastName = "Smith",
+                    MobilePhone = "647-222-5321"
+                },
+                Units = new List<string> { "11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34" },
+                UnitsStr = "11,12,13,14, 21, 22, 23, 24, 31, 32, 33, 34"
 
 
             };
@@ -98,7 +99,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 return View("Register", prop);
             }
 
-            var loggedUser = await _securityService.GetLoggedSuperintendent(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
 
             prop.Units = new List<string>();
 
@@ -110,7 +111,8 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
             try
             {
-                _propertyService.AddProperty(new AddPropertyCommand(prop.Name, prop.Code, prop.Address, prop.PhoneNumber,
+                await _propertyService.AddPropertyAsync(new AddPropertyCommand(prop.Name, prop.Code, prop.Address,
+                    prop.PhoneNumber,
                     prop.Superintendent,
                     prop.Units.ToList(), prop.NoReplyEmailAddress));
             }
@@ -132,6 +134,11 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
                 return View("Register", prop);
             }
+            catch (DomainEntityDuplicateException)
+            {
+                ModelState.AddModelError("Code", "The code is already taken");
+                return View("Register", prop);
+            }
             catch (DomainException dex)
             {
                 ModelState.AddModelError("", dex.Message);
@@ -145,7 +152,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 return View("Register", prop);
             }
 
-            await _securityService.AddSuperintendentClaims(User, prop.Code);
+            //await _securityService.SetLoggedUserClaims( User.Identity.Name ,UserRolesEnum.Superintendent, prop.Code,"");
 
             return RedirectToAction("Requests", "Superintendent");
 
@@ -159,7 +166,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<IActionResult> RejectRequest(string unitNumber, string requestCode)
         {
-            var loggedUser = await _securityService.GetLoggedSuperintendent(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
             try
             {
                 var vm = await GetPropertyTenantRequestViewModel(unitNumber, requestCode);
@@ -179,11 +186,11 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 // re-render the view when validation failed.
                 return View("RejectRequest");
             }
-            var loggedUser = await _securityService.GetLoggedSuperintendent(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
 
             try
             {
-                _propertyService.ExecuteTenantRequestCommand(loggedUser.PropCode, unitNumber, requestCode,
+               await  _propertyService.ExecuteTenantRequestCommandAsync(loggedUser.PropCode, unitNumber, requestCode,
                     new RejectTenantRequestCommand() {Notes = rejectNotes});
             }
             catch (CoreAuthorizationException)
@@ -202,7 +209,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<IActionResult> ScheduleRequest(string unitNumber, string requestCode)
         {
-            var loggedUser = await _securityService.GetLoggedSuperintendent(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
             try
             {
                 var vm = await GetPropertyTenantRequestViewModel(unitNumber, requestCode);
@@ -224,8 +231,8 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         public async Task<IActionResult> ScheduleRequest(PropertyTenantRequestViewModel request, string unitNumber, string requestCode)
         {
            
-           var loggedUser = await _securityService.GetLoggedSuperintendent(User);
-           if (request.SelectedWorkerEmail == _selectWorkerTip)
+           var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            if (request.SelectedWorkerEmail == _selectWorkerTip)
             {
                 ModelState.Clear();
                 ModelState.AddModelError("SelectedWorkerEmail", "Worker should be assigned");
@@ -245,7 +252,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 if (worker == null)
                     throw new Exception("Worker not found");
 
-                _propertyService.ExecuteTenantRequestCommand(loggedUser.PropCode, unitNumber, requestCode,
+                await _propertyService.ExecuteTenantRequestCommandAsync(loggedUser.PropCode, unitNumber, requestCode,
                     new ScheduleServiceWorkCommand(worker.PersonContactInfo.EmailAddress, request.ScheduledDate, 1));
 
                 return RedirectToAction("Requests", "Superintendent");
@@ -285,7 +292,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<IActionResult> CloseRequest(string unitNumber, string requestCode)
         {
-            var loggedUser = await _securityService.GetLoggedSuperintendent(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
 
             try
             {
@@ -304,10 +311,10 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         public async Task<IActionResult> CloseRequest(string unitNumber, string requestCode, string workerId, DateTime serviceDate)
         {
            
-            var loggedUser = await _securityService.GetLoggedSuperintendent(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
             try
             {
-                _propertyService.ExecuteTenantRequestCommand(loggedUser.PropCode, unitNumber, requestCode,
+                await _propertyService.ExecuteTenantRequestCommandAsync(loggedUser.PropCode, unitNumber, requestCode,
                     new CloseTenantRequestCommand());
 
                 return RedirectToAction("Requests", "Superintendent");
@@ -320,7 +327,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<IActionResult> RequestDetails(string unitNumber, string requestCode)
         {
-            var loggedUser = await _securityService.GetLoggedSuperintendent(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
             try
             {
                 var vm = await GetPropertyTenantRequestViewModel(unitNumber, requestCode);
@@ -337,7 +344,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
         private async Task<PropertyTenantRequestViewModel> GetPropertyTenantRequestViewModel(string unitNumber, string requestCode)
         {
-            var loggedUser = await _securityService.GetLoggedSuperintendent(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
 
             var tenantRequest =
                 _propertyService.GetTenantRequest(loggedUser.PropCode, unitNumber, requestCode);

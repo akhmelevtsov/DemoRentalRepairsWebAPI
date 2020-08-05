@@ -23,8 +23,7 @@ namespace Demo.RentalRepairs.Core.Interfaces
         TenantRequest GetTenantRequest(string propCode, string tenantUnit, string requestCode);
         TenantRequest GetTenantRequestById(Guid tenantRequestId);
 
-        Property  FindPropertyByLoginEmail(string emailAddress);
-        Tenant FindTenantByLoginEmail(string emailAddress);
+        //Tenant FindTenantByLoginEmail(string emailAddress);
         //Worker FindWorkerByLoginEmail(string emailAddress);
 
         IEnumerable<Worker> GetAllWorkers();

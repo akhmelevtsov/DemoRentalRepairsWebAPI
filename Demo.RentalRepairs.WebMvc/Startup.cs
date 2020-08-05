@@ -4,9 +4,10 @@ using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Core.Services;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Infrastructure;
+using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore;
+using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
 using Demo.RentalRepairs.Infrastructure.Mocks;
 using Demo.RentalRepairs.Infrastructure.Repositories.EF;
-using Demo.RentalRepairs.WebMvc.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -86,7 +87,8 @@ namespace Demo.RentalRepairs.WebMvc
 
             ////services.AddTransient<IValidator<PropertyModel>, PropertyValidator>();
             //services.AddTransient<IValidator<PropertyCodeValidator>>();
-
+            services.AddScoped<ISecuritySignInService , SecuritySignInService >();
+            services.AddScoped<ISecurityService,SecurityService >();
             services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
             //services.AddTransient<IUserAuthCoreService, UserAuthCoreService>();
             //services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();

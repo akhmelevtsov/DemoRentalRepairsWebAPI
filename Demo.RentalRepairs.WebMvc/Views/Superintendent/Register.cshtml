@@ -31,12 +31,17 @@
                 <input asp-for="PhoneNumber" class="form-control" placeholder="nnn-nnn-nnnn" />
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
-
+            <div class="form-group ">
+                <label asp-for="NoReplyEmailAddress" class="control-label">No-reply Email Address</label>
+                <input asp-for="NoReplyEmailAddress" class="form-control" />
+                <span asp-validation-for="NoReplyEmailAddress" class="text-danger"></span>
+            </div>
             <div class="form-group">
                 <label asp-for="UnitsStr" class="control-label">Units</label>
                 <input asp-for="UnitsStr" class="form-control" placeholder="unit_n1, unit_n2, ..." />
                 <span asp-validation-for="UnitsStr" class="text-danger"></span>
             </div>
+
         </div>
         <div class="col-md-6">
             <h5>Address</h5>
@@ -63,6 +68,7 @@
                 </div>
             </div>
 
+            
 
         </div>
 
@@ -90,7 +96,7 @@
                 </div>
                 <div class="form-group col-md-8">
                     <label asp-for="Superintendent.EmailAddress" class="control-label">Email Address</label>
-                    <input asp-for="Superintendent.EmailAddress" class="form-control" />
+                    <input asp-for="Superintendent.EmailAddress" class="form-control" readonly="@(true)"/>
                     <span asp-validation-for="Superintendent.EmailAddress" class="text-danger"></span>
                 </div>
             </div>

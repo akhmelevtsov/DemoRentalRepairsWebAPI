@@ -100,12 +100,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
                 .Select(x => _entityMapper.CopyFrom(x)) .ToList();
         }
 
-        public Property FindPropertyByLoginEmail(string emailAddress)
-        {
-            return _context.PropertyTbl.Where(x => x.LoginEmail  == emailAddress)
-                .Select(t => _entityMapper.CopyFrom(t)).FirstOrDefault();
-
-        }
+      
 
 
         public void AddTenantRequest(TenantRequest req)
@@ -142,11 +137,11 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
             _context.SaveChanges();
         }
 
-        public Tenant FindTenantByLoginEmail(string emailAddress)
-        {
-            return _context.TenantTbl.Where(x => x.LoginEmail  == emailAddress).Include( x => x.Property )
-                .Select(x => _entityMapper.CopyFrom(x)).FirstOrDefault();
-        }
+        //public Tenant FindTenantByLoginEmail(string emailAddress)
+        //{
+        //    return _context.TenantTbl.Where(x => x.LoginEmail  == emailAddress).Include( x => x.Property )
+        //        .Select(x => _entityMapper.CopyFrom(x)).FirstOrDefault();
+        //}
 
         //public Worker FindWorkerByLoginEmail(string emailAddress)
         //{

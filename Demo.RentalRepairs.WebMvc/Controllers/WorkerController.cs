@@ -4,13 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Exceptions;
 using Demo.RentalRepairs.Core.Interfaces;
+using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
+using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
 using Demo.RentalRepairs.WebApi.Models;
-using Demo.RentalRepairs.WebMvc.Data;
 using Demo.RentalRepairs.WebMvc.Models;
-using Demo.RentalRepairs.WebMvc.Services;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -26,7 +26,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         private readonly IPropertyService _propertyService;
         private readonly IUserAuthorizationService _userAuthCoreService;
         //private readonly UserManager<ApplicationUser> _userManager;
-        private readonly SecurityService _securityService;
+        //private readonly ISecurityService _securityService;
 
         private readonly Dictionary<string, string> _vDict = new Dictionary<string, string>()
         {
@@ -43,17 +43,18 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
         };
 
-        public WorkerController(IPropertyService propertyService, IUserAuthorizationService userAuthCoreService, UserManager<ApplicationUser> userManager)
+        public WorkerController(IPropertyService propertyService, IUserAuthorizationService userAuthCoreService, UserManager<ApplicationUser> userManager //, ISecurityService securityService
+        )
         {
             _propertyService = propertyService;
             _userAuthCoreService = userAuthCoreService;
-            _securityService = new SecurityService(userManager, userAuthCoreService);
+            //_securityService = securityService;
 
         }
 
         public async Task<IActionResult> Requests()
         {
-            var loggedUser = await _securityService.GetLoggedWorker(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
 
             //_userAuthCoreService.SetUser(loggedUser);
             try
@@ -85,7 +86,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         public async Task<IActionResult> Register()
         {
 
-            var loggedUser = await _securityService.GetLoggedWorker(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
 
             var viewModel = new WorkerEditViewModel(); // {ContactInfo = {EmailAddress = loggedUser.Login}};
             viewModel.ContactInfo.EmailAddress = loggedUser.Login;
@@ -106,11 +107,11 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 // re-render the view when validation failed.
                 return View("Register", worker);
             }
-            var loggedUser = await _securityService.GetLoggedWorker(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
 
             try
             {
-                _propertyService.AddWorker(worker.ContactInfo);
+                await _propertyService.AddWorkerAsync(worker.ContactInfo);
             }
             catch (CoreAuthorizationException)
             {
@@ -134,7 +135,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 return View("Register", worker);
             }
 
-            await _securityService.AddWorkerClaims(User);
+            //await _securityService.SetLoggedUserClaims( User.Identity.Name , UserRolesEnum.Worker ,"","");
 
             return RedirectToAction("Requests", "Worker"); //, new { propCode = propCode, unit = unitNumber });
         }
@@ -147,7 +148,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<IActionResult> ReportRequest(string propCode, string unitNumber, string requestCode)
         {
-            var loggedUser = await _securityService.GetLoggedWorker(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
             try
             {
                 var vm = await GetTenantRequestViewModel(propCode, unitNumber, requestCode);
@@ -168,12 +169,12 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 // re-render the view when validation failed.
                 return View("ReportRequest");
             }
-            var loggedUser = await _securityService.GetLoggedWorker(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
 
             try
             {
-                _propertyService.ExecuteTenantRequestCommand(propertyCode, unitNumber, requestCode, new ReportServiceWorkCommand()
-                { Notes = reportNotes, Success = success });
+               await _propertyService.ExecuteTenantRequestCommandAsync(propertyCode, unitNumber, requestCode, new ReportServiceWorkCommand()
+                    { Notes = reportNotes, Success = success });
 
             }
             catch (CoreAuthorizationException)
@@ -196,7 +197,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<IActionResult> RequestDetails(string propCode, string unitNumber, string requestCode)
         {
-            var loggedUser = await _securityService.GetLoggedWorker(User);
+            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
             try
             {
                 var vm = await GetTenantRequestViewModel(propCode, unitNumber, requestCode);

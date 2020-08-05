@@ -16,10 +16,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories
 
         private List< Worker> _workers = new List<Worker>();
 
-        public Property FindPropertyByLoginEmail(string emailAddress)
-        {
-            return _properties.Values.FirstOrDefault(x => x.LoginEmail == emailAddress);
-        }
+       
 
         public void AddTenantRequest(TenantRequest tenantRequest)
         {
@@ -37,10 +34,10 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories
             
         }
 
-        public Tenant FindTenantByLoginEmail(string emailAddress)
-        {
-            return _tenants.FirstOrDefault(x => x.LoginEmail  == emailAddress);
-        }
+        //public Tenant FindTenantByLoginEmail(string emailAddress)
+        //{
+        //    return _tenants.FirstOrDefault(x => x.LoginEmail  == emailAddress);
+        //}
 
         //public Worker FindWorkerByLoginEmail(string emailAddress)
         //{
@@ -104,7 +101,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories
                 throw new ArgumentNullException(nameof(propertyCode));
 
             if (!_properties.ContainsKey(propertyCode))
-                    Property.NotFoundException(propertyCode);
+                return null;
             return _properties[propertyCode];
 
         }

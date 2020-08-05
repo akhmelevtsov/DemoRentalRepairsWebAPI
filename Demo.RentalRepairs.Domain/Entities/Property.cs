@@ -18,7 +18,7 @@ namespace Demo.RentalRepairs.Domain.Entities
         public PersonContactInfo Superintendent { get; private set;  }
         public List<string> Units { get; private set; }
         //-------------
-        public string LoginEmail { get; set;  }
+       
         public string NoReplyEmailAddress { get;  set; }
 
         public Property(AddPropertyCommand addPropertyCommand, DateTime? dateCreated = null, Guid? id = null) : base(dateCreated, id)

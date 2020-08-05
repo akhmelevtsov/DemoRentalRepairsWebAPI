@@ -33,7 +33,7 @@
                 </div>
                 <div class="form-group col-md-8">
                     <label asp-for="ContactInfo.EmailAddress" class="control-label">Email Address</label>
-                    <input asp-for="ContactInfo.EmailAddress" class="form-control" />
+                    <input asp-for="ContactInfo.EmailAddress" class="form-control"  readonly="@(true)"/>
                     <span asp-validation-for="ContactInfo.EmailAddress" class="text-danger"></span>
                 </div>
             </div>

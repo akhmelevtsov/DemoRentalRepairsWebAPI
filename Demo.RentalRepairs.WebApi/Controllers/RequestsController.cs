@@ -50,7 +50,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status500InternalServerError)]
         public void Post(string propertyCode, string tenantUnit,  [FromBody] TenantRequestDocModel tenantRequestDocModel )
         {
-            _propertyService.RegisterTenantRequest(propertyCode, tenantUnit, tenantRequestDocModel) ;
+            _propertyService.RegisterTenantRequestAsync(propertyCode, tenantUnit, tenantRequestDocModel) ;
         }
         // PATCH api/properties/moonlight/tenants/21/requests/1/schedule
         /// <summary>
@@ -62,7 +62,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status500InternalServerError)]
         public void ScheduleWork(string propertyCode, string tenantUnit,string requestCode,  [FromBody] ScheduleServiceWorkCommand  serviceWorkOrder)
         {
-            _propertyService.ExecuteTenantRequestCommand(propertyCode,tenantUnit , requestCode, serviceWorkOrder);
+            _propertyService.ExecuteTenantRequestCommandAsync(propertyCode,tenantUnit , requestCode, serviceWorkOrder);
         }
         // PATCH api/properties/moonlight/tenants/21/requests/1/reject
         /// <summary>
@@ -74,7 +74,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status500InternalServerError)]
         public void RejectRequest(string propertyCode, string tenantUnit, [FromRoute] string requestCode, [FromBody] RejectTenantRequestCommand  tenantRequestRejectNotes)
         {
-            _propertyService.ExecuteTenantRequestCommand(propertyCode, tenantUnit, requestCode, tenantRequestRejectNotes);
+            _propertyService.ExecuteTenantRequestCommandAsync(propertyCode, tenantUnit, requestCode, tenantRequestRejectNotes);
         }
         // PATCH api/properties/moonlight/tenants/21/requests/1/done
         /// <summary>
@@ -87,7 +87,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status500InternalServerError)]
         public void ReportWorkCompleted(string propertyCode, string tenantUnit, [FromRoute] string requestCode, [FromBody] ReportServiceWorkCommand serviceWorkReport )
         {
-            _propertyService.ExecuteTenantRequestCommand(propertyCode, tenantUnit, requestCode, serviceWorkReport);
+            _propertyService.ExecuteTenantRequestCommandAsync(propertyCode, tenantUnit, requestCode, serviceWorkReport);
         }
         // PATCH api/properties/moonlight/tenants/21/requests/1/failed
         /// <summary>
@@ -100,7 +100,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status500InternalServerError)]
         public void ReportWorkIncomplete(string propertyCode, string tenantUnit, [FromRoute] string requestCode, [FromBody] ReportServiceWorkCommand serviceWorkReport)
         {
-            _propertyService.ExecuteTenantRequestCommand(propertyCode, tenantUnit, requestCode, serviceWorkReport);
+            _propertyService.ExecuteTenantRequestCommandAsync(propertyCode, tenantUnit, requestCode, serviceWorkReport);
         }
         // PATCH api/properties/moonlight/tenants/21/requests/1/close
         /// <summary>
@@ -113,7 +113,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
         [ProducesResponseType(typeof(ResponseErrorModel), StatusCodes.Status500InternalServerError)]
         public void CloseRequest(string propertyCode, string tenantUnit, [FromRoute] string requestCode)
         {
-            _propertyService.ExecuteTenantRequestCommand(propertyCode, tenantUnit, requestCode, null);
+            _propertyService.ExecuteTenantRequestCommandAsync(propertyCode, tenantUnit, requestCode, null);
         }
      
     }

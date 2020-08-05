@@ -39,7 +39,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
         private void SetUser()
         {
-            var loggedUser = HttpContext.Session.GetComplexData<LoggedUser>("LoggedUser");
+            var loggedUser = HttpContext.Session.GetComplexData<UserClaims>("LoggedUser");
             if (loggedUser == null)
             {
                 loggedUser = _userAuthCoreService.SetUser(UserRolesEnum.Superintendent, "super@email.com");
@@ -93,7 +93,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
       
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create( PropertyModel  prop)
+        public async Task<IActionResult>Create( PropertyModel  prop)
         {
             SetUser();
             if (!ModelState.IsValid)
@@ -111,7 +111,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
             try
             {
-                _propertyService.AddProperty(new AddPropertyCommand(prop.Name, prop.Code, prop.Address, prop.PhoneNumber, prop.Superintendent,
+                await _propertyService.AddPropertyAsync(new AddPropertyCommand(prop.Name, prop.Code, prop.Address, prop.PhoneNumber, prop.Superintendent,
                     prop.Units.ToList(), prop.NoReplyEmailAddress ));
             }
             catch (DomainValidationException vex)

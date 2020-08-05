@@ -2,17 +2,13 @@
 using System.Linq;
 using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.ValueObjects;
-using Demo.RentalRepairs.Domain.ValueObjects.Request;
 using Demo.RentalRepairs.Infrastructure.Repositories.EF.Entities;
-using Microsoft.CodeAnalysis.CSharp;
 using Newtonsoft.Json;
 
 namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
 {
     internal class EntityMapper
     {
-
-       
         //-----------------------------------------------------------
         internal PropertyTbl CopyFrom(Property prop)
         {
@@ -26,7 +22,6 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
                 Superintendent = prop.Superintendent,
                 NoReplyEmailAddress = prop.NoReplyEmailAddress,
                 DateCreated = prop.DateCreated,
-                LoginEmail = prop.LoginEmail ,
                 IdCreated = prop.Id
             };
             return propTbl;
@@ -40,8 +35,6 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
                 p.DateCreated, 
                 p.IdCreated)
             {
-               
-                LoginEmail = p.LoginEmail
             };
             return prop;
         }
@@ -78,7 +71,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
                 ContactInfo = tenant.ContactInfo,
                 ID = tenant.Id,
                 UnitNumber = tenant.UnitNumber,
-                LoginEmail = tenant.LoginEmail,
+                
             };
             return tenantTbl;
         }
@@ -92,7 +85,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
                 tenantTbl.ID)
             {
                 RequestsNum = tenantTbl.Requests?.Count() ?? 0,
-                LoginEmail = tenantTbl.LoginEmail
+              
             };
         }
 

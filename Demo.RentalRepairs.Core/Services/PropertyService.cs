@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Entities;
-using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects;
@@ -33,8 +32,8 @@ namespace Demo.RentalRepairs.Core.Services
   
         public IEnumerable<Property> GetAllProperties()
         {
-            //_authService.UserCanGetListOfProperties();
-            _authService.Check(() => _authService.IsLoggedTenant()); 
+           
+            _authService.Check(() => _authService.IsAuthenticatedTenant()); 
             return _propertyRepository.GetAllProperties();
         }
 
@@ -43,24 +42,26 @@ namespace Demo.RentalRepairs.Core.Services
         public Property GetPropertyByCode(string propCode)
         {
             _validationService.ValidatePropertyCode(propCode);
-            //_authService.UserCanGetPropertyDetails(propCode);
-            _authService.Check(() => _authService.IsLoggedTenant() || _authService.IsRegisteredTenant(propCode)  || _authService.IsRegisteredSuperintendent( propCode ) );
+           
+            _authService.Check(() => _authService.IsAuthenticatedTenant() || _authService.IsRegisteredTenant(propCode)  || _authService.IsRegisteredSuperintendent( propCode ) );
             var prop = _propertyRepository.GetPropertyByCode(propCode);
 
             return prop;
         }
-        public Worker AddWorker(PersonContactInfo workerInfo)
+        public async Task<Worker> AddWorkerAsync(PersonContactInfo workerInfo)
         {
-            //_authService.UserCanRegisterWorker();
+            await Task.CompletedTask;
+
             _authService.Check(() => _authService.IsRegisteredWorker());
             var worker = new Worker(workerInfo);
             _propertyRepository.AddWorker(worker);
+            await _authService.AddUserClaims(null, null);
             return worker;
         }
 
         public IEnumerable<Worker> GetAllWorkers()
         {
-            //_authService.UserCanGetListOfAllWorkers();
+         
             _authService.Check(() => _authService.IsRegisteredSuperintendent( ));
             return _propertyRepository.GetAllWorkers();
         }
@@ -71,41 +72,47 @@ namespace Demo.RentalRepairs.Core.Services
         }
 
 
-        public Property AddProperty(AddPropertyCommand propertyInfo)
+        public  async Task<Property> AddPropertyAsync(AddPropertyCommand propertyInfo)
         {
-            //_authService.UserCanRegisterProperty();
-            _authService.Check(() => _authService.IsRegisteredSuperintendent());
-            var prop = new Property(propertyInfo)
-            {
-                LoginEmail = _authService.LoggedUser.Login
-            };
+            await Task.CompletedTask;
+            _authService.Check(() => _authService.IsAuthenticatedSuperintendent());
+            var prop = new Property(propertyInfo);
+            var p = _propertyRepository.GetPropertyByCode(prop.Code);
+            if (p!=null)
+                throw new DomainEntityDuplicateException("duplicate_property","duplicate property name");
             _propertyRepository.AddProperty(prop);
+            await _authService.AddUserClaims(prop.Code, null);
             return prop;
 
         }
         // tenants
         public IEnumerable<Tenant> GetPropertyTenants(string propertyCode)
         {
-            //_authService.UserCanGetListOfPropertyTenants(propertyCode);
+          
             _authService.Check(() => _authService.IsRegisteredSuperintendent(propertyCode));
             _validationService.ValidatePropertyCode(propertyCode);
             return _propertyRepository.GetPropertyTenants(propertyCode);
         }
 
-        public Tenant AddTenant(string propertyCode, PersonContactInfo contactInfo, string unitNumber)
+        public async Task<Tenant> AddTenantAsync(string propertyCode, PersonContactInfo contactInfo, string unitNumber)
         {
-            //_authService.UserCanRegisterTenant();
-            _authService.Check(() => _authService.IsLoggedTenant());
+            await Task.CompletedTask;
+            _authService.Check(() => _authService.IsAuthenticatedTenant());
 
             _validationService.ValidatePropertyCode(propertyCode);
             _validationService.ValidatePropertyUnit(unitNumber);
             _validationService.Validate(contactInfo);
 
             var property = _propertyRepository.GetPropertyByCode(propertyCode);
-            var tenant = property.RegisterTenant( contactInfo, unitNumber);
+            if (property == null)
+                throw new DomainEntityNotFoundException("property_not_found", "property not found");
+            var tenant =_propertyRepository.GetTenantByUnitNumber(unitNumber, propertyCode);
+            if (tenant != null)
+                throw new DomainEntityDuplicateException("duplicate_tenant", "duplicate tenant");
+            tenant = property.RegisterTenant( contactInfo, unitNumber);
             tenant.LoginEmail = _authService.LoggedUser.Login;
             _propertyRepository.AddTenant(tenant);
-            
+            await _authService.AddUserClaims(propertyCode, unitNumber);
             return tenant;
 
         }
@@ -114,7 +121,7 @@ namespace Demo.RentalRepairs.Core.Services
 
         public Tenant GetTenantByPropertyUnit(string propertyCode, string propertyUnit)
         {
-            //_authService.UserCanGetTenantDetails(propertyCode, propertyUnit);
+            
             _authService.Check(() => _authService.IsRegisteredTenant(propertyCode , propertyUnit ) || _authService.IsRegisteredSuperintendent( propertyCode ));
             _validationService.ValidatePropertyCode(propertyCode);
             var tenant = _propertyRepository.GetTenantByUnitNumber(propertyUnit, propertyCode);
@@ -139,7 +146,7 @@ namespace Demo.RentalRepairs.Core.Services
         }
         public IEnumerable<TenantRequest> GetTenantRequests(string propertyCode, string tenantUnit)
         {
-            //_authService.UserCanGetListOfTenantRequests();
+            
             _validationService.ValidatePropertyCode(propertyCode);
             _validationService.ValidatePropertyUnit(tenantUnit);
             _authService.Check(() => _authService.IsRegisteredTenant(propertyCode, tenantUnit));
@@ -149,15 +156,16 @@ namespace Demo.RentalRepairs.Core.Services
 
             if (tenant != null)
             {
-                //_authService.UserCanGetListOfTenantRequests(propertyCode, tenantUnit);
+               
                 retList = _propertyRepository.GetTenantRequests(tenant.Id).ToList();
             }
 
             return retList;
         }
-        public TenantRequest RegisterTenantRequest(string propCode, string tenantUnit, RegisterTenantRequestCommand tenantRequestDoc)
+        public async Task<TenantRequest> RegisterTenantRequestAsync(string propCode, string tenantUnit,
+            RegisterTenantRequestCommand tenantRequestDoc)
         {
-            //_authService.UserCanRegisterTenantRequest(propCode, tenantUnit);
+            await Task.CompletedTask;
             _authService.Check(() => _authService.IsRegisteredTenant( propCode, tenantUnit));
             _validationService.ValidatePropertyCode(propCode);
             _validationService.ValidatePropertyUnit(tenantUnit);
@@ -174,13 +182,12 @@ namespace Demo.RentalRepairs.Core.Services
             return tenantRequest;
         }
 
-        public TenantRequest ExecuteTenantRequestCommand(string propCode, string tenantUnit, string requestCode,
+        public async  Task<TenantRequest> ExecuteTenantRequestCommandAsync(string propCode, string tenantUnit,
+            string requestCode,
             ITenantRequestCommand command)
         {
-            //_authService.UserCanChangeTenantRequestStatus(newStatus);
-
-           // _authService.Check(() => _authService.IsRegisteredTenant(propCode, tenantUnit));
-            var tenantRequest = GetTenantRequest(propCode, tenantUnit, requestCode);
+            await Task.CompletedTask;
+            var tenantRequest = this.GetTenantRequest(propCode, tenantUnit, requestCode);
 
             _authService.Check(() => _authService.IsUserCommand(command.GetType()));
             tenantRequest = tenantRequest.ExecuteCommand( command);

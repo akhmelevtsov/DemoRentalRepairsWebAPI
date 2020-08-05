@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Exceptions;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Enums;
-using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
 
@@ -11,34 +11,59 @@ namespace Demo.RentalRepairs.Core.Services
     public class UserAuthorizationService : IUserAuthorizationService
     {
         private readonly IPropertyRepository _propertyRepository;
+        private readonly ISecurityService _securityService;
         private readonly DomainValidationService _validationService = new DomainValidationService();
 
-        private LoggedUser _loggedUser;
-        public UserAuthorizationService(IPropertyRepository propertyRepository)
+        private UserClaims _loggedUser;
+        public UserAuthorizationService(IPropertyRepository propertyRepository, ISecurityService securityService)
         {
             _propertyRepository = propertyRepository;
-
+            _securityService = securityService;
         }
 
-        public LoggedUser LoggedUser => _loggedUser;
+        public UserClaims LoggedUser => _loggedUser;
 
 
  
-        public void SetUser(LoggedUser loggedUser)
+        public void SetUser(UserClaims loggedUser)
         {
             _loggedUser = loggedUser;
         }
- 
+
+        public async Task<OperationResult> RegisterUser(UserRolesEnum userRole, string email, string password)
+        {
+            return await _securityService.RegisterUser(userRole, email, password);
+        }
+
+        public async Task<UserClaims> GetUserClaims(string email)
+        {
+            _loggedUser = await  _securityService.GetLoggedUserClaims(email);
+         
+            return _loggedUser;
+        }
+
         public void Check(Func<bool> func)
         {
             if (func()) return;
 
             throw new CoreAuthorizationException("access_denied", "access denied");
         }
+        public bool IsAuthenticatedTenant()
+        {
+            if (_loggedUser.UserRole == UserRolesEnum.Tenant && !string.IsNullOrEmpty(_loggedUser.Login)
+                                                             && string.IsNullOrEmpty(_loggedUser.PropCode)
+                                                             && string.IsNullOrEmpty(_loggedUser.UnitNumber))
+            {
+                return true;
+            }
 
+            return false;
+        }
         public bool IsRegisteredTenant(string propCode, string tenantUnit = null)
         {
-            if (_loggedUser.UserRole == UserRolesEnum.Tenant && !string.IsNullOrEmpty( _loggedUser.Login) )
+            if (_loggedUser.UserRole == UserRolesEnum.Tenant && !string.IsNullOrEmpty( _loggedUser.Login)
+                                                             && !string.IsNullOrEmpty(_loggedUser.PropCode)
+                                                             && !string.IsNullOrEmpty(_loggedUser.UnitNumber))
             {
                 _validationService.ValidatePropertyCode(propCode);
                 if (tenantUnit != null)
@@ -58,20 +83,26 @@ namespace Demo.RentalRepairs.Core.Services
             return false;
         }
 
-        public bool IsLoggedTenant()
+        public bool IsAuthenticatedSuperintendent()
         {
-            if (_loggedUser.UserRole == UserRolesEnum.Tenant && !string.IsNullOrEmpty(_loggedUser.Login))
+            if (_loggedUser.UserRole == UserRolesEnum.Superintendent && !string.IsNullOrEmpty(_loggedUser.Login)
+                                                                     && string.IsNullOrEmpty(_loggedUser.PropCode))
             {
-                return true;
-
+                    return true;
             }
 
             return false;
         }
 
+        public async Task AddUserClaims(string propCode, string userNumber)
+        {
+            await _securityService.SetLoggedUserClaims(_loggedUser.Login, _loggedUser.UserRole, propCode, userNumber);
+        }
+
         public bool IsRegisteredSuperintendent(string propCode=null)
         {
-            if (_loggedUser.UserRole == UserRolesEnum.Superintendent  && !string.IsNullOrEmpty(_loggedUser.Login))
+            if (_loggedUser.UserRole == UserRolesEnum.Superintendent  && !string.IsNullOrEmpty(_loggedUser.Login)
+                                                                      && !string.IsNullOrEmpty(_loggedUser.PropCode))
             {
                 if (propCode != null)
                    _validationService.ValidatePropertyCode(propCode);
@@ -135,40 +166,13 @@ namespace Demo.RentalRepairs.Core.Services
             return false;
         }
 
-        public void UserCanChangeTenantRequestStatus(TenantRequestStatusEnum newStatus)
-        {
-            if (_loggedUser.UserRole == UserRolesEnum.Superintendent)
-            {
-                if (newStatus == TenantRequestStatusEnum.Scheduled ||
-                    newStatus == TenantRequestStatusEnum.Declined || newStatus == TenantRequestStatusEnum.Closed)
-                    return;
+       
 
-                throw new DomainAuthorizationException("super_cannot_change_request_status", "Superintendent has no permissions to change request status");
-
-            }
-            else if (_loggedUser.UserRole == UserRolesEnum.Worker)
-            {
-
-                if (newStatus == TenantRequestStatusEnum.Done ||
-                    newStatus == TenantRequestStatusEnum.Failed)
-                    return;
-
-                throw new DomainAuthorizationException("worker_cannot_change_request_status", "Worker has no permissions to change request status");
-
-            }
-            else
-            {
-                throw new DomainAuthorizationException("user_not_allowed_to_change_request_status", "No permissions to change request status");
-            }
-
-        }
-      
-
-        public LoggedUser SetUser(UserRolesEnum userRole, string emailAddress, string propertyCode = null, string unitNumber = null)
+        public UserClaims SetUser(UserRolesEnum userRole, string emailAddress, string propertyCode = null, string unitNumber = null)
         {
             
           
-            _loggedUser = new LoggedUser(emailAddress, userRole, propertyCode , unitNumber ); ;
+            _loggedUser = new UserClaims(emailAddress, userRole, propertyCode , unitNumber ); ;
             return _loggedUser;
         }
     }
