@@ -8,6 +8,7 @@ using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore;
 using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
 using Demo.RentalRepairs.Infrastructure.Mocks;
 using Demo.RentalRepairs.Infrastructure.Repositories.EF;
+using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -92,7 +93,8 @@ namespace Demo.RentalRepairs.WebMvc
             services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
             //services.AddTransient<IUserAuthCoreService, UserAuthCoreService>();
             //services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();
-            services.AddTransient<IPropertyRepository, PropertyRepositoryEf>();
+            //services.AddTransient<IPropertyRepository, PropertyRepositoryEf>();
+            services.AddTransient<IPropertyRepository, PropertyMongoDbRepository>();
             services.AddTransient<ITemplateDataService , TemplateDataService >();
             services.AddTransient<IEmailService, EmailServiceMock>();
             services.AddTransient<INotifyPartiesService, NotifyPartiesService>();

@@ -9,16 +9,16 @@ namespace Demo.RentalRepairs.Domain.Services
 {
     public class ValidationRulesService
     {
-        public  ValidationResult Validate  ( Property  property)
-        {
-            var validator = new PropertyValidator();
+        //public  ValidationResult Validate  ( Property  property)
+        //{
+        //    var validator = new PropertyValidator();
 
-            return validator.Validate(property);
+        //    return validator.Validate(property);
           
-        }
-        public ValidationResult Validate(AddPropertyCommand propertyInfo)
+        //}
+        public ValidationResult Validate(RegisterPropertyCommand propertyInfo)
         {
-            var validator = new AddPropertyCommandValidator();
+            var validator = new RegisterPropertyCommandValidator();
 
             return validator.Validate(propertyInfo);
         }

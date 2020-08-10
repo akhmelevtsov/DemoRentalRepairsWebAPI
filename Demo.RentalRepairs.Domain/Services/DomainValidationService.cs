@@ -9,16 +9,16 @@ namespace Demo.RentalRepairs.Domain.Services
     {
         private readonly ValidationRulesService _validationRulesService = new ValidationRulesService();
 
-        public  void ValidateProperty( Property property)
-        {
+        //public  void ValidateProperty( Property property)
+        //{
 
-            var results = _validationRulesService.Validate(property);
-            if (!results.IsValid)
-            {
-                throw new DomainValidationException("create_property_validation", results.Errors);
-            }
-        }
-        public void Validate(AddPropertyCommand propertyInfo)
+        //    var results = _validationRulesService.Validate(property);
+        //    if (!results.IsValid)
+        //    {
+        //        throw new DomainValidationException("create_property_validation", results.Errors);
+        //    }
+        //}
+        public void Validate(RegisterPropertyCommand propertyInfo)
         {
             var results = _validationRulesService.Validate(propertyInfo);
             if (!results.IsValid)

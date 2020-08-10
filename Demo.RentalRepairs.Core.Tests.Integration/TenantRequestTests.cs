@@ -16,6 +16,7 @@ using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
 using Demo.RentalRepairs.Infrastructure.Mocks;
 using Demo.RentalRepairs.Infrastructure.Repositories;
 using Demo.RentalRepairs.Infrastructure.Repositories.EF;
+using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -56,7 +57,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             });
 
-            var prop = new Property(new AddPropertyCommand("Moonlight Apartments", "moonlight",
+            var prop = new Property(new RegisterPropertyCommand("Moonlight Apartments", "moonlight",
                 new PropertyAddress()
                 { StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5" },
                 "905-111-1111",
@@ -146,8 +147,9 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
         public async Task AllPathsTestWithInMemoryRepo()
         {
             var services = new ServiceCollection();
-           
-            //services.AddScoped<ISecurityService, SecurityService>();
+
+            services.AddTransient<ISecuritySignInService, SecuritySignInMockService>();
+            services.AddScoped<ISecurityService, SecurityMockService>();
             services.AddSingleton<IUserAuthorizationService, UserAuthorizationService>();
             services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();
             services.AddTransient<ITemplateDataService, TemplateDataService>();
@@ -173,32 +175,13 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             const string connectionString = "Server=(localdb)\\mssqllocaldb; Database = PropertiesTest1; Trusted_Connection = True; MultipleActiveResultSets = true";
 
-            //var optionsBuilder = new DbContextOptionsBuilder<PropertiesContext>();
-            //optionsBuilder.UseSqlServer(connectionString);
-
-
-            ////PropertiesContext dbContext = new PropertiesContext(optionsBuilder.Options);
-
-            //// Or you can also instantiate inside using
-
-            //using (PropertiesContext dbContext = new PropertiesContext(optionsBuilder.Options))
-            //{
-            //    dbContext.Database.EnsureDeleted();
-            //    dbContext.Database.EnsureCreated();
-            //    //...do stuff
-            //    var repo = new PropertyRepositoryEf(dbContext);
-            //    var emailService = new EmailServiceMock();
-            //    var templateDataService = new TemplateDataService();
-            //    var ntfService = new NotifyPartiesService(emailService, templateDataService, repo);
-
-            //    TestEverythingWithRepo(repo, ntfService, emailService, null , null);
-            //}
-
+           
             var services = new ServiceCollection();
             services.AddDbContext<PropertiesContext>(options =>
                 options.UseSqlServer(connectionString) );
 
-            //services.AddScoped<ISecurityService, SecurityService>();
+            services.AddTransient<ISecuritySignInService, SecuritySignInMockService>();
+            services.AddScoped<ISecurityService, SecurityMockService>();
             services.AddSingleton<IUserAuthorizationService, UserAuthorizationService>();
             services.AddSingleton<IPropertyRepository, PropertyRepositoryEf>();
             services.AddTransient<ITemplateDataService, TemplateDataService>();
@@ -221,6 +204,41 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                  await TestEverythingWithRepo(repo, ntfService, (EmailServiceMock)emailService, propertyService, authService);
             }
            
+
+        }
+
+        [TestMethod]
+        public async Task AllPathsTestWithMongoDbRepo()
+        {
+
+
+            var services = new ServiceCollection();
+
+
+            services.AddTransient<ISecuritySignInService, SecuritySignInMockService>();
+            services.AddScoped<ISecurityService, SecurityMockService>();
+            services.AddSingleton<IUserAuthorizationService, UserAuthorizationService>();
+            services.AddSingleton<IPropertyRepository, PropertyMongoDbRepository>();
+            services.AddTransient<ITemplateDataService, TemplateDataService>();
+            services.AddSingleton<IEmailService, EmailServiceMock>();
+            services.AddTransient<INotifyPartiesService, NotifyPartiesService>();
+            services.AddSingleton<IPropertyService, PropertyService>();
+
+            var serviceProvider = services.BuildServiceProvider();
+            var propertyService = serviceProvider.GetService<IPropertyService>();
+            var authService = serviceProvider.GetService<IUserAuthorizationService>();
+
+            var repo = serviceProvider.GetService<IPropertyRepository>();
+            var emailService = serviceProvider.GetService<IEmailService>();
+            var ntfService = serviceProvider.GetService<INotifyPartiesService>();
+
+            await TestEverythingWithRepo(repo, ntfService, (EmailServiceMock)emailService, propertyService, authService);
+            //using (var context = serviceProvider.GetService<PropertiesContext>())
+            // {
+            //     context.Database.EnsureDeleted();
+            //     context.Database.EnsureCreated();
+            // }
+
 
         }
         [TestMethod]
@@ -315,7 +333,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             await authService.GetUserClaims(superintendentLogin);
 
-            var prop = await propService.AddPropertyAsync(new AddPropertyCommand("Moonlight Apartments", "moonlight",
+            var prop = await propService.AddPropertyAsync(new RegisterPropertyCommand("Moonlight Apartments", "moonlight",
                 new PropertyAddress()
                     { StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5" },
                 "905-111-1111",
@@ -468,22 +486,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
             EmailServiceMock  emailService, IPropertyService propService, IUserAuthorizationService authService)
         {
 
-            //var services = new ServiceCollection();
-            //services.AddTransient<IMatchRepository, MatchRepositoryStub>();
-
-            //var serviceProvider = services.BuildServiceProvider();
-
-            //matchRepository = serviceProvider.GetService<IMatchRepository>();
-
-
-            //var authService = new UserAuthorizationService(repo);
-
-            //ISecurityService securityService;
-
-
-            //var securityService = new SecurityService(new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(dbContext)), 
-            //                                             authService, new RoleManager<IdentityRole>(), new SignInManager<ApplicationUser>(), new Logger<SecurityService>( )  )
-            //var propService = new PropertyService(repo, ntfService, authService);
+            
             const string superintendentLogin = "super@email.com";
             const string tenantLogin = "tenant9@email.com";
             const string workerLogin = "worker@email.com";
@@ -508,7 +511,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
             //----------
             authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
 
-            var prop = await propService.AddPropertyAsync(new AddPropertyCommand("Moonlight Apartments", "moonlight",
+            var prop = await propService.AddPropertyAsync(new RegisterPropertyCommand("Moonlight Apartments", "moonlight",
                 new PropertyAddress()
                     { StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5" },
                 "905-111-1111",
@@ -632,9 +635,17 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
             authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin, prop.Code );
             await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code, new CloseTenantRequestCommand() );
 
+
             propService.GetPropertyTenants("moonlight");
+            authService.SetUser(UserRolesEnum.Tenant, tenantLogin, prop.Code, tenant.UnitNumber);
+            propService.GetTenantRequests(prop.Code, tenant.UnitNumber);
 
-
+            authService.SetUser(UserRolesEnum.Worker, workerLogin);
+            var workerRequests = propService.GetWorkerRequests(workerLogin);
+            Assert.AreEqual(2, workerRequests.Count());
+            authService.SetUser(UserRolesEnum.Worker, worker1Login);
+            var worker1Requests = propService.GetWorkerRequests(worker1Login);
+            Assert.AreEqual(1, worker1Requests.Count());
         }
 
         private static void AssertEmailPropsNotNull(EmailServiceMock emailService)

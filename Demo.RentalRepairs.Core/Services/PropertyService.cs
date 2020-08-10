@@ -45,7 +45,8 @@ namespace Demo.RentalRepairs.Core.Services
            
             _authService.Check(() => _authService.IsAuthenticatedTenant() || _authService.IsRegisteredTenant(propCode)  || _authService.IsRegisteredSuperintendent( propCode ) );
             var prop = _propertyRepository.GetPropertyByCode(propCode);
-
+            if (prop == null)
+                throw new DomainEntityNotFoundException("property_not_found", $"property not found by code:{propCode}");
             return prop;
         }
         public async Task<Worker> AddWorkerAsync(PersonContactInfo workerInfo)
@@ -72,7 +73,7 @@ namespace Demo.RentalRepairs.Core.Services
         }
 
 
-        public  async Task<Property> AddPropertyAsync(AddPropertyCommand propertyInfo)
+        public  async Task<Property> AddPropertyAsync(RegisterPropertyCommand propertyInfo)
         {
             await Task.CompletedTask;
             _authService.Check(() => _authService.IsAuthenticatedSuperintendent());
@@ -110,7 +111,7 @@ namespace Demo.RentalRepairs.Core.Services
             if (tenant != null)
                 throw new DomainEntityDuplicateException("duplicate_tenant", "duplicate tenant");
             tenant = property.RegisterTenant( contactInfo, unitNumber);
-            tenant.LoginEmail = _authService.LoggedUser.Login;
+           
             _propertyRepository.AddTenant(tenant);
             await _authService.AddUserClaims(propertyCode, unitNumber);
             return tenant;

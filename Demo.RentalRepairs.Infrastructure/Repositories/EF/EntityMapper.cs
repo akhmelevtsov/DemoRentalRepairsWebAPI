@@ -28,7 +28,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
         }
         internal Property CopyFrom(PropertyTbl p)
         {
-            var prop = new Property(new AddPropertyCommand(p.Name, p.ID,  p.Address, p.PhoneNumber,
+            var prop = new Property(new RegisterPropertyCommand(p.Name, p.ID,  p.Address, p.PhoneNumber,
                 p.Superintendent,
                 JsonConvert.DeserializeObject<List<string>>(p.Units),
                 p.NoReplyEmailAddress),

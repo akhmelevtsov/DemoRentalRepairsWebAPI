@@ -13,7 +13,7 @@ namespace Demo.RentalRepairs.Core.Interfaces
         IEnumerable<Property> GetAllProperties();                                                                   
    
         Task<Worker> AddWorkerAsync(PersonContactInfo workerContactInfo);
-        Task<Property> AddPropertyAsync(AddPropertyCommand propertyInfo);                                                             
+        Task<Property> AddPropertyAsync(RegisterPropertyCommand propertyInfo);                                                             
         Task<Tenant> AddTenantAsync(string propertyCode, PersonContactInfo contactInfo, string unitNumber);    
         Task<TenantRequest> RegisterTenantRequestAsync(string propCode, string tenantUnit , RegisterTenantRequestCommand tenantRequestDoc);  
         Task<TenantRequest> ExecuteTenantRequestCommandAsync(string propCode, string tenantUnit,string requestCode, 

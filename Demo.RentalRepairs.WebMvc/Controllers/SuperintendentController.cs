@@ -111,7 +111,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
             try
             {
-                await _propertyService.AddPropertyAsync(new AddPropertyCommand(prop.Name, prop.Code, prop.Address,
+                await _propertyService.AddPropertyAsync(new RegisterPropertyCommand(prop.Name, prop.Code, prop.Address,
                     prop.PhoneNumber,
                     prop.Superintendent,
                     prop.Units.ToList(), prop.NoReplyEmailAddress));

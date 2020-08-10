@@ -3,9 +3,9 @@ using Demo.RentalRepairs.Domain.Framework;
 
 namespace Demo.RentalRepairs.Domain.ValueObjects
 {
-    public class AddPropertyCommand : Value
+    public class RegisterPropertyCommand : Value
     {
-        public AddPropertyCommand(string name, string code, PropertyAddress address, string phoneNumber, PersonContactInfo superintendent, List<string> units, string noReplyEmailAddress)
+        public RegisterPropertyCommand(string name, string code, PropertyAddress address, string phoneNumber, PersonContactInfo superintendent, List<string> units, string noReplyEmailAddress)
         {
             Name = name;
             Code = code;

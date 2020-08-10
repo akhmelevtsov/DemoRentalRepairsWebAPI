@@ -76,7 +76,7 @@ namespace Demo.RentalRepairs.WebApi.Controllers
             //{
             //    throw new DomainValidationException("create_property_validation", results.Errors);
             //}
-            _propertyService.AddPropertyAsync(new AddPropertyCommand(prop.Name, prop.Code, prop.Address, prop.PhoneNumber, prop.Superintendent, prop.Units.ToList(), prop.NoReplyEmailAddress ) );
+            _propertyService.AddPropertyAsync(new RegisterPropertyCommand(prop.Name, prop.Code, prop.Address, prop.PhoneNumber, prop.Superintendent, prop.Units.ToList(), prop.NoReplyEmailAddress ) );
         }
         
     }

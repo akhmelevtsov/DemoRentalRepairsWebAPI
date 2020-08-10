@@ -21,7 +21,7 @@ namespace Demo.RentalRepairs.Domain.Entities
        
         public string NoReplyEmailAddress { get;  set; }
 
-        public Property(AddPropertyCommand addPropertyCommand, DateTime? dateCreated = null, Guid? id = null) : base(dateCreated, id)
+        public Property(RegisterPropertyCommand addPropertyCommand, DateTime? dateCreated = null, Guid? id = null) : base(dateCreated, id)
         {
             _validationService.Validate(addPropertyCommand);
             Name = addPropertyCommand.Name;

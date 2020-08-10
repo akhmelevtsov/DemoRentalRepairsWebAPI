@@ -7,7 +7,7 @@ using Demo.RentalRepairs.Domain.ValueObjects.Request;
 
 namespace Demo.RentalRepairs.Domain.Entities
 {
-    public class Tenant : Entity, ITenantFields
+    public class Tenant : Entity
     {
         readonly DomainValidationService _validationService = new DomainValidationService();
         public PersonContactInfo ContactInfo { get; set;  }
@@ -17,7 +17,7 @@ namespace Demo.RentalRepairs.Domain.Entities
 
         public int RequestsNum { get; set; }
 
-        public string LoginEmail { get; set;  }
+        
 
         public  Tenant(Property property, PersonContactInfo contactInfo, string unitNumber, DateTime? dateCreated= null, Guid? id=null) : base(dateCreated, id)
         {
