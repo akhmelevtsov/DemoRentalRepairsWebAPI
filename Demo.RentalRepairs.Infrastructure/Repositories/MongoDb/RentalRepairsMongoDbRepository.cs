@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Authentication;
 using System.Text;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.Exceptions;
+using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb.Interfaces;
 using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -13,22 +15,19 @@ using MongoDB.Shared ;
 
 namespace Demo.RentalRepairs.Infrastructure.Repositories.MongoDb
 {
-    public class PropertyMongoDbRepository : IPropertyRepository
+    public  class RentalRepairsMongoDbRepository : IPropertyRepository
     {
         private readonly ModelMapper _modelMapper = new ModelMapper();
         private readonly IMongoCollection<PropertyModel> _properties;
         private readonly IMongoCollection<WorkerModel> _workers;
 
-
-        public PropertyMongoDbRepository()
+        public RentalRepairsMongoDbRepository(IMongoDbContext dbContext)
         {
-            var client = new MongoClient("mongodb://localhost:27017");
-            var database = client.GetDatabase("RentalRepairs");
-
-            _properties = database.GetCollection<PropertyModel>("Properties");
-            _workers = database.GetCollection<WorkerModel>("Workers");
-
+            _properties = dbContext.Database.GetCollection<PropertyModel>("Properties");
+            _workers = dbContext.Database.GetCollection<WorkerModel>("Workers");
         }
+        
+
         public IEnumerable<Property> GetAllProperties()
         {
             return _properties.Find(property => true).ToList().Select(p => _modelMapper.CopyFrom(p));

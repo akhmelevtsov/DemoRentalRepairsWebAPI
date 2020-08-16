@@ -49,7 +49,7 @@ namespace Demo.RentalRepairs.Core.Services
                 throw new DomainEntityNotFoundException("property_not_found", $"property not found by code:{propCode}");
             return prop;
         }
-        public async Task<Worker> AddWorkerAsync(PersonContactInfo workerInfo)
+        public async Task<Worker> RegisterWorkerAsync(PersonContactInfo workerInfo)
         {
             await Task.CompletedTask;
 
@@ -73,7 +73,7 @@ namespace Demo.RentalRepairs.Core.Services
         }
 
 
-        public  async Task<Property> AddPropertyAsync(RegisterPropertyCommand propertyInfo)
+        public  async Task<Property> RegisterPropertyAsync(RegisterPropertyCommand propertyInfo)
         {
             await Task.CompletedTask;
             _authService.Check(() => _authService.IsAuthenticatedSuperintendent());
@@ -95,7 +95,7 @@ namespace Demo.RentalRepairs.Core.Services
             return _propertyRepository.GetPropertyTenants(propertyCode);
         }
 
-        public async Task<Tenant> AddTenantAsync(string propertyCode, PersonContactInfo contactInfo, string unitNumber)
+        public async Task<Tenant> RegisterTenantAsync(string propertyCode, PersonContactInfo contactInfo, string unitNumber)
         {
             await Task.CompletedTask;
             _authService.Check(() => _authService.IsAuthenticatedTenant());

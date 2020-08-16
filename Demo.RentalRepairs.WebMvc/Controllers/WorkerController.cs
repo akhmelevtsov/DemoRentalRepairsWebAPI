@@ -111,7 +111,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
             try
             {
-                await _propertyService.AddWorkerAsync(worker.ContactInfo);
+                await _propertyService.RegisterWorkerAsync(worker.ContactInfo);
             }
             catch (CoreAuthorizationException)
             {

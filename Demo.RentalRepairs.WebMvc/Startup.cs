@@ -2,13 +2,14 @@
 using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Core.Services;
-using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Infrastructure;
 using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore;
 using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
 using Demo.RentalRepairs.Infrastructure.Mocks;
+using Demo.RentalRepairs.Infrastructure.Repositories.Cosmos_Db;
 using Demo.RentalRepairs.Infrastructure.Repositories.EF;
 using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb;
+using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -20,6 +21,7 @@ using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace Demo.RentalRepairs.WebMvc
 {
@@ -56,6 +58,20 @@ namespace Demo.RentalRepairs.WebMvc
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DemoRentalRepairsWebMvcContext")));
 
+            //services.Configure<RentalRepairsMongoDbSettings>(
+            //    Configuration.GetSection(nameof(RentalRepairsMongoDbSettings)));
+
+            //services.AddSingleton<IMongoDbSettings>(sp =>
+            //    sp.GetRequiredService<IOptions<RentalRepairsMongoDbSettings>>().Value);
+            //services.AddSingleton<IMongoDbContext, RentalRepairsMongoDbContext>();
+
+            services.Configure<RentalRepairsCosmosDbSettings>(
+                Configuration.GetSection(nameof(RentalRepairsCosmosDbSettings)));
+
+            services.AddSingleton<IMongoDbSettings>(sp =>
+                sp.GetRequiredService<IOptions<RentalRepairsCosmosDbSettings>>().Value);
+            services.AddSingleton<IMongoDbContext, RentalRepairsCosmosDbContext>();
+
             services.AddMvc(config =>
             {
                 // using Microsoft.AspNetCore.Mvc.Authorization;
@@ -91,10 +107,9 @@ namespace Demo.RentalRepairs.WebMvc
             services.AddScoped<ISecuritySignInService , SecuritySignInService >();
             services.AddScoped<ISecurityService,SecurityService >();
             services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
-            //services.AddTransient<IUserAuthCoreService, UserAuthCoreService>();
             //services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();
             //services.AddTransient<IPropertyRepository, PropertyRepositoryEf>();
-            services.AddTransient<IPropertyRepository, PropertyMongoDbRepository>();
+            services.AddSingleton<IPropertyRepository, RentalRepairsMongoDbRepository>();
             services.AddTransient<ITemplateDataService , TemplateDataService >();
             services.AddTransient<IEmailService, EmailServiceMock>();
             services.AddTransient<INotifyPartiesService, NotifyPartiesService>();
@@ -129,23 +144,23 @@ namespace Demo.RentalRepairs.WebMvc
             });
             //CreateUserRoles(serviceProvider).Wait();
         }
-        private async Task CreateUserRoles(IServiceProvider serviceProvider)
-        {
-            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        //private async Task CreateUserRoles(IServiceProvider serviceProvider)
+        //{
+        //    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+        //    var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-            IdentityResult roleResult;
-            //Adding Admin Role
-            var roleCheck = await roleManager.RoleExistsAsync("Admin");
-            if (!roleCheck)
-            {
-                //create the roles and seed them to the database
-                roleResult = await roleManager.CreateAsync(new IdentityRole("Admin"));
-            }
-            //Assign Admin role to the main User here we have given our newly registered 
-            //login id for Admin management
-            ApplicationUser user = await userManager.FindByEmailAsync("a@email.com");
-            await userManager.AddToRoleAsync(user, "Admin");
-        }
+        //    IdentityResult roleResult;
+        //    //Adding Admin Role
+        //    var roleCheck = await roleManager.RoleExistsAsync("Admin");
+        //    if (!roleCheck)
+        //    {
+        //        //create the roles and seed them to the database
+        //        roleResult = await roleManager.CreateAsync(new IdentityRole("Admin"));
+        //    }
+        //    //Assign Admin role to the main User here we have given our newly registered 
+        //    //login id for Admin management
+        //    ApplicationUser user = await userManager.FindByEmailAsync("a@email.com");
+        //    await userManager.AddToRoleAsync(user, "Admin");
+        //}
     }
 }

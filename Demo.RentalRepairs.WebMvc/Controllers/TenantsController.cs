@@ -119,7 +119,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             var unitNumber =  (tenant.SelectedUnitNumber == null || tenant.SelectedUnitNumber.StartsWith("--")) ? "" : tenant.SelectedUnitNumber; 
             try
             {
-                await _propertyService.AddTenantAsync(propCode, tenant.ContactInfo, unitNumber);
+                await _propertyService.RegisterTenantAsync(propCode, tenant.ContactInfo, unitNumber);
             }
             catch (DomainValidationException vex)
             {

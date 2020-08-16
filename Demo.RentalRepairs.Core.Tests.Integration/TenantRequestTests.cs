@@ -15,8 +15,10 @@ using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore;
 using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
 using Demo.RentalRepairs.Infrastructure.Mocks;
 using Demo.RentalRepairs.Infrastructure.Repositories;
+using Demo.RentalRepairs.Infrastructure.Repositories.Cosmos_Db;
 using Demo.RentalRepairs.Infrastructure.Repositories.EF;
 using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb;
+using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -32,7 +34,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
     public class TenantRequestTests
     {
         [TestMethod]
-        public void DomainAllPathsTest()
+        public void DomainHappyPathTest()
         {
             //var repo = new PropertyRepositoryMock();
             //var ntfService = new NotifyPartiesServiceMock();
@@ -144,7 +146,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
         }
 
         [TestMethod]
-        public async Task AllPathsTestWithInMemoryRepo()
+        public async Task ServiceHappyPathTestWithInMemoryRepo()
         {
             var services = new ServiceCollection();
 
@@ -166,11 +168,13 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
             var emailService = serviceProvider.GetService<IEmailService>(); // new EmailServiceMock();
             var ntfService = serviceProvider.GetService<INotifyPartiesService>(); // new NotifyPartiesService(emailService, templateDataService,repo);
 
-            await TestEverythingWithRepo(repo, ntfService, (EmailServiceMock )emailService, propertyService, authService );
+            //await TestServiceWithAnyRepo(repo, ntfService, (EmailServiceMock )emailService, propertyService, authService );
+            await TestService(repo, ntfService, (EmailServiceMock)emailService, propertyService, authService);
+
         }
 
         [TestMethod]
-        public async Task AllPathsTestWithEntityFrameworkRepo()
+        public async Task ServiceHappyPathTestWithEfRepo()
         {
 
             const string connectionString = "Server=(localdb)\\mssqllocaldb; Database = PropertiesTest1; Trusted_Connection = True; MultipleActiveResultSets = true";
@@ -201,48 +205,96 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
             {
                   context.Database.EnsureDeleted();
                   context.Database.EnsureCreated();
-                 await TestEverythingWithRepo(repo, ntfService, (EmailServiceMock)emailService, propertyService, authService);
+                 await TestService(repo, ntfService, (EmailServiceMock)emailService, propertyService, authService);
             }
-           
 
         }
 
         [TestMethod]
-        public async Task AllPathsTestWithMongoDbRepo()
+        public async Task ServiceHappyPathTestWithMongoDbRepo()
         {
 
 
             var services = new ServiceCollection();
 
+            services.AddSingleton<IMongoDbSettings>(new RentalRepairsMongoDbSettings() { DatabaseName = "RentalRepairs", ConnectionString = "mongodb://localhost:27017"});
+            services.AddSingleton<IMongoDbContext, RentalRepairsMongoDbContext>();
+
 
             services.AddTransient<ISecuritySignInService, SecuritySignInMockService>();
             services.AddScoped<ISecurityService, SecurityMockService>();
             services.AddSingleton<IUserAuthorizationService, UserAuthorizationService>();
-            services.AddSingleton<IPropertyRepository, PropertyMongoDbRepository>();
+
+            services.AddSingleton<IPropertyRepository, RentalRepairsMongoDbRepository>();
             services.AddTransient<ITemplateDataService, TemplateDataService>();
             services.AddSingleton<IEmailService, EmailServiceMock>();
             services.AddTransient<INotifyPartiesService, NotifyPartiesService>();
+
             services.AddSingleton<IPropertyService, PropertyService>();
 
             var serviceProvider = services.BuildServiceProvider();
+
+            var repo = serviceProvider.GetService<IPropertyRepository>();
+
             var propertyService = serviceProvider.GetService<IPropertyService>();
             var authService = serviceProvider.GetService<IUserAuthorizationService>();
 
-            var repo = serviceProvider.GetService<IPropertyRepository>();
             var emailService = serviceProvider.GetService<IEmailService>();
             var ntfService = serviceProvider.GetService<INotifyPartiesService>();
 
-            await TestEverythingWithRepo(repo, ntfService, (EmailServiceMock)emailService, propertyService, authService);
-            //using (var context = serviceProvider.GetService<PropertiesContext>())
-            // {
-            //     context.Database.EnsureDeleted();
-            //     context.Database.EnsureCreated();
-            // }
+            var dbContext = serviceProvider.GetService<IMongoDbContext> ();
+            dbContext.DropDb();
+
+            await TestService(repo, ntfService, (EmailServiceMock)emailService, propertyService, authService);
+           
 
 
         }
         [TestMethod]
-        public async Task AllPathsTestWithEfRepoAndAspNetIdentity()
+        public async Task ServiceHappyPathTestWithCosmosDbRepo()
+        {
+
+
+            var services = new ServiceCollection();
+
+            services.AddSingleton<IMongoDbSettings>(new RentalRepairsMongoDbSettings()
+                { DatabaseName = "RentalRepairs",
+                    ConnectionString = "mongodb://demo-rental-repairs:v2dYhXLCVoI504XNoWgOE9B7Ry0ayfX2Z6uk2sVezysix2fXtKZHM2wcCm8f8lDKUapgQrXfip26vNqXwWPBOA==@demo-rental-repairs.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@demo-rental-repairs@"
+            });
+            services.AddSingleton<IMongoDbContext, RentalRepairsCosmosDbContext>();
+
+
+            services.AddTransient<ISecuritySignInService, SecuritySignInMockService>();
+            services.AddScoped<ISecurityService, SecurityMockService>();
+            services.AddSingleton<IUserAuthorizationService, UserAuthorizationService>();
+
+            services.AddSingleton<IPropertyRepository, RentalRepairsMongoDbRepository>();
+            services.AddTransient<ITemplateDataService, TemplateDataService>();
+            services.AddSingleton<IEmailService, EmailServiceMock>();
+            services.AddTransient<INotifyPartiesService, NotifyPartiesService>();
+
+            services.AddSingleton<IPropertyService, PropertyService>();
+
+            var serviceProvider = services.BuildServiceProvider();
+
+            var repo = serviceProvider.GetService<IPropertyRepository>();
+
+            var propertyService = serviceProvider.GetService<IPropertyService>();
+            var authService = serviceProvider.GetService<IUserAuthorizationService>();
+
+            var emailService = serviceProvider.GetService<IEmailService>();
+            var ntfService = serviceProvider.GetService<INotifyPartiesService>();
+
+            var dbContext = serviceProvider.GetService<IMongoDbContext>();
+            dbContext.DropDb();
+
+            await TestService(repo, ntfService, (EmailServiceMock)emailService, propertyService, authService);
+
+
+
+        }
+        [TestMethod]
+        public async Task ServiceHappyPathTestWithEfRepoAndAspNetIdentity()
         {
 
             const string connectionString = "Server=(localdb)\\mssqllocaldb; Database = PropertiesTest1; Trusted_Connection = True; MultipleActiveResultSets = true";
@@ -290,18 +342,15 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                 {
                     context.Database.EnsureDeleted();
                     context.Database.EnsureCreated();
-                    await TestEverythingWithAspNetIdentity(repo, ntfService, (EmailServiceMock) emailService, propertyService,
+                    await TestService(repo, ntfService, (EmailServiceMock) emailService, propertyService,
                         authService);
                 }
             }
 
 
         }
-        private static  async  Task TestEverythingWithAspNetIdentity(IPropertyRepository repo, INotifyPartiesService ntfService,
-     EmailServiceMock emailService, IPropertyService propService, IUserAuthorizationService authService)
+        private static  async  Task TestService(IPropertyRepository repo, INotifyPartiesService ntfService, EmailServiceMock emailService, IPropertyService propService, IUserAuthorizationService authService)
         {
-
-            
             const string superintendentLogin = "super@email.com";
             const string tenantLogin = "tenant9@email.com";
             const string workerLogin = "worker@email.com";
@@ -311,7 +360,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             await authService.GetUserClaims(workerLogin);
 
-            await propService.AddWorkerAsync(new PersonContactInfo()
+            await propService.RegisterWorkerAsync(new PersonContactInfo()
             {
                 LastName = "Douglas",
                 FirstName = "Jordan",
@@ -321,7 +370,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             await authService.RegisterUser(UserRolesEnum.Worker, worker1Login, "Pass@22");
 
-            await propService.AddWorkerAsync(new PersonContactInfo()
+            await propService.RegisterWorkerAsync(new PersonContactInfo()
             {
                 LastName = "Lee",
                 FirstName = "Pete",
@@ -333,7 +382,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             await authService.GetUserClaims(superintendentLogin);
 
-            var prop = await propService.AddPropertyAsync(new RegisterPropertyCommand("Moonlight Apartments", "moonlight",
+            var prop = await propService.RegisterPropertyAsync(new RegisterPropertyCommand("Moonlight Apartments", "moonlight",
                 new PropertyAddress()
                     { StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5" },
                 "905-111-1111",
@@ -354,7 +403,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             await authService.GetUserClaims(tenantLogin);
 
-            var tenant = await propService.AddTenantAsync(prop.Code,
+            var tenant = await propService.RegisterTenantAsync(prop.Code,
                 new PersonContactInfo()
                 {
                     EmailAddress = tenantLogin ,
@@ -482,171 +531,177 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
         }
 
-        private static async  Task TestEverythingWithRepo(IPropertyRepository repo, INotifyPartiesService ntfService,
-            EmailServiceMock  emailService, IPropertyService propService, IUserAuthorizationService authService)
-        {
+        //private static async  Task TestServiceWithAnyRepo(IPropertyRepository repo, INotifyPartiesService ntfService,
+        //    EmailServiceMock  emailService, IPropertyService propService, IUserAuthorizationService authService)
+        //{
 
             
-            const string superintendentLogin = "super@email.com";
-            const string tenantLogin = "tenant9@email.com";
-            const string workerLogin = "worker@email.com";
-            const string worker1Login = "worker1@email.com";
+        //    const string superintendentLogin = "super@email.com";
+        //    const string tenantLogin = "tenant9@email.com";
+        //    const string workerLogin = "worker@email.com";
+        //    const string worker1Login = "worker1@email.com";
            
-            authService.SetUser(UserRolesEnum.Worker, workerLogin);
+        //    authService.SetUser(UserRolesEnum.Worker, workerLogin);
 
-            await propService.AddWorkerAsync(new PersonContactInfo()
-            {
-                LastName = "Douglas",
-                FirstName = "Jordan",
-                EmailAddress = workerLogin,
-                MobilePhone = "647-222-2222"
-            });
-            await propService.AddWorkerAsync(new PersonContactInfo()
-            {
-                LastName = "Lee",
-                FirstName = "Pete",
-                EmailAddress = worker1Login,
-                MobilePhone = "647-222-2223"
-            });
-            //----------
-            authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
+        //    await propService.RegisterWorkerAsync(new PersonContactInfo()
+        //    {
+        //        LastName = "Douglas",
+        //        FirstName = "Jordan",
+        //        EmailAddress = workerLogin,
+        //        MobilePhone = "647-222-2222"
+        //    });
+        //    await propService.RegisterWorkerAsync(new PersonContactInfo()
+        //    {
+        //        LastName = "Lee",
+        //        FirstName = "Pete",
+        //        EmailAddress = worker1Login,
+        //        MobilePhone = "647-222-2223"
+        //    });
+        //    //----------
+        //    authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin);
 
-            var prop = await propService.AddPropertyAsync(new RegisterPropertyCommand("Moonlight Apartments", "moonlight",
-                new PropertyAddress()
-                    { StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5" },
-                "905-111-1111",
-                new PersonContactInfo()
-                {
-                    EmailAddress = "propertymanagement@moonlightapartments.com",
-                    FirstName = "John",
-                    LastName = "Smith",
-                    MobilePhone = "905-111-1112"
-                }, new List<string>() { "11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34" }, "noreply@moonlightapartments.com"));
+        //    var prop = await propService.RegisterPropertyAsync(new RegisterPropertyCommand("Moonlight Apartments", "moonlight",
+        //        new PropertyAddress()
+        //            { StreetNumber = "1", StreetName = "Moonlight Creek", City = "Toronto", PostalCode = "M9A 4J5" },
+        //        "905-111-1111",
+        //        new PersonContactInfo()
+        //        {
+        //            EmailAddress = "propertymanagement@moonlightapartments.com",
+        //            FirstName = "John",
+        //            LastName = "Smith",
+        //            MobilePhone = "905-111-1112"
+        //        }, new List<string>() { "11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34" }, "noreply@moonlightapartments.com"));
 
-            var workers = repo.GetAllWorkers().ToArray() ;
-            Assert.AreEqual(2, workers.Count());
+        //    var workers = repo.GetAllWorkers().ToArray() ;
+        //    Assert.AreEqual(2, workers.Count());
 
-            //----------
-            authService.SetUser(UserRolesEnum.Tenant, tenantLogin);
-
-            var tenant = await propService.AddTenantAsync(prop.Code,
-                new PersonContactInfo()
-                {
-                    EmailAddress = "tenant123@hotmail.com",
-                    FirstName = "John",
-                    LastName = "Tenant",
-                    MobilePhone = "222-222-2222"
-                },
-                "21"
-            );
-            //----------
-            authService.SetUser(UserRolesEnum.Tenant, tenantLogin,prop.Code , tenant.UnitNumber  );
-            var tenantRequest = await propService.RegisterTenantRequestAsync(prop.Code, tenant.UnitNumber,
-                new RegisterTenantRequestCommand()
-                {
-                    Title =  "Power plug in kitchen",
-                    Description = "The plug is broken"
-                });
-            AssertEmailPropsNotNull(emailService);
-            Assert.AreEqual("1", tenantRequest.Code);
-            Assert.AreEqual(1, tenantRequest.RequestChanges.Count);
-
-            //----------
-            var trId = tenantRequest.Id;
-            authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin, prop.Code );
-
-            tenantRequest = await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code,
-                new ScheduleServiceWorkCommand(workers[0].PersonContactInfo.EmailAddress , DateTime.Today.AddDays(1), 1));
-
-            Assert.AreEqual(workers[0].PersonContactInfo.EmailAddress, tenantRequest.WorkerEmail);
-            Assert.AreEqual(trId, tenantRequest.Id);
-            AssertEmailPropsNotNull(emailService);
-            Assert.AreEqual(2, tenantRequest.RequestChanges.Count);
-
-           //----------
-            authService.SetUser(UserRolesEnum.Worker, workerLogin);
-            tenantRequest =
-                await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code, new ReportServiceWorkCommand() { Notes = "All done", Success =true});
-            AssertEmailPropsNotNull(emailService);
-            Assert.AreEqual(3, tenantRequest.RequestChanges.Count);
-            //----------
-            authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin, prop.Code );
-            tenantRequest = await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code, new CloseTenantRequestCommand() );
-            Assert.AreEqual(4, tenantRequest.RequestChanges.Count);
-            //----------
-            authService.SetUser(UserRolesEnum.Tenant, tenantLogin, tenant.PropertyCode, tenant.UnitNumber  );
-            tenantRequest = await propService.RegisterTenantRequestAsync(prop.Code, tenant.UnitNumber,
-                new RegisterTenantRequestCommand()
-                {
-                    Title =  "Kitchen desk replace",
-                    Description = "Kitchen desk is in awful condition"
-                });
-            AssertEmailPropsNotNull(emailService);
-            Assert.AreEqual("2", tenantRequest.Code);
-            Assert.AreEqual(1, tenantRequest.RequestChanges.Count);
-            //----------
-            authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin, prop.Code );
-            tenantRequest = await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code,
-                new ScheduleServiceWorkCommand(workers[0].PersonContactInfo.EmailAddress , DateTime.Today.AddDays(1), 1));
-            Assert.AreEqual(workers[0].PersonContactInfo.EmailAddress, tenantRequest.WorkerEmail);
-            AssertEmailPropsNotNull(emailService);
-            Assert.AreEqual(2, tenantRequest.RequestChanges.Count);
-            //----------
-            authService.SetUser(UserRolesEnum.Worker, workerLogin);
-            tenantRequest =
-                await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code, new ReportServiceWorkCommand() { Notes = "Can't come" });
-            AssertEmailPropsNotNull(emailService);
-            Assert.AreEqual(3, tenantRequest.RequestChanges.Count);
-
-            //----------
-            authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin, prop.Code );
-            tenantRequest = await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code,
-                new ScheduleServiceWorkCommand(workers[1].PersonContactInfo.EmailAddress , DateTime.Today.AddDays(1), 1));
-            Assert.AreEqual(workers[1].PersonContactInfo.EmailAddress, tenantRequest.WorkerEmail);
-            Assert.AreEqual(4, tenantRequest.RequestChanges.Count);
-            //----------
-            authService.SetUser(UserRolesEnum.Worker, workerLogin);
-            tenantRequest =
-                await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code, new ReportServiceWorkCommand() { Notes = "All done", Success  = true});
-            AssertEmailPropsNotNull(emailService);
-            Assert.AreEqual(5, tenantRequest.RequestChanges.Count);
-
-            //----------
-            authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin, prop.Code );
-            tenantRequest =
-                await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code, new CloseTenantRequestCommand() );
-            Assert.AreEqual(6, tenantRequest.RequestChanges.Count);
-            //----------
-            authService.SetUser(UserRolesEnum.Tenant, tenantLogin, prop.Code, tenant.UnitNumber);
-            tenantRequest = await propService.RegisterTenantRequestAsync(prop.Code, tenant.UnitNumber,
-                new RegisterTenantRequestCommand()
-                {
-                    Title = "Full renovation needed",
-                    Description = "Needs painting everything"
-                });
-            AssertEmailPropsNotNull(emailService);
-            Assert.AreEqual("3", tenantRequest.Code);
-            //----------
-            authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin, prop.Code );
-            tenantRequest = await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code, new RejectTenantRequestCommand() { Notes = "We can't do that" });
-            AssertEmailPropsNotNull(emailService);
-
-            //----------
-            authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin, prop.Code );
-            await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code, new CloseTenantRequestCommand() );
+        //    var worker = workers.FirstOrDefault(x => x.PersonContactInfo.EmailAddress == workerLogin);
+        //    Assert.IsNotNull(worker);
+        //    var worker1 = workers.FirstOrDefault(x => x.PersonContactInfo.EmailAddress == worker1Login);
+        //    Assert.IsNotNull(worker1);
 
 
-            propService.GetPropertyTenants("moonlight");
-            authService.SetUser(UserRolesEnum.Tenant, tenantLogin, prop.Code, tenant.UnitNumber);
-            propService.GetTenantRequests(prop.Code, tenant.UnitNumber);
+        //    //----------
+        //    authService.SetUser(UserRolesEnum.Tenant, tenantLogin);
 
-            authService.SetUser(UserRolesEnum.Worker, workerLogin);
-            var workerRequests = propService.GetWorkerRequests(workerLogin);
-            Assert.AreEqual(2, workerRequests.Count());
-            authService.SetUser(UserRolesEnum.Worker, worker1Login);
-            var worker1Requests = propService.GetWorkerRequests(worker1Login);
-            Assert.AreEqual(1, worker1Requests.Count());
-        }
+        //    var tenant = await propService.RegisterTenantAsync(prop.Code,
+        //        new PersonContactInfo()
+        //        {
+        //            EmailAddress = "tenant123@hotmail.com",
+        //            FirstName = "John",
+        //            LastName = "Tenant",
+        //            MobilePhone = "222-222-2222"
+        //        },
+        //        "21"
+        //    );
+        //    //----------
+        //    authService.SetUser(UserRolesEnum.Tenant, tenantLogin,prop.Code , tenant.UnitNumber  );
+        //    var tenantRequest = await propService.RegisterTenantRequestAsync(prop.Code, tenant.UnitNumber,
+        //        new RegisterTenantRequestCommand()
+        //        {
+        //            Title =  "Power plug in kitchen",
+        //            Description = "The plug is broken"
+        //        });
+        //    AssertEmailPropsNotNull(emailService);
+        //    Assert.AreEqual("1", tenantRequest.Code);
+        //    Assert.AreEqual(1, tenantRequest.RequestChanges.Count);
+
+        //    //----------
+        //    var trId = tenantRequest.Id;
+        //    authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin, prop.Code );
+
+        //    tenantRequest = await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code,
+        //        new ScheduleServiceWorkCommand(worker.PersonContactInfo.EmailAddress , DateTime.Today.AddDays(1), 1));
+
+        //    Assert.AreEqual(worker.PersonContactInfo.EmailAddress, tenantRequest.WorkerEmail);
+        //    Assert.AreEqual(trId, tenantRequest.Id);
+        //    AssertEmailPropsNotNull(emailService);
+        //    Assert.AreEqual(2, tenantRequest.RequestChanges.Count);
+
+        //   //----------
+        //    authService.SetUser(UserRolesEnum.Worker, workerLogin);
+        //    tenantRequest =
+        //        await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code, new ReportServiceWorkCommand() { Notes = "All done", Success =true});
+        //    AssertEmailPropsNotNull(emailService);
+        //    Assert.AreEqual(3, tenantRequest.RequestChanges.Count);
+        //    //----------
+        //    authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin, prop.Code );
+        //    tenantRequest = await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code, new CloseTenantRequestCommand() );
+        //    Assert.AreEqual(4, tenantRequest.RequestChanges.Count);
+        //    //----------
+        //    authService.SetUser(UserRolesEnum.Tenant, tenantLogin, tenant.PropertyCode, tenant.UnitNumber  );
+        //    tenantRequest = await propService.RegisterTenantRequestAsync(prop.Code, tenant.UnitNumber,
+        //        new RegisterTenantRequestCommand()
+        //        {
+        //            Title =  "Kitchen desk replace",
+        //            Description = "Kitchen desk is in awful condition"
+        //        });
+        //    AssertEmailPropsNotNull(emailService);
+        //    Assert.AreEqual("2", tenantRequest.Code);
+        //    Assert.AreEqual(1, tenantRequest.RequestChanges.Count);
+        //    //----------
+        //    authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin, prop.Code );
+        //    tenantRequest = await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code,
+        //        new ScheduleServiceWorkCommand(worker.PersonContactInfo.EmailAddress , DateTime.Today.AddDays(1), 1));
+        //    Assert.AreEqual(worker.PersonContactInfo.EmailAddress, tenantRequest.WorkerEmail);
+        //    AssertEmailPropsNotNull(emailService);
+        //    Assert.AreEqual(2, tenantRequest.RequestChanges.Count);
+        //    //----------
+        //    authService.SetUser(UserRolesEnum.Worker, workerLogin);
+        //    tenantRequest =
+        //        await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code, new ReportServiceWorkCommand() { Notes = "Can't come" });
+        //    AssertEmailPropsNotNull(emailService);
+        //    Assert.AreEqual(3, tenantRequest.RequestChanges.Count);
+
+        //    //----------
+        //    authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin, prop.Code );
+        //    tenantRequest = await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code,
+        //        new ScheduleServiceWorkCommand(worker1.PersonContactInfo.EmailAddress , DateTime.Today.AddDays(1), 1));
+        //    Assert.AreEqual(worker1.PersonContactInfo.EmailAddress, tenantRequest.WorkerEmail);
+        //    Assert.AreEqual(4, tenantRequest.RequestChanges.Count);
+        //    //----------
+        //    authService.SetUser(UserRolesEnum.Worker, workerLogin);
+        //    tenantRequest =
+        //        await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code, new ReportServiceWorkCommand() { Notes = "All done", Success  = true});
+        //    AssertEmailPropsNotNull(emailService);
+        //    Assert.AreEqual(5, tenantRequest.RequestChanges.Count);
+
+        //    //----------
+        //    authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin, prop.Code );
+        //    tenantRequest =
+        //        await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code, new CloseTenantRequestCommand() );
+        //    Assert.AreEqual(6, tenantRequest.RequestChanges.Count);
+        //    //----------
+        //    authService.SetUser(UserRolesEnum.Tenant, tenantLogin, prop.Code, tenant.UnitNumber);
+        //    tenantRequest = await propService.RegisterTenantRequestAsync(prop.Code, tenant.UnitNumber,
+        //        new RegisterTenantRequestCommand()
+        //        {
+        //            Title = "Full renovation needed",
+        //            Description = "Needs painting everything"
+        //        });
+        //    AssertEmailPropsNotNull(emailService);
+        //    Assert.AreEqual("3", tenantRequest.Code);
+        //    //----------
+        //    authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin, prop.Code );
+        //    tenantRequest = await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code, new RejectTenantRequestCommand() { Notes = "We can't do that" });
+        //    AssertEmailPropsNotNull(emailService);
+
+        //    //----------
+        //    authService.SetUser(UserRolesEnum.Superintendent, superintendentLogin, prop.Code );
+        //    await propService.ExecuteTenantRequestCommandAsync(prop.Code, tenant.UnitNumber, tenantRequest.Code, new CloseTenantRequestCommand() );
+
+
+        //    propService.GetPropertyTenants("moonlight");
+        //    authService.SetUser(UserRolesEnum.Tenant, tenantLogin, prop.Code, tenant.UnitNumber);
+        //    propService.GetTenantRequests(prop.Code, tenant.UnitNumber);
+
+        //    authService.SetUser(UserRolesEnum.Worker, workerLogin);
+        //    var workerRequests = propService.GetWorkerRequests(workerLogin);
+        //    Assert.AreEqual(2, workerRequests.Count());
+        //    authService.SetUser(UserRolesEnum.Worker, worker1Login);
+        //    var worker1Requests = propService.GetWorkerRequests(worker1Login);
+        //    Assert.AreEqual(1, worker1Requests.Count());
+        //}
 
         private static void AssertEmailPropsNotNull(EmailServiceMock emailService)
         {

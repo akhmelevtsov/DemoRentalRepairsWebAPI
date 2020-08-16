@@ -4,6 +4,7 @@ using System.Linq;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.Exceptions;
+using Newtonsoft.Json;
 
 namespace Demo.RentalRepairs.Infrastructure.Repositories
 {
@@ -58,12 +59,12 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories
 
         public IEnumerable<TenantRequest> GetPropertyRequests(string propertyCode)
         {
-            throw new NotImplementedException();
+            return _requests.Values.Where(x => x.PropertyId == propertyCode);
         }
 
         public IEnumerable<TenantRequest> GetWorkerRequests(string workerEmail)
         {
-            throw new NotImplementedException();
+            return _requests.Values.Where(x => JsonConvert.SerializeObject( x.RequestChanges).Contains(workerEmail));
         }
 
         public Worker GetWorkerByEmail(string email)

@@ -175,7 +175,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                     ? ""
                     : tenantVm.SelectedUnitNumber;
 
-                await _propertyService.AddTenantAsync(propCode, tenantVm.ContactInfo, unitNumber);
+                await _propertyService.RegisterTenantAsync(propCode, tenantVm.ContactInfo, unitNumber);
                 //await _securityService.SetLoggedUserClaims( User.Identity.Name ,UserRolesEnum.Tenant,  propCode, unitNumber);
                 return RedirectToAction("Requests", "Tenant");
 
