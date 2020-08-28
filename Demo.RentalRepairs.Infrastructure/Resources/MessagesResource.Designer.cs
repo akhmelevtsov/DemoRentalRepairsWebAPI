@@ -19,7 +19,7 @@ namespace Demo.RentalRepairs.Infrastructure.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class MessagesResource {
@@ -70,7 +70,7 @@ namespace Demo.RentalRepairs.Infrastructure.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hi [TenantFullName], /r/n Your service request from [RequestDate] has been registered. Sincerely, /r/n [PropertyName].
+        ///   Looks up a localized string similar to Hi [TenantFullName], &lt;br&gt;&lt;br&gt; Your service request from [RequestDate] has been registered. &lt;br&gt;&lt;br&gt; Sincerely, &lt;br&gt; [PropertyName].
         /// </summary>
         internal static string Property2TenantOnRequestReceivedMessageTemplate {
             get {
@@ -88,7 +88,7 @@ namespace Demo.RentalRepairs.Infrastructure.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hi [TenantFullName], /r/n Unfortunately, we cannot start your service request from [RequestDate]. Please call us [PropertyPhone] at your convenience. /r/n  Sincerely, /r/n [PropertyName].
+        ///   Looks up a localized string similar to Hi [TenantFullName], &lt;br&gt;&lt;p&gt; Unfortunately, we cannot start your service request from [RequestDate]. Please call us [PropertyPhone] at your convenience. &lt;/p&gt;&lt;br&gt;  Regards, &lt;br&gt;  [PropertyName].
         /// </summary>
         internal static string Property2TenantOnRequestRejectedMessageTemplate {
             get {
@@ -97,7 +97,7 @@ namespace Demo.RentalRepairs.Infrastructure.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You have new work order.
+        ///   Looks up a localized string similar to You have new sevice work assignment.
         /// </summary>
         internal static string Property2WorkerOnRequestScheduledMessageSubjectTemplate {
             get {
@@ -106,7 +106,7 @@ namespace Demo.RentalRepairs.Infrastructure.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello [WorkerFullName], /r/n A new work order is scheduled for you. Please visit [WorkOrderPageUrl] for details. Sincerely, /r/n [PropertyName].
+        ///   Looks up a localized string similar to Hello [WorkerFullName], &lt;br&gt;&lt;br&gt; A new work order is assigned to you. Please visit &lt;a href=&apos;[WorkOrderPageUrl]&apos;&gt;the work oeder page&lt;/a&gt; for details. &lt;br&gt;&lt;br&gt; Regards, &lt;br&gt; [PropertyName].
         /// </summary>
         internal static string Property2WorkerOnRequestScheduledMessageTemplate {
             get {
@@ -115,7 +115,7 @@ namespace Demo.RentalRepairs.Infrastructure.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Work order completed.
+        ///   Looks up a localized string similar to Service work completed.
         /// </summary>
         internal static string Worker2PropertyWorkDoneMessageSubjectTemplate {
             get {
@@ -124,7 +124,7 @@ namespace Demo.RentalRepairs.Infrastructure.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello [SuperintendentFullName], /r/n I completed work order [WorkOrderNumber]. For report, please visit [WorkReportPageUrl].  Sincerely, /r/n [WorkerFullName].
+        ///   Looks up a localized string similar to Hello [SuperintendentFullName],&lt;br&gt;&lt;br&gt; I completed work order #[WorkOrderNumber]. For report, please visit &lt;a href=&apos;[WorkReportPageUrl]&apos;&gt;the work report page&lt;/a&gt;. &lt;br&gt;&lt;br&gt; Sincerely, &lt;br&gt; [WorkerFullName].
         /// </summary>
         internal static string Worker2PropertyWorkDoneMessageTemplate {
             get {
@@ -133,7 +133,7 @@ namespace Demo.RentalRepairs.Infrastructure.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Work can&apos;t be completed.
+        ///   Looks up a localized string similar to Service work order failure.
         /// </summary>
         internal static string Worker2PropertyWorkIncompleteMessageSubjectTemplate {
             get {
@@ -142,7 +142,7 @@ namespace Demo.RentalRepairs.Infrastructure.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Hello [SuperintendentFullName], /r/n Unfortunately, the work order N[WorkOrderNumber] from [WorkOrderDate] can&apos;t be completed. For the report, please visit [WorkReportPageUrl].  Sincerely, /r/n [WorkerFullName].
+        ///   Looks up a localized string similar to Hello [SuperintendentFullName], &lt;br&gt;&lt;br&gt;  Unfortunately, the work order #[WorkOrderNumber] from [WorkOrderDate] can&apos;t be completed. For the report, please visit &lt;a href=&apos;[WorkReportPageUrl]&apos;&gt;the work report page&lt;/a&gt;.&lt;br&gt;&lt;br&gt;   Regards, &lt;br&gt; [WorkerFullName].
         /// </summary>
         internal static string Worker2PropertyWorkIncompleteMessageTemplate {
             get {

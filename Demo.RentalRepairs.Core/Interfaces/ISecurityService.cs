@@ -13,4 +13,6 @@ namespace Demo.RentalRepairs.Core.Interfaces
 
         Task LogoutUser();
     }
+
+    
 }

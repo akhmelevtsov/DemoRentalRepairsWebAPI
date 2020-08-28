@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Interfaces;
 
 namespace Demo.RentalRepairs.Infrastructure.Mocks
@@ -11,9 +12,11 @@ namespace Demo.RentalRepairs.Infrastructure.Mocks
         public EmailInfo LastSentEmail { get; private set; }
        
 
-        public void SendEmail(EmailInfo email)
+        public async Task  SendEmailAsync(EmailInfo email)
         {
-            _emails.Add(email);
+            await Task.CompletedTask;
+            if (email!= null)
+             _emails.Add(email);
             LastSentEmail = email;
         }
     }

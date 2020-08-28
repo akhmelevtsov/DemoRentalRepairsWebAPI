@@ -121,30 +121,30 @@
     <value>Your Request Registered</value>
   </data>
   <data name="Property2TenantOnRequestReceivedMessageTemplate" xml:space="preserve">
-    <value>Hi [TenantFullName], /r/n Your service request from [RequestDate] has been registered. Sincerely, /r/n [PropertyName]</value>
+    <value>Hi [TenantFullName], &lt;br&gt;&lt;br&gt; Your service request from [RequestDate] has been registered. &lt;br&gt;&lt;br&gt; Sincerely, &lt;br&gt; [PropertyName]</value>
   </data>
   <data name="Property2TenantOnRequestRejectedMessageSubjectTemplate" xml:space="preserve">
     <value>Your Request Declined</value>
   </data>
   <data name="Property2TenantOnRequestRejectedMessageTemplate" xml:space="preserve">
-    <value>Hi [TenantFullName], /r/n Unfortunately, we cannot start your service request from [RequestDate]. Please call us [PropertyPhone] at your convenience. /r/n  Sincerely, /r/n [PropertyName]</value>
+    <value>Hi [TenantFullName], &lt;br&gt;&lt;p&gt; Unfortunately, we cannot start your service request from [RequestDate]. Please call us [PropertyPhone] at your convenience. &lt;/p&gt;&lt;br&gt;  Regards, &lt;br&gt;  [PropertyName]</value>
   </data>
   <data name="Property2WorkerOnRequestScheduledMessageSubjectTemplate" xml:space="preserve">
-    <value>You have new work order</value>
+    <value>You have new sevice work assignment</value>
   </data>
   <data name="Property2WorkerOnRequestScheduledMessageTemplate" xml:space="preserve">
-    <value>Hello [WorkerFullName], /r/n A new work order is scheduled for you. Please visit [WorkOrderPageUrl] for details. Sincerely, /r/n [PropertyName]</value>
+    <value>Hello [WorkerFullName], &lt;br&gt;&lt;br&gt; A new work order is assigned to you. Please visit &lt;a href='[WorkOrderPageUrl]'&gt;the work oeder page&lt;/a&gt; for details. &lt;br&gt;&lt;br&gt; Regards, &lt;br&gt; [PropertyName]</value>
   </data>
   <data name="Worker2PropertyWorkDoneMessageSubjectTemplate" xml:space="preserve">
-    <value>Work order completed</value>
+    <value>Service work completed</value>
   </data>
   <data name="Worker2PropertyWorkDoneMessageTemplate" xml:space="preserve">
-    <value>Hello [SuperintendentFullName], /r/n I completed work order [WorkOrderNumber]. For report, please visit [WorkReportPageUrl].  Sincerely, /r/n [WorkerFullName]</value>
+    <value>Hello [SuperintendentFullName],&lt;br&gt;&lt;br&gt; I completed work order #[WorkOrderNumber]. For report, please visit &lt;a href='[WorkReportPageUrl]'&gt;the work report page&lt;/a&gt;. &lt;br&gt;&lt;br&gt; Sincerely, &lt;br&gt; [WorkerFullName]</value>
   </data>
   <data name="Worker2PropertyWorkIncompleteMessageSubjectTemplate" xml:space="preserve">
-    <value>Work can't be completed</value>
+    <value>Service work order failure</value>
   </data>
   <data name="Worker2PropertyWorkIncompleteMessageTemplate" xml:space="preserve">
-    <value>Hello [SuperintendentFullName], /r/n Unfortunately, the work order N[WorkOrderNumber] from [WorkOrderDate] can't be completed. For the report, please visit [WorkReportPageUrl].  Sincerely, /r/n [WorkerFullName]</value>
+    <value>Hello [SuperintendentFullName], &lt;br&gt;&lt;br&gt;  Unfortunately, the work order #[WorkOrderNumber] from [WorkOrderDate] can't be completed. For the report, please visit &lt;a href='[WorkReportPageUrl]'&gt;the work report page&lt;/a&gt;.&lt;br&gt;&lt;br&gt;   Regards, &lt;br&gt; [WorkerFullName]</value>
   </data>
 </root>

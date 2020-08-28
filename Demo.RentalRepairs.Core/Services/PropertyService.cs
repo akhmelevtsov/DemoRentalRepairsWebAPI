@@ -166,7 +166,7 @@ namespace Demo.RentalRepairs.Core.Services
         public async Task<TenantRequest> RegisterTenantRequestAsync(string propCode, string tenantUnit,
             RegisterTenantRequestCommand tenantRequestDoc)
         {
-            await Task.CompletedTask;
+           
             _authService.Check(() => _authService.IsRegisteredTenant( propCode, tenantUnit));
             _validationService.ValidatePropertyCode(propCode);
             _validationService.ValidatePropertyUnit(tenantUnit);
@@ -178,7 +178,7 @@ namespace Demo.RentalRepairs.Core.Services
 
             _propertyRepository.AddTenantRequest(tenantRequest);
 
-            _notifyPartiesService.CreateAndSendEmail(tenantRequest);
+            await _notifyPartiesService.CreateAndSendEmailAsync(tenantRequest);
         
             return tenantRequest;
         }
@@ -187,7 +187,7 @@ namespace Demo.RentalRepairs.Core.Services
             string requestCode,
             ITenantRequestCommand command)
         {
-            await Task.CompletedTask;
+           
             var tenantRequest = this.GetTenantRequest(propCode, tenantUnit, requestCode);
 
             _authService.Check(() => _authService.IsUserCommand(command.GetType()));
@@ -195,7 +195,7 @@ namespace Demo.RentalRepairs.Core.Services
 
             _propertyRepository.UpdateTenantRequest(tenantRequest);
 
-            _notifyPartiesService.CreateAndSendEmail(tenantRequest);
+            await _notifyPartiesService.CreateAndSendEmailAsync(tenantRequest);
 
             return tenantRequest;
         }

@@ -1,7 +1,9 @@
-﻿namespace Demo.RentalRepairs.Core.Interfaces
+﻿using System.Threading.Tasks;
+
+namespace Demo.RentalRepairs.Core.Interfaces
 {
     public interface  IEmailService
     {
-        void SendEmail(EmailInfo email);
+        Task SendEmailAsync(EmailInfo email);
     }
 }

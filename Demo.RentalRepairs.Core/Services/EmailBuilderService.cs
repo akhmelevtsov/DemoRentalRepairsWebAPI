@@ -6,41 +6,32 @@ using Demo.RentalRepairs.Core.Enums;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.Enums;
-using Demo.RentalRepairs.Domain.Exceptions;
 
-namespace Demo.RentalRepairs.Core
+namespace Demo.RentalRepairs.Core.Services
 {
-    public  class PropertyMessageFactory
+    public  class EmailBuilderService : IEmailBuilderService
     {
         private readonly ITemplateDataService _templateDataService;
-        private readonly TenantRequest _tenantRequest;
-        private readonly IPropertyRepository _propertyRepository;
-        private Worker _worker;
+        private  TenantRequest _tenantRequest;
+      
+        private  Worker _worker;
 
-        public PropertyMessageFactory(ITemplateDataService templateDataService, TenantRequest tenantRequest, IPropertyRepository propertyRepository)
+        public EmailBuilderService(ITemplateDataService templateDataService)
         {
             _templateDataService = templateDataService;
-            _tenantRequest = tenantRequest;
-            _propertyRepository = propertyRepository;
+         
+           
         }
 
-        public EmailInfo CreateTenantRequestEmail()
+        public EmailInfo CreateTenantRequestEmail(TenantRequest tenantRequest, Worker worker)
         {
-            if (_tenantRequest.RequestStatus == TenantRequestStatusEnum.Scheduled
-                || _tenantRequest.RequestStatus == TenantRequestStatusEnum.Done
-                || _tenantRequest.RequestStatus == TenantRequestStatusEnum.Failed)
-            {
-  
-                    _worker = _propertyRepository.GetWorkerByEmail(_tenantRequest.WorkerEmail);
-                    if (_worker == null)
-                        throw new DomainEntityNotFoundException("worker_not_found", "Worker not found");
-
-            }
+            _tenantRequest = tenantRequest;
+            _worker = worker;
             var message = CreateMessageOnStatusChange();
             return message == null ? null : CreateEmail(message);
         }
 
-        public  EmailInfo CreateEmail( PropertyMessage m)
+        private  EmailInfo CreateEmail( PropertyMessage m)
         {
             
             var e = new EmailInfo()
@@ -106,12 +97,21 @@ namespace Demo.RentalRepairs.Core
                 case PropertyMessageParamsEnum.WorkOrderDate:
                     return _tenantRequest.WorkOrderDate;
                 case PropertyMessageParamsEnum.WorkOrderPageUrl:
-                    return "--WorkOrderPageUrl--";
+                    return GetWorkOrderPageUrl();
                 case PropertyMessageParamsEnum.WorkReportPageUrl:
-                    return "--WorkReportPageUrl--";
+                    return GetWorkReportPageUrl();
                 default:
                     throw new ArgumentOutOfRangeException(nameof(parameter), parameter, "");
             }
+        }
+
+        protected virtual string GetWorkOrderPageUrl()
+        {
+            return "#";
+        }
+        protected virtual string GetWorkReportPageUrl()
+        {
+            return "#";
         }
 
         private string GetSubjectTemplateName(PropertyMessageTypeEnum messageType)

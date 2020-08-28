@@ -18,26 +18,18 @@ namespace Demo.RentalRepairs.Domain.Entities
 
 
         private readonly
-            List<(TenantRequestActionEnum action, TenantRequestStatusEnum next, TenantRequestStatusEnum prev)> _list =
+            List<( TenantRequestStatusEnum next, TenantRequestStatusEnum prev)> _list =
                 new
-                    List<(TenantRequestActionEnum, TenantRequestStatusEnum, TenantRequestStatusEnum)>
+                    List<( TenantRequestStatusEnum, TenantRequestStatusEnum)>
                     {
-                        (TenantRequestActionEnum.RegisterRequest, TenantRequestStatusEnum.Submitted,
-                            TenantRequestStatusEnum.Undefined),
-                        (TenantRequestActionEnum.RejectRequest, TenantRequestStatusEnum.Declined,
-                            TenantRequestStatusEnum.Submitted),
-                        (TenantRequestActionEnum.ScheduleWork, TenantRequestStatusEnum.Scheduled,
-                            TenantRequestStatusEnum.Submitted),
-                        (TenantRequestActionEnum.ReportWorkIncomplete, TenantRequestStatusEnum.Failed,
-                            TenantRequestStatusEnum.Scheduled),
-                        (TenantRequestActionEnum.ReportWorkComplete, TenantRequestStatusEnum.Done,
-                            TenantRequestStatusEnum.Scheduled),
-                        (TenantRequestActionEnum.ScheduleWork, TenantRequestStatusEnum.Scheduled,
-                            TenantRequestStatusEnum.Failed),
-                        (TenantRequestActionEnum.CloseRequest, TenantRequestStatusEnum.Closed,
-                            TenantRequestStatusEnum.Done),
-                        (TenantRequestActionEnum.CloseRequest, TenantRequestStatusEnum.Closed,
-                            TenantRequestStatusEnum.Declined)
+                        ( TenantRequestStatusEnum.Submitted,TenantRequestStatusEnum.Undefined),
+                        (TenantRequestStatusEnum.Declined,TenantRequestStatusEnum.Submitted),
+                        (TenantRequestStatusEnum.Scheduled,TenantRequestStatusEnum.Submitted),
+                        ( TenantRequestStatusEnum.Failed,TenantRequestStatusEnum.Scheduled),
+                        (TenantRequestStatusEnum.Done,TenantRequestStatusEnum.Scheduled),
+                        (TenantRequestStatusEnum.Scheduled,TenantRequestStatusEnum.Failed),
+                        (TenantRequestStatusEnum.Closed,TenantRequestStatusEnum.Done),
+                        (TenantRequestStatusEnum.Closed,TenantRequestStatusEnum.Declined)
                     };
 
 
@@ -132,7 +124,7 @@ namespace Demo.RentalRepairs.Domain.Entities
         }
 
         public string TenantFullName => Tenant?.ContactInfo?.GetFullName();
-        public string RequestDate => DateCreated.ToLongTimeString();
+        public string RequestDate => DateCreated.ToShortDateString();
         public string RequestTitle => GetRegisterCommand().Title;
         public string RequestDescription => GetRegisterCommand().Description ;
         public string PropertyName => Tenant?.Property?.Name;

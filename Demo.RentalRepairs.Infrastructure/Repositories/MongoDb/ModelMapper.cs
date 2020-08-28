@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace Demo.RentalRepairs.Infrastructure.Repositories.MongoDb
 {
-    internal class ModelMapper
+    public class ModelMapper
     {
         internal PropertyModel CopyFrom(Property prop)
         {
@@ -41,7 +41,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.MongoDb
             return prop;
         }
         //----
-        internal WorkerModel CopyFrom(Worker worker)
+        public WorkerModel CopyFrom(Worker worker)
         {
             WorkerModel workerModel = new WorkerModel()
             {
@@ -52,7 +52,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.MongoDb
             };
             return workerModel;
         }
-        internal Worker CopyFrom(WorkerModel  workerModel )
+        public Worker CopyFrom(WorkerModel  workerModel )
         {
             return new Worker(
 
@@ -73,7 +73,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.MongoDb
                 ContactInfo = tenant.ContactInfo,
                 Id = tenant.Id,
                 UnitNumber = tenant.UnitNumber,
-
+                PropertyModel = CopyFrom( tenant.Property )
             };
             return tenantModel;
         }
@@ -93,7 +93,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.MongoDb
         }
 
 
-        internal TenantRequest CopyFrom(TenantRequestModel r)
+        public TenantRequest CopyFrom(TenantRequestModel r)
         {
             var req =
                 new TenantRequest(
@@ -110,7 +110,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.MongoDb
         }
       
 
-        internal TenantRequestModel  CopyFrom(TenantRequest req)
+        public TenantRequestModel  CopyFrom(TenantRequest req)
         {
             return new TenantRequestModel()
             {
@@ -122,9 +122,10 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.MongoDb
                 RequestStatus = req.RequestStatus,
                 RequestChanges = SerializeEvents(req.RequestChanges ), //   req.RequestChanges == null ? null : SerializeObject(req.RequestChanges),
 
-                ServiceWorkOrderCount = req.ServiceWorkOrderCount
+                ServiceWorkOrderCount = req.ServiceWorkOrderCount,
+                TenantModel = CopyFrom( req.Tenant )
 
-
+               
             };
         }
         public  string SerializeEvents(List<TenantRequestChange> requestChanges)
@@ -136,10 +137,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.MongoDb
         {
             return requestChanges == null ? null : DeserializeObject(requestChanges);
         }
-        //internal TenantRequestEventModel  CopyFrom(TenantRequestChange x)
-        //{
-        //    return new TenantRequestEventModel() { Num = x.Num , TenantRequestStatus = x.TenantRequestStatus , Command = }
-        //}
+       
 
         private string SerializeObject(List<TenantRequestChange> changes)
         {

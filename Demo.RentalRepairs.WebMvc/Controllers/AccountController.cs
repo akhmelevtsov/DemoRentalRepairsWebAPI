@@ -79,7 +79,6 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                //var securityService = new SecurityService(_userManager, null, _roleManager, _signInManager, _logger);
 
                 var res = await _securityService.SignInUser(model.Email, model.Password, model.RememberMe);
                 if (res.Succeeded)

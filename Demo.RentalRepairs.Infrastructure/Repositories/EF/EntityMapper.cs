@@ -96,9 +96,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
                 new TenantRequest(
                     CopyFrom(r.Tenant), r.Code, r.RequestStatus, r.DateCreated, r.ID)
                 {
-                    //RequestCommand = r.RequestDoc == null ? null : JsonConvert.DeserializeObject<RegisterTenantRequestCommand>(r.RequestDoc),
-                    //RejectNotesCommand = r.RejectNotes == null ? null : JsonConvert.DeserializeObject<RejectTenantRequestCommand>(r.RejectNotes),
-                    //ScheduleWorkCommand = r.ServiceWorkOrder == null ? null : JsonConvert.DeserializeObject<ScheduleServiceWorkCommand>(r.ServiceWorkOrder),
+                   
                     RequestChanges = r.RequestChanges == null ? null : DeserializeObject(r.RequestChanges ),
 
                     ServiceWorkOrderCount = r.ServiceWorkOrderCount,

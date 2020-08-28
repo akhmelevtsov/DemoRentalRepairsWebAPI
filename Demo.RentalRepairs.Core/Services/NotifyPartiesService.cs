@@ -1,28 +1,40 @@
-﻿using Demo.RentalRepairs.Core.Interfaces;
+﻿using System.Threading.Tasks;
+using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Entities;
+using Demo.RentalRepairs.Domain.Enums;
+using Demo.RentalRepairs.Domain.Exceptions;
 
 namespace Demo.RentalRepairs.Core.Services
 {
-    public class NotifyPartiesService : INotifyPartiesService
+    public class NotifyPartiesService : BaseNotifyPartiesService , INotifyPartiesService
     {
+        private readonly IEmailBuilderService _emailBuilderService;
         private readonly IEmailService _emailService;
-        private readonly ITemplateDataService _templateDataService;
-        private readonly IPropertyRepository _propertyRepository;
+       
 
 
-        public NotifyPartiesService(IEmailService emailService, ITemplateDataService templateDataService,IPropertyRepository propertyRepository)
+        public NotifyPartiesService(IEmailBuilderService emailBuilderService, IEmailService emailService, IPropertyRepository propertyRepository) :base (propertyRepository )
         {
+            _emailBuilderService = emailBuilderService;
             _emailService = emailService;
-            _templateDataService = templateDataService;
-            _propertyRepository = propertyRepository;
+           
         }
 
-        public EmailInfo CreateAndSendEmail(TenantRequest tenantRequest)
+        public async Task CreateAndSendEmailAsync(TenantRequest tenantRequest)
         {
-          
-            var email = new PropertyMessageFactory(_templateDataService,  tenantRequest, _propertyRepository ).CreateTenantRequestEmail();
-            _emailService.SendEmail(email);
-            return email;
+            var worker = GetWorkerDetails(tenantRequest);
+
+            await CreateAndSendEmailAsync(tenantRequest, worker);
         }
+
+        public async Task CreateAndSendEmailAsync(TenantRequest tenantRequest, Worker worker)
+        {
+            await Task.CompletedTask;
+            var email = _emailBuilderService.CreateTenantRequestEmail(tenantRequest , worker );
+            if (email != null)
+             await _emailService.SendEmailAsync(email);
+        }
+
+       
     }  
 }

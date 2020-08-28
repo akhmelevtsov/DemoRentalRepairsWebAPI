@@ -70,6 +70,7 @@ namespace Demo.RentalRepairs.WebMvc
 
             services.AddSingleton<IMongoDbSettings>(sp =>
                 sp.GetRequiredService<IOptions<RentalRepairsCosmosDbSettings>>().Value);
+
             services.AddSingleton<IMongoDbContext, RentalRepairsCosmosDbContext>();
 
             services.AddMvc(config =>
@@ -102,15 +103,14 @@ namespace Demo.RentalRepairs.WebMvc
             });
 
 
-            ////services.AddTransient<IValidator<PropertyModel>, PropertyValidator>();
-            //services.AddTransient<IValidator<PropertyCodeValidator>>();
             services.AddScoped<ISecuritySignInService , SecuritySignInService >();
             services.AddScoped<ISecurityService,SecurityService >();
             services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
             //services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();
-            //services.AddTransient<IPropertyRepository, PropertyRepositoryEf>();
-            services.AddSingleton<IPropertyRepository, RentalRepairsMongoDbRepository>();
+            services.AddTransient<IPropertyRepository, PropertyRepositoryEf>();
+            //services.AddSingleton<IPropertyRepository, RentalRepairsMongoDbRepository>();
             services.AddTransient<ITemplateDataService , TemplateDataService >();
+            services.AddTransient<IEmailBuilderService, EmailBuilderService>();
             services.AddTransient<IEmailService, EmailServiceMock>();
             services.AddTransient<INotifyPartiesService, NotifyPartiesService>();
             services.AddScoped< IPropertyService, PropertyService>();
