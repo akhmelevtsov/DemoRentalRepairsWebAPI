@@ -28,7 +28,7 @@ namespace Demo.RentalRepairs.Azure.Tests
             services.AddSingleton<IMongoDbSettings>(new RentalRepairsMongoDbSettings()
             {
                 DatabaseName = "RentalRepairs",
-                ConnectionString = "mongodb://demo-rental-repairs:v2dYhXLCVoI504XNoWgOE9B7Ry0ayfX2Z6uk2sVezysix2fXtKZHM2wcCm8f8lDKUapgQrXfip26vNqXwWPBOA==@demo-rental-repairs.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@demo-rental-repairs@"
+                ConnectionString = ""
             });
             services.AddSingleton<IMongoDbContext, RentalRepairsCosmosDbContext>();
 

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Demo.RentalRepairs.Domain.Entities;
-using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
 
@@ -26,7 +25,8 @@ namespace Demo.RentalRepairs.Core.Interfaces
         IEnumerable<TenantRequest> GetTenantRequests(string propertyCode, string tenantUnit);                        
 
         TenantRequest GetTenantRequest(string propCode, string tenantUnit, string requestCode);
-        Tenant GetTenantByPropertyUnit(string propCode, string tenantCode);  // owner, super
+        Tenant GetTenantByPropertyUnit(string propCode, string tenantCode);  
+
         IEnumerable<TenantRequest> GetWorkerRequests(string workerEmail);
         IEnumerable<Worker> GetAllWorkers();
         Worker GetWorkerByEmail(string email);

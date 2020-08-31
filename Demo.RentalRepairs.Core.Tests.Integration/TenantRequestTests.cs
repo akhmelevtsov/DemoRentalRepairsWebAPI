@@ -87,7 +87,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
             var propertyService = serviceProvider.GetService<IPropertyService>();
             var authService = serviceProvider.GetService<IUserAuthorizationService>();
 
-            var repo = serviceProvider.GetService<IPropertyRepository>(); //new PropertyRepositoryInMemory();
+            var repo = serviceProvider.GetService<IPropertyRepository>(); 
 
             await SharedTests.TestHappyPath(repo, propertyService, authService);
 
