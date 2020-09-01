@@ -2,6 +2,8 @@
 
 The goal of this project was to build a simple workflow-based application with Domain Driven Design, Clean Architecture (Onion Architecture) and .NET Core technologies as well as  to demonstrate how the core components can be re-used in various configurations 
 
+![](Dependencies Graph.png)
+
 Domain Model:
 
 The domain model contains DDD artifacts and domain-level validations built with the Fluent Validation library.
