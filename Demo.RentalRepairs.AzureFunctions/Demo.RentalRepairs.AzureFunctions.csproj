@@ -6,7 +6,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.SendGrid" Version="3.0.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Storage" Version="4.0.2" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.9" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="1.0.31" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Demo.RentalRepairs.Infrastructure\Demo.RentalRepairs.Infrastructure.csproj" />
