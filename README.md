@@ -2,7 +2,7 @@
 
 The goal of this project was to build a simple workflow-based application with Domain Driven Design, Clean Architecture (Onion Architecture) and .NET Core technologies as well as  to demonstrate how the core components can be re-used in various configurations 
 
-![](Dependencies Graph.png)
+![alt text](https://github.com/akhmelevtsov/DemoRentalRepairsWebAPI/blob/master/Dependencies%20Graph.png?raw=true)
 
 Domain Model:
 
