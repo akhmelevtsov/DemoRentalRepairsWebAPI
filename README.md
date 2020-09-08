@@ -4,28 +4,28 @@ The goal of this project was to build a simple workflow-based application with D
 
 ![alt text](https://github.com/akhmelevtsov/DemoRentalRepairsWebAPI/blob/master/Dependencies%20Graph.png?raw=true)
 
-Domain Model:
+## Domain Model
 
 The domain model contains DDD artifacts and domain-level validations built with the Fluent Validation library.
 
-Core Services:
+## Core Services
 
 Provide application services abstracted from a specific implementation. For example, each workflow change can be initiated by an authorized user and also be stored in some repository
 
-Infrastructure :
+## Infrastructure 
 
 Provides implementation for core interfaces. For example, there are few implementations for the repository interface :In-Memory for testing,  Enitiy Framework Core, Mongo DB, Azure Cosmos DB.
 
 
-ASP.NET Core MVC application:
+## ASP.NET Core MVC application
 
 Simple client that allows users to register, login and interact with core services through the UI
 
-ASP.NET Web API:
+## ASP.NET Core Web API
 
 Utilizes the same core services for mobile or any other client HTTP calls
 
-Azure Functions:
+## Azure Functions
 
 Provide micro-services for building and sending the workflow emails 
 
