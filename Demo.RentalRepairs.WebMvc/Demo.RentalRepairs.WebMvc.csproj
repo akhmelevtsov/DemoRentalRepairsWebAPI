@@ -6,6 +6,12 @@
     <UserSecretsId>551b0276-a24a-483f-8320-2eb294dbc4cb</UserSecretsId>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Controllers\PropertiesController.cs" />
+    <Compile Remove="Controllers\RequestsController.cs" />
+    <Compile Remove="Controllers\TenantsController.cs" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="FluentValidation.AspNetCore" Version="8.6.1" />
@@ -22,7 +28,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Demo.RentalRepairs.Core\Demo.RentalRepairs.Core.csproj" />
     <ProjectReference Include="..\Demo.RentalRepairs.Infrastructure\Demo.RentalRepairs.Infrastructure.csproj" />
-    <ProjectReference Include="..\Demo.RentalRepairs.WebApi.Models\Demo.RentalRepairs.WebApi.Models.csproj" />
   </ItemGroup>
 
 

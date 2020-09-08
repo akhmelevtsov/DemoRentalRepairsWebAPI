@@ -9,7 +9,6 @@ using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
 using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
-using Demo.RentalRepairs.WebApi.Models;
 using Demo.RentalRepairs.WebMvc.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

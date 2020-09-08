@@ -4,12 +4,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Core.Services;
-using Demo.RentalRepairs.Core.Tests.Integration;
 using Demo.RentalRepairs.Infrastructure;
 using Demo.RentalRepairs.Infrastructure.Mocks;
 using Demo.RentalRepairs.Infrastructure.Repositories.Cosmos_Db;
 using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb;
 using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb.Interfaces;
+using Demo.RentalRepairs.Tests.Integration.Shared;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
-using Demo.RentalRepairs.WebApi.Models;
 using FluentValidation.Internal;
 
 namespace Demo.RentalRepairs.WebMvc.Models

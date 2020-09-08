@@ -81,6 +81,7 @@ namespace Demo.RentalRepairs.WebMvc
                     .RequireAuthenticatedUser()
                     .Build();
                 config.Filters.Add(new AuthorizeFilter(policy));
+
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
             //    .AddFluentValidation(fv =>
             //    {

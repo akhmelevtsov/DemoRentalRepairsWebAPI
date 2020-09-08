@@ -13,6 +13,7 @@ using Demo.RentalRepairs.Infrastructure.Repositories.Cosmos_Db;
 using Demo.RentalRepairs.Infrastructure.Repositories.EF;
 using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb;
 using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb.Interfaces;
+using Demo.RentalRepairs.Tests.Integration.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
