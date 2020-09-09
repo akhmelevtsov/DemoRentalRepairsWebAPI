@@ -150,7 +150,8 @@ namespace Demo.RentalRepairs.Infrastructure.Identity.AspNetCore
             }
             await _userManager.RemoveFromRoleAsync( user, UserRolesEnum.Anonymous.ToString());
             await _userManager .AddToRoleAsync(user, userRole.ToString());
-            await _signInManager.SignInAsync(user, false);
+            //await _signInManager.SignInAsync(user, false);
+            await _securitySignInService.SignInAsync(user, isPersistent: false);
             switch (userRole)
             {
                 case UserRolesEnum.Anonymous:
