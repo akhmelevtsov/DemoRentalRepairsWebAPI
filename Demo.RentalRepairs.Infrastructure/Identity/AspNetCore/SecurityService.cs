@@ -32,21 +32,22 @@ namespace Demo.RentalRepairs.Infrastructure.Identity.AspNetCore
             _securitySignInService = securitySignInService;
         }
 
-        public async Task<OperationResult> RegisterUser(UserRolesEnum userRole, string email, string password)
+        public async Task<OperationResult> RegisterUser(string email, string password)
         {
             var user = new ApplicationUser { UserName = email, Email = email };
             var result = await _userManager.CreateAsync(user, password);
+            //userRole = UserRolesEnum.Anonymous; // replace for now
             if (result.Succeeded)
             {
-                var roleCheck = await _roleManager.RoleExistsAsync(userRole.ToString());
+                var roleCheck = await _roleManager.RoleExistsAsync(UserRolesEnum.Anonymous.ToString());
                 if (!roleCheck)
                 {
                     //create the roles and seed them to the database
-                    var roleResult = await _roleManager.CreateAsync(new IdentityRole(userRole.ToString()));
+                    var roleResult = await _roleManager.CreateAsync(new IdentityRole(UserRolesEnum.Anonymous.ToString()));
                 }
 
                 user = await _userManager.FindByEmailAsync(email);
-                await _userManager.AddToRoleAsync(user, userRole.ToString());
+                await _userManager.AddToRoleAsync(user, UserRolesEnum.Anonymous.ToString());
 
 
                 _logger.LogInformation("User created a new account with password.");
@@ -138,7 +139,18 @@ namespace Demo.RentalRepairs.Infrastructure.Identity.AspNetCore
         public async Task SetLoggedUserClaims(string email,UserRolesEnum userRole, string propCode, string unitNumber)
         {
             //var user = await _userManager.GetUserAsync((ClaimsPrincipal)claimsPrincipal);
+
             var user = await _userManager.FindByEmailAsync(email);
+
+            var roleCheck = await _roleManager.RoleExistsAsync(userRole.ToString());
+            if (!roleCheck)
+            {
+                //create the roles and seed them to the database
+                var roleResult = await _roleManager.CreateAsync(new IdentityRole(userRole.ToString()));
+            }
+            await _userManager.RemoveFromRoleAsync( user, UserRolesEnum.Anonymous.ToString());
+            await _userManager .AddToRoleAsync(user, userRole.ToString());
+            await _signInManager.SignInAsync(user, false);
             switch (userRole)
             {
                 case UserRolesEnum.Anonymous:

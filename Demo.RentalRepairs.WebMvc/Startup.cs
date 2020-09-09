@@ -101,6 +101,8 @@ namespace Demo.RentalRepairs.WebMvc
                     policy => policy.RequireRole("Superintendent"));
                 options.AddPolicy("RequireWorkerRole",
                     policy => policy.RequireRole("Worker"));
+                options.AddPolicy("RequireAnonymousRole",
+                    policy => policy.RequireRole("Anonymous"));
             });
 
 

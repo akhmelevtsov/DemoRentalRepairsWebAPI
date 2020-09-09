@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Demo.RentalRepairs.WebMvc.Controllers
 {
-    [Authorize(Policy = "RequireTenantRole")]
+    [Authorize]
     public class TenantController : Controller
     {
         private readonly ValidationRulesService _validationRulesService = new ValidationRulesService();
@@ -48,7 +48,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             //_securityService = securityService;
 
         }
-
+        [Authorize(Policy = "RequireTenantRole")]
         public async Task<IActionResult> Requests()
         {
             var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name );
@@ -73,13 +73,14 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
         }
 
-        // GET: Students/Create
+
+        [Authorize(Policy = "RequireTenantRole")]
         public IActionResult CreateRequest()
         {
             return View(new RegisterTenantRequestCommand());
         }
 
-
+        [Authorize(Policy = "RequireTenantRole")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateRequest(RegisterTenantRequestCommand requestCommand)
@@ -127,7 +128,8 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
 
 
-        // GET: Tenants/Register
+        // GET: Tenant/Register
+        [Authorize(Policy = "RequireAnonymousRole")]
         [HttpGet]
         public async Task<IActionResult> Register()
         {
@@ -152,9 +154,10 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
         }
 
-        // POST: Tenants/Register
+        // POST: Tenant/Register
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Policy = "RequireAnonymousRole")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(TenantEditViewModel tenantVm)
@@ -210,7 +213,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
 
         }
-
+        [Authorize(Policy = "RequireAnonymousRole")]
         [HttpGet]
         public async Task<ActionResult> GetUnits(string propCode)
         {
@@ -224,6 +227,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             return null;
         }
+        [Authorize(Policy = "RequireTenantRole")]
         [HttpGet]
         public async Task<IActionResult> RequestDetails(string requestCode)
         {
@@ -243,6 +247,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
             }
         }
+        [Authorize(Policy = "RequireTenantRole")]
         [HttpGet]
         public async Task<ActionResult> RequestHistory(string requestCode)
         {

@@ -14,10 +14,10 @@ namespace Demo.RentalRepairs.Infrastructure.Mocks
     {
         private readonly Dictionary <string, UserClaims> _claims = new Dictionary<string,UserClaims>();
 
-        public async Task<OperationResult> RegisterUser(UserRolesEnum userRole, string email, string password)
+        public async Task<OperationResult> RegisterUser(string email, string password)
         {
             await Task.CompletedTask;
-            _claims.Add(email, new UserClaims(email, userRole, "", ""));
+            _claims.Add(email, new UserClaims(email, UserRolesEnum.Anonymous, "", ""));
             return new OperationResult() {Succeeded = true};
         }
 

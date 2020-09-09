@@ -32,7 +32,7 @@ namespace Demo.RentalRepairs.Core.Services
 
         public async Task<OperationResult> RegisterUser(UserRolesEnum userRole, string email, string password)
         {
-            return await _securityService.RegisterUser(userRole, email, password);
+            return await _securityService.RegisterUser(email, password);
         }
 
         public async Task<UserClaims> GetUserClaims(string email)
@@ -48,6 +48,7 @@ namespace Demo.RentalRepairs.Core.Services
 
             throw new CoreAuthorizationException("access_denied", "access denied");
         }
+
         public bool IsAuthenticatedTenant()
         {
             if (_loggedUser.UserRole == UserRolesEnum.Tenant && !string.IsNullOrEmpty(_loggedUser.Login)
@@ -94,9 +95,14 @@ namespace Demo.RentalRepairs.Core.Services
             return false;
         }
 
-        public async Task AddUserClaims(string propCode, string userNumber)
+        public bool IsAnonymousUser()
         {
-            await _securityService.SetLoggedUserClaims(_loggedUser.Login, _loggedUser.UserRole, propCode, userNumber);
+            return (_loggedUser.UserRole == UserRolesEnum.Anonymous && !string.IsNullOrEmpty(_loggedUser.Login));
+        }
+
+        public async Task SetUserClaims(UserRolesEnum userRole, string propCode, string userNumber)
+        {
+            await _securityService.SetLoggedUserClaims(_loggedUser.Login, userRole, propCode, userNumber);
         }
 
         public bool IsRegisteredSuperintendent(string propCode=null)

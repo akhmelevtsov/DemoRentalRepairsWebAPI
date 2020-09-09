@@ -10,8 +10,8 @@ namespace Demo.RentalRepairs.Infrastructure.Email
 {
     public class SendGridEmailService : IEmailService
     {
-        private string _senderEmail = "demo-rental-repairs-no-reply@protonmail.com";
-        private string _recipientEmail = "akhmelevtsov@gmail.com";
+        private readonly string _senderEmail = "demo-rental-repairs-no-reply@protonmail.com";
+        private readonly string _recipientEmail = "akhmelevtsov@gmail.com";
 
         public async Task SendEmailAsync(EmailInfo email)
         {

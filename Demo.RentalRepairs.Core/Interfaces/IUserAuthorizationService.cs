@@ -13,7 +13,7 @@ namespace Demo.RentalRepairs.Core.Interfaces
         void SetUser(UserClaims loggedUser);
         Task<OperationResult> RegisterUser(UserRolesEnum userRole, string email, string password);
         Task<UserClaims> GetUserClaims(string email);
-        Task AddUserClaims(string propCode, string userNumber);
+        Task SetUserClaims(UserRolesEnum userRole, string propCode, string userNumber);
         void Check(Func<bool> action);
         bool IsRegisteredTenant(string propCode, string tenantUnit = null);
         bool IsAuthenticatedTenant();
@@ -21,5 +21,6 @@ namespace Demo.RentalRepairs.Core.Interfaces
         bool IsRegisteredWorker(string email = null);
         bool IsUserCommand(Type getType);
         bool IsAuthenticatedSuperintendent();
+        bool IsAnonymousUser();
     }
 }

@@ -72,7 +72,12 @@ namespace Demo.RentalRepairs.Infrastructure.Mocks
             return true;
         }
 
-        public async Task AddUserClaims(string propCode, string userNumber)
+        public bool IsAnonymousUser()
+        {
+            return true;
+        }
+
+        public async Task SetUserClaims(UserRolesEnum userRole, string propCode, string userNumber)
         {
             await Task.CompletedTask;
         }

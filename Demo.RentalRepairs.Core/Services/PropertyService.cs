@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Entities;
+using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects;
@@ -33,7 +34,7 @@ namespace Demo.RentalRepairs.Core.Services
         public IEnumerable<Property> GetAllProperties()
         {
            
-            _authService.Check(() => _authService.IsAuthenticatedTenant()); 
+            _authService.Check(() => _authService.IsAnonymousUser()); 
             return _propertyRepository.GetAllProperties();
         }
 
@@ -43,7 +44,7 @@ namespace Demo.RentalRepairs.Core.Services
         {
             _validationService.ValidatePropertyCode(propCode);
            
-            _authService.Check(() => _authService.IsAuthenticatedTenant() || _authService.IsRegisteredTenant(propCode)  || _authService.IsRegisteredSuperintendent( propCode ) );
+            _authService.Check(() => _authService.IsAnonymousUser() || _authService.IsAuthenticatedTenant() || _authService.IsRegisteredTenant(propCode)  || _authService.IsRegisteredSuperintendent( propCode ) );
             var prop = _propertyRepository.GetPropertyByCode(propCode);
             if (prop == null)
                 throw new DomainEntityNotFoundException("property_not_found", $"property not found by code:{propCode}");
@@ -53,10 +54,10 @@ namespace Demo.RentalRepairs.Core.Services
         {
             await Task.CompletedTask;
 
-            _authService.Check(() => _authService.IsRegisteredWorker());
+            //_authService.Check(() => _authService.IsRegisteredWorker());
             var worker = new Worker(workerInfo);
             _propertyRepository.AddWorker(worker);
-            await _authService.AddUserClaims(null, null);
+            await _authService.SetUserClaims(UserRolesEnum.Worker , null, null);
             return worker;
         }
 
@@ -76,13 +77,13 @@ namespace Demo.RentalRepairs.Core.Services
         public  async Task<Property> RegisterPropertyAsync(RegisterPropertyCommand propertyInfo)
         {
             await Task.CompletedTask;
-            _authService.Check(() => _authService.IsAuthenticatedSuperintendent());
+            //_authService.Check(() => _authService.IsAuthenticatedSuperintendent());
             var prop = new Property(propertyInfo);
             var p = _propertyRepository.GetPropertyByCode(prop.Code);
             if (p!=null)
                 throw new DomainEntityDuplicateException("duplicate_property","duplicate property name");
             _propertyRepository.AddProperty(prop);
-            await _authService.AddUserClaims(prop.Code, null);
+            await _authService.SetUserClaims(UserRolesEnum.Superintendent , prop.Code, null);
             return prop;
 
         }
@@ -98,7 +99,7 @@ namespace Demo.RentalRepairs.Core.Services
         public async Task<Tenant> RegisterTenantAsync(string propertyCode, PersonContactInfo contactInfo, string unitNumber)
         {
             await Task.CompletedTask;
-            _authService.Check(() => _authService.IsAuthenticatedTenant());
+            //_authService.Check(() => _authService.IsAuthenticatedTenant());
 
             _validationService.ValidatePropertyCode(propertyCode);
             _validationService.ValidatePropertyUnit(unitNumber);
@@ -113,7 +114,7 @@ namespace Demo.RentalRepairs.Core.Services
             tenant = property.RegisterTenant( contactInfo, unitNumber);
            
             _propertyRepository.AddTenant(tenant);
-            await _authService.AddUserClaims(propertyCode, unitNumber);
+            await _authService.SetUserClaims(UserRolesEnum.Tenant , propertyCode, unitNumber);
             return tenant;
 
         }

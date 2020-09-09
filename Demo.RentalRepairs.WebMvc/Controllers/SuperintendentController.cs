@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Demo.RentalRepairs.WebMvc.Controllers
 {
-    [Authorize(Policy = "RequireSuperintendentRole")]
+    [Authorize]
     public class SuperintendentController : Controller
     {
         private readonly IPropertyService _propertyService;
@@ -33,7 +33,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             //_securityService = securityService;
 
         }
-
+        [Authorize(Policy = "RequireSuperintendentRole")]
         public async Task<IActionResult> Requests()
         {
             var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
@@ -57,7 +57,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
         }
 
-
+        [Authorize(Policy = "RequireAnonymousRole")]
         public async Task<IActionResult> Register()
         {
             var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
@@ -86,7 +86,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             return View(model);
         }
 
-
+        [Authorize(Policy = "RequireAnonymousRole")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(PropertyModel prop)
@@ -162,6 +162,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         /// <param name="unitNumber"></param>
         /// <param name="requestCode"></param>
         /// <returns></returns>
+        [Authorize(Policy = "RequireSuperintendentRole")]
         [HttpGet]
         public async Task<IActionResult> RejectRequest(string unitNumber, string requestCode)
         {
@@ -176,6 +177,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
             }
         }
+        [Authorize(Policy = "RequireSuperintendentRole")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> RejectRequest(string unitNumber, string requestCode, string rejectNotes)
@@ -205,6 +207,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         /// <param name="unitNumber"></param>
         /// <param name="requestCode"></param>
         /// <returns></returns>
+        [Authorize(Policy = "RequireSuperintendentRole")]
         [HttpGet]
         public async Task<IActionResult> ScheduleRequest(string unitNumber, string requestCode)
         {
@@ -224,7 +227,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         }
 
 
-
+        [Authorize(Policy = "RequireSuperintendentRole")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ScheduleRequest(PropertyTenantRequestViewModel request, string unitNumber, string requestCode)
@@ -288,6 +291,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         /// <param name="unitNumber"></param>
         /// <param name="requestCode"></param>
         /// <returns></returns>
+        [Authorize(Policy = "RequireSuperintendentRole")]
         [HttpGet]
         public async Task<IActionResult> CloseRequest(string unitNumber, string requestCode)
         {
@@ -305,6 +309,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
             }
         }
+        [Authorize(Policy = "RequireSuperintendentRole")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CloseRequest(string unitNumber, string requestCode, string workerId, DateTime serviceDate)
@@ -323,6 +328,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
             }
         }
+        [Authorize(Policy = "RequireSuperintendentRole")]
         [HttpGet]
         public async Task<IActionResult> RequestDetails(string unitNumber, string requestCode)
         {

@@ -249,7 +249,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
             var viewModel = new RegisterViewModel()
             {
-               Roles= new SelectList( roles1,"Value","Text")
+               //Roles= new SelectList( roles1,"Value","Text")
             };
             ViewData["ReturnUrl"] = returnUrl;
             return View(viewModel);
@@ -279,18 +279,18 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                if (!Enum.TryParse(model.SelectedRole, out UserRolesEnum userRole))
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return View(model);
-                }
+                //if (!Enum.TryParse(model.SelectedRole, out UserRolesEnum userRole))
+                //{
+                //    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                //    return View(model);
+                //}
 
                 //var securityService = new SecurityService(_userManager, null, _roleManager , _signInManager, _logger  );
 
                 //IdentityResult result;
-                var res = await _securityService.RegisterUser(userRole, model.Email , model.Password );
+                var res = await _securityService.RegisterUser(model.Email , model.Password );
                 if (res.Succeeded )
-                    return RedirectLoggedInUser(userRole);
+                    return RedirectLoggedInUser();
                 AddErrors(res);
             }
 
@@ -542,6 +542,33 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         //    return loggedUser;
         //}
 
+        private IActionResult RedirectLoggedInUser()
+        {
+
+            //switch (role)
+            //{
+            //    case UserRolesEnum.Tenant:
+            //        return RedirectToAction("Requests", "Tenant");
+            //    case UserRolesEnum.Superintendent:
+            //        return RedirectToAction("Requests", "Superintendent");
+            //    case UserRolesEnum.Worker:
+            //        return RedirectToAction("Requests", "Worker");
+            //    case UserRolesEnum.Anonymous:
+            //        break;
+            //    case UserRolesEnum.Administrator:
+            //        break;
+            //    default:
+            //        break;
+            //}
+
+
+
+            return RedirectToAction(nameof(HomeController.Index), "Home");
+
+
+
+     
+        }
         private IActionResult RedirectLoggedInUser(UserRolesEnum role)
         {
 
@@ -567,7 +594,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
 
 
-     
+
         }
 
         private IActionResult RedirectToTenantAddRequestPage()

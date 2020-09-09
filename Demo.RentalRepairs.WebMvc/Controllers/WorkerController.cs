@@ -18,7 +18,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Demo.RentalRepairs.WebMvc.Controllers
 {
-    [Authorize(Policy = "RequireWorkerRole")]
+    [Authorize]
     public class WorkerController : Controller
     {
         private readonly ValidationRulesService _validationRulesService = new ValidationRulesService();
@@ -50,7 +50,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             //_securityService = securityService;
 
         }
-
+        [Authorize(Policy = "RequireWorkerRole")]
         public async Task<IActionResult> Requests()
         {
             var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
@@ -80,7 +80,9 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
 
 
-        // GET: Tenants/Register
+        // GET: Worker/Register
+       
+        [Authorize(Policy = "RequireAnonymousRole")]
         [HttpGet]
         public async Task<IActionResult> Register()
         {
@@ -95,6 +97,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize(Policy = "RequireAnonymousRole")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(WorkerEditViewModel worker)
@@ -107,7 +110,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 return View("Register", worker);
             }
             var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
-
+         
             try
             {
                 await _propertyService.RegisterWorkerAsync(worker.ContactInfo);
@@ -143,7 +146,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         /// <summary>
         /// ReportRequest
         /// </summary>
-
+        [Authorize(Policy = "RequireWorkerRole")]
         [HttpGet]
         public async Task<IActionResult> ReportRequest(string propCode, string unitNumber, string requestCode)
         {
@@ -158,6 +161,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
             }
         }
+        [Authorize(Policy = "RequireWorkerRole")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ReportRequest(string propertyCode, string unitNumber, string requestCode, string reportNotes, bool success)
@@ -193,6 +197,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             return RedirectToAction("Requests", "Worker");
         }
+        [Authorize(Policy = "RequireWorkerRole")]
         [HttpGet]
         public async Task<IActionResult> RequestDetails(string propCode, string unitNumber, string requestCode)
         {
