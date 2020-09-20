@@ -16,7 +16,7 @@ namespace Demo.RentalRepairs.Core.Services
         private readonly IPropertyRepository _propertyRepository;
         private readonly INotifyPartiesService _notifyPartiesService;
         private readonly IUserAuthorizationService _authService;
-      
+        //private readonly IUserClaimsService _claimService;
 
         private readonly DomainValidationService _validationService = new DomainValidationService();
 
@@ -28,13 +28,14 @@ namespace Demo.RentalRepairs.Core.Services
             _propertyRepository = propertyRepository;
             _notifyPartiesService = notifyPartiesService;
             _authService = authorizationService;
+            //_claimService = authorizationService.LoggedUser;
         }
 
   
         public IEnumerable<Property> GetAllProperties()
         {
            
-            _authService.Check(() => _authService.IsAnonymousUser()); 
+            GetClaims().Check(() => GetClaims().IsAnonymousUser()); 
             return _propertyRepository.GetAllProperties();
         }
 
@@ -44,7 +45,7 @@ namespace Demo.RentalRepairs.Core.Services
         {
             _validationService.ValidatePropertyCode(propCode);
            
-            _authService.Check(() => _authService.IsAnonymousUser() || _authService.IsAuthenticatedTenant() || _authService.IsRegisteredTenant(propCode)  || _authService.IsRegisteredSuperintendent( propCode ) );
+            GetClaims().Check(() => GetClaims().IsAnonymousUser() || GetClaims().IsAuthenticatedTenant() || GetClaims().IsRegisteredTenant(propCode)  || GetClaims().IsRegisteredSuperintendent( propCode ) );
             var prop = _propertyRepository.GetPropertyByCode(propCode);
             if (prop == null)
                 throw new DomainEntityNotFoundException("property_not_found", $"property not found by code:{propCode}");
@@ -57,19 +58,19 @@ namespace Demo.RentalRepairs.Core.Services
             //_authService.Check(() => _authService.IsRegisteredWorker());
             var worker = new Worker(workerInfo);
             _propertyRepository.AddWorker(worker);
-            await _authService.SetUserClaims(UserRolesEnum.Worker , null, null);
+            await _authService.SetUserClaims(GetClaims().Login , UserRolesEnum.Worker , null, null);
             return worker;
         }
 
         public IEnumerable<Worker> GetAllWorkers()
         {
          
-            _authService.Check(() => _authService.IsRegisteredSuperintendent( ));
+            GetClaims().Check(() => GetClaims().IsRegisteredSuperintendent( ));
             return _propertyRepository.GetAllWorkers();
         }
         public Worker GetWorkerByEmail(string email)
         {
-            _authService.Check(() => _authService.IsRegisteredSuperintendent() || _authService.IsRegisteredWorker() );
+            GetClaims().Check(() => GetClaims().IsRegisteredSuperintendent() || GetClaims().IsRegisteredWorker() );
             return _propertyRepository.GetWorkerByEmail(email);
         }
 
@@ -83,7 +84,7 @@ namespace Demo.RentalRepairs.Core.Services
             if (p!=null)
                 throw new DomainEntityDuplicateException("duplicate_property","duplicate property name");
             _propertyRepository.AddProperty(prop);
-            await _authService.SetUserClaims(UserRolesEnum.Superintendent , prop.Code, null);
+            await _authService.SetUserClaims(GetClaims().Login, UserRolesEnum.Superintendent , prop.Code, null);
             return prop;
 
         }
@@ -91,7 +92,7 @@ namespace Demo.RentalRepairs.Core.Services
         public IEnumerable<Tenant> GetPropertyTenants(string propertyCode)
         {
           
-            _authService.Check(() => _authService.IsRegisteredSuperintendent(propertyCode));
+            GetClaims().Check(() => GetClaims().IsRegisteredSuperintendent(propertyCode));
             _validationService.ValidatePropertyCode(propertyCode);
             return _propertyRepository.GetPropertyTenants(propertyCode);
         }
@@ -114,7 +115,7 @@ namespace Demo.RentalRepairs.Core.Services
             tenant = property.RegisterTenant( contactInfo, unitNumber);
            
             _propertyRepository.AddTenant(tenant);
-            await _authService.SetUserClaims(UserRolesEnum.Tenant , propertyCode, unitNumber);
+            await _authService.SetUserClaims(GetClaims().Login, UserRolesEnum.Tenant , propertyCode, unitNumber);
             return tenant;
 
         }
@@ -124,7 +125,7 @@ namespace Demo.RentalRepairs.Core.Services
         public Tenant GetTenantByPropertyUnit(string propertyCode, string propertyUnit)
         {
             
-            _authService.Check(() => _authService.IsRegisteredTenant(propertyCode , propertyUnit ) || _authService.IsRegisteredSuperintendent( propertyCode ));
+            GetClaims().Check(() => GetClaims().IsRegisteredTenant(propertyCode , propertyUnit ) || GetClaims().IsRegisteredSuperintendent( propertyCode ));
             _validationService.ValidatePropertyCode(propertyCode);
             var tenant = _propertyRepository.GetTenantByUnitNumber(propertyUnit, propertyCode);
 
@@ -134,7 +135,7 @@ namespace Demo.RentalRepairs.Core.Services
 
         public IEnumerable<TenantRequest> GetWorkerRequests(string workerEmail)
         {
-            _authService.Check(() => _authService.IsRegisteredWorker(workerEmail));
+            GetClaims().Check(() => GetClaims().IsRegisteredWorker(workerEmail));
             return _propertyRepository.GetWorkerRequests(workerEmail);
         }
         //Requests
@@ -142,7 +143,7 @@ namespace Demo.RentalRepairs.Core.Services
         public IEnumerable<TenantRequest> GetPropertyRequests(string propertyCode)
         {
             _validationService.ValidatePropertyCode(propertyCode);
-            _authService.Check(() => _authService.IsRegisteredSuperintendent(propertyCode));
+            GetClaims().Check(() => GetClaims().IsRegisteredSuperintendent(propertyCode));
             return _propertyRepository.GetPropertyRequests(propertyCode);
 
         }
@@ -151,7 +152,7 @@ namespace Demo.RentalRepairs.Core.Services
             
             _validationService.ValidatePropertyCode(propertyCode);
             _validationService.ValidatePropertyUnit(tenantUnit);
-            _authService.Check(() => _authService.IsRegisteredTenant(propertyCode, tenantUnit));
+            GetClaims().Check(() => GetClaims().IsRegisteredTenant(propertyCode, tenantUnit));
             var tenant = _propertyRepository.GetTenantByUnitNumber(tenantUnit, propertyCode);
 
             var retList = new List<TenantRequest>();
@@ -168,7 +169,7 @@ namespace Demo.RentalRepairs.Core.Services
             RegisterTenantRequestCommand tenantRequestDoc)
         {
            
-            _authService.Check(() => _authService.IsRegisteredTenant( propCode, tenantUnit));
+            GetClaims().Check(() => GetClaims().IsRegisteredTenant( propCode, tenantUnit));
             _validationService.ValidatePropertyCode(propCode);
             _validationService.ValidatePropertyUnit(tenantUnit);
 
@@ -191,7 +192,7 @@ namespace Demo.RentalRepairs.Core.Services
            
             var tenantRequest = this.GetTenantRequest(propCode, tenantUnit, requestCode);
 
-            _authService.Check(() => _authService.IsUserCommand(command.GetType()));
+            GetClaims().Check(() => GetClaims().IsUserCommand(command.GetType()));
             tenantRequest = tenantRequest.ExecuteCommand( command);
 
             _propertyRepository.UpdateTenantRequest(tenantRequest);
@@ -205,16 +206,19 @@ namespace Demo.RentalRepairs.Core.Services
         {
             _validationService.ValidatePropertyCode(propCode);
             _validationService.ValidatePropertyUnit(tenantUnit);
-            _authService.Check(() => _authService.IsRegisteredTenant(propCode, tenantUnit)  
-                                   || _authService.IsRegisteredSuperintendent( propCode )
-                                   || _authService.IsRegisteredWorker( )
+            GetClaims().Check(() => GetClaims().IsRegisteredTenant(propCode, tenantUnit)  
+                                   || GetClaims().IsRegisteredSuperintendent( propCode )
+                                   || GetClaims().IsRegisteredWorker( )
                 );
             var tenantRequest = _propertyRepository.GetTenantRequest(propCode, tenantUnit, requestCode);
             if (tenantRequest == null)
                 throw new DomainEntityNotFoundException("request_not_found", "request not found");
             return tenantRequest;
         }
-      
 
+        private IUserClaimsService GetClaims()
+        {
+            return _authService.LoggedUser;
+        }
     }
 }

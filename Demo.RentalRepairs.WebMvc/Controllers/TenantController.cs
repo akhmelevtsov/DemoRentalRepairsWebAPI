@@ -9,12 +9,15 @@ using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
 using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
+using Demo.RentalRepairs.WebMvc.Interfaces;
 using Demo.RentalRepairs.WebMvc.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace Demo.RentalRepairs.WebMvc.Controllers
 {
@@ -23,9 +26,8 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
     {
         private readonly ValidationRulesService _validationRulesService = new ValidationRulesService();
         private readonly IPropertyService _propertyService;
-        private readonly IUserAuthorizationService _userAuthCoreService;
-        //private readonly UserManager<ApplicationUser> _userManager;
-        //private readonly ISecurityService _securityService;
+        private readonly IUserAuthorizationService _authService;
+        private readonly IIdentityRedirectionService _redirectionService;
 
         private readonly Dictionary<string, string> _vDict = new Dictionary<string, string>()
         {
@@ -40,18 +42,17 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
         };
 
-        public TenantController(IPropertyService propertyService, IUserAuthorizationService userAuthCoreService, UserManager<ApplicationUser> userManager//, ISecurityService securityService
+        public TenantController(IPropertyService propertyService, IUserAuthorizationService userAuthCoreService, IIdentityRedirectionService redirectionService
         )
         {
             _propertyService = propertyService;
-            _userAuthCoreService = userAuthCoreService;
-            //_securityService = securityService;
-
+            _authService = userAuthCoreService;
+            _redirectionService = redirectionService;
         }
         [Authorize(Policy = "RequireTenantRole")]
         public async Task<IActionResult> Requests()
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name );
+            var loggedUser = await _authService.GetUserClaims(User );
 
             if (!loggedUser.IsRegisteredTenant())
             {
@@ -69,7 +70,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
         }
 
@@ -85,7 +86,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateRequest(RegisterTenantRequestCommand requestCommand)
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
             if (!loggedUser.IsRegisteredTenant())
             {
                 return base.RedirectToAction(actionName: nameof(this.Register), controllerName: "Tenant");
@@ -105,7 +106,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
             catch (DomainValidationException vex)
             {
@@ -133,7 +134,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<IActionResult> Register()
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
             try
             {
                 var list = GetPropertyList();
@@ -150,7 +151,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
         }
 
@@ -162,7 +163,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(TenantEditViewModel tenantVm)
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
             if (!ModelState.IsValid)
             {
                 // re-render the view when validation failed.
@@ -178,15 +179,23 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                     ? ""
                     : tenantVm.SelectedUnitNumber;
 
+
+
                 await _propertyService.RegisterTenantAsync(propCode, tenantVm.ContactInfo, unitNumber);
-                //await _securityService.SetLoggedUserClaims( User.Identity.Name ,UserRolesEnum.Tenant,  propCode, unitNumber);
-                return RedirectToAction("Requests", "Tenant");
+
+
+                //return RedirectToAction("Requests", "Tenant");
+                //TempData["JustEnrolled"] = "yes";
+                //return base.RedirectToAction("SignOut", "Account", new { area = "AzureADB2C" });
+
+                return _redirectionService.RedirectAfterEnrollment(TempData, this);
 
 
             }
+
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
             catch (DomainEntityDuplicateException)
             {
@@ -213,11 +222,15 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
 
         }
+
+        
+
+       
         [Authorize(Policy = "RequireAnonymousRole")]
         [HttpGet]
         public async Task<ActionResult> GetUnits(string propCode)
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
             var validationResult = _validationRulesService.ValidatePropertyCode(propCode );
 
             if (validationResult.IsValid)
@@ -231,7 +244,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<IActionResult> RequestDetails(string requestCode)
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
             try
             {
                 var tenantRequest =
@@ -244,14 +257,14 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
         }
         [Authorize(Policy = "RequireTenantRole")]
         [HttpGet]
         public async Task<ActionResult> RequestHistory(string requestCode)
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
 
             var tenantRequest =
                 _propertyService.GetTenantRequest(loggedUser.PropCode, loggedUser.UnitNumber, requestCode);

@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Demo.RentalRepairs.Infrastructure.Identity.AspNetCore
 {
-    public class SecuritySignInService : ISecuritySignInService
+    public class AspNetIdentitySignInService : ISecuritySignInService
     {
         private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public SecuritySignInService(SignInManager<ApplicationUser> signInManager)
+        public AspNetIdentitySignInService(SignInManager<ApplicationUser> signInManager)
         {
             _signInManager = signInManager;
         }

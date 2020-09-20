@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Demo.RentalRepairs.Core;
 using Demo.RentalRepairs.Core.Interfaces;
+using Demo.RentalRepairs.Core.Services;
 using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
 using Microsoft.AspNetCore.Identity;
@@ -11,28 +13,26 @@ using Microsoft.Extensions.Logging;
 
 namespace Demo.RentalRepairs.Infrastructure.Identity.AspNetCore
 {
-    public class SecurityService : ISecurityService
+    public class AspNetIdentityService : UserAuthorizationService
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        //private readonly IUserAuthorizationService _userAuthCoreService;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger _logger;
         private readonly ISecuritySignInService _securitySignInService;
-        public object SigninResult { get; set; }
+        //public object SigninResult { get; set; }
 
-        public SecurityService(UserManager<ApplicationUser> userManager, //IUserAuthorizationService userAuthCoreService,
-            RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager, ILogger<SecurityService> logger, ISecuritySignInService securitySignInService)
+        public AspNetIdentityService(UserManager<ApplicationUser> userManager,
+            RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager, ILogger<AspNetIdentityService> logger, ISecuritySignInService securitySignInService)
         {
             _userManager = userManager;
-            //_userAuthCoreService = userAuthCoreService;
             _roleManager = roleManager;
             _signInManager = signInManager;
             _logger = logger;
             _securitySignInService = securitySignInService;
         }
-
-        public async Task<OperationResult> RegisterUser(string email, string password)
+  
+        public override  async Task<OperationResult> RegisterUser(UserRolesEnum userRole, string email, string password)
         {
             var user = new ApplicationUser { UserName = email, Email = email };
             var result = await _userManager.CreateAsync(user, password);
@@ -65,13 +65,13 @@ namespace Demo.RentalRepairs.Infrastructure.Identity.AspNetCore
                 ErrorsValueTuples = result.Errors.Select(x => new Tuple<string, string>(x.Code, x.Description)).ToList()
             };
         }
-        public async Task<OperationResult> SignInUser(string email, string password, bool rememberMe)
+        public override async Task<OperationResult> SignInUser(string email, string password, bool rememberMe)
         {
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-           var result = await _signInManager.PasswordSignInAsync(email, password, rememberMe, lockoutOnFailure: false);
+            var result = await _signInManager.PasswordSignInAsync(email, password, rememberMe, lockoutOnFailure: false);
             //var  result = await _securitySignInService.PasswordSignInAsync(email, password, rememberMe, lockoutOnFailure: false);
-            this.SigninResult = result;
+            SigninResult = result;
             if (result.Succeeded)
             {
                 _logger.LogInformation("User logged in.");
@@ -91,34 +91,44 @@ namespace Demo.RentalRepairs.Infrastructure.Identity.AspNetCore
             return new OperationResult() { Succeeded = false };
         }
 
-        public async Task<UserClaims> GetLoggedUserClaims(string email)
+        public override  async Task<UserClaimsService> GetUserClaims(string emailLogin)
         {
-            
-            var user = await _userManager.FindByEmailAsync(email);
-            //var user = await _userManager.GetUserAsync(claimsPrincipal);
+            if (string.IsNullOrEmpty(emailLogin))
+            {
+                //throw new NullReferenceException(nameof(emailClaim));
+                IntLoggedUser = new UserClaimsService("",
+                    UserRolesEnum.Anonymous,
+                    "",
+                    "");
+                return IntLoggedUser;
+            }
+
+            var user = await _userManager.FindByEmailAsync(emailLogin);
             var claims = await _userManager.GetClaimsAsync(user);
             var roles = await _userManager.GetRolesAsync(user);
 
             if (!(roles.Any() && Enum.TryParse(roles.FirstOrDefault(), out UserRolesEnum  userRole)))
                 throw new Exception();
 
-                UserClaims loggedUser = new UserClaims(user.Email,
+            UserClaimsService loggedUser = new UserClaimsService(user.Email,
                 userRole,
                 "",
                 "");
+
+
             switch (userRole)
             {
                 case UserRolesEnum.Anonymous:
                     break;
                 case UserRolesEnum.Tenant:
-                    loggedUser = new UserClaims(user.Email,
+                    loggedUser = new UserClaimsService(user.Email,
                         userRole,
                         claims.FirstOrDefault(x => x.Type == SecurityClaims.PropertyCode.ToString())?.Value,
                         claims.FirstOrDefault(x => x.Type == SecurityClaims.UnitNumber.ToString())?.Value);
 
                     break;
                 case UserRolesEnum.Superintendent:
-                    loggedUser = new UserClaims(user.Email,
+                    loggedUser = new UserClaimsService(user.Email,
                         userRole,
                         claims.FirstOrDefault(x => x.Type == SecurityClaims.PropertyCode.ToString())?.Value,
                         "");
@@ -130,15 +140,16 @@ namespace Demo.RentalRepairs.Infrastructure.Identity.AspNetCore
 
                     break;
             }
-            
-            //_userAuthCoreService.SetUser(loggedUser);
 
+            IntLoggedUser = loggedUser;
             return loggedUser;
         }
 
-        public async Task SetLoggedUserClaims(string email,UserRolesEnum userRole, string propCode, string unitNumber)
+       
+
+        public override async Task SetUserClaims(string email,UserRolesEnum userRole, string propCode, string unitNumber)
         {
-            //var user = await _userManager.GetUserAsync((ClaimsPrincipal)claimsPrincipal);
+            
 
             var user = await _userManager.FindByEmailAsync(email);
 
@@ -150,7 +161,6 @@ namespace Demo.RentalRepairs.Infrastructure.Identity.AspNetCore
             }
             await _userManager.RemoveFromRoleAsync( user, UserRolesEnum.Anonymous.ToString());
             await _userManager .AddToRoleAsync(user, userRole.ToString());
-            //await _signInManager.SignInAsync(user, false);
             await _securitySignInService.SignInAsync(user, isPersistent: false);
             switch (userRole)
             {
@@ -173,10 +183,19 @@ namespace Demo.RentalRepairs.Infrastructure.Identity.AspNetCore
             }
         }
 
+        public override string GetLoginFromClaimsPrinciple(ClaimsPrincipal claimsPrinciple)
+        {
+            if (claimsPrinciple == null) throw new ArgumentNullException(nameof(claimsPrinciple));
+
+            return claimsPrinciple.Identity.Name;
+        }
+
         public async Task LogoutUser()
         {
             await _signInManager.SignOutAsync();
             _logger.LogInformation("User logged out.");
         }
+
+       
     }
 }

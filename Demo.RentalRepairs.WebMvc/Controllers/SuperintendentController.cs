@@ -9,6 +9,7 @@ using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
 using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
+using Demo.RentalRepairs.WebMvc.Interfaces;
 using Demo.RentalRepairs.WebMvc.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -21,22 +22,22 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
     public class SuperintendentController : Controller
     {
         private readonly IPropertyService _propertyService;
-        private readonly IUserAuthorizationService _userAuthCoreService;
-        //private readonly ISecurityService _securityService;
+        private readonly IUserAuthorizationService _authService;
+        private readonly IIdentityRedirectionService _redirectionService;
 
-        public SuperintendentController(IPropertyService propertyService, IUserAuthorizationService userAuthCoreService,
-            UserManager<ApplicationUser> userManager//, ISecurityService securityService
+
+        public SuperintendentController(IPropertyService propertyService, IUserAuthorizationService userAuthCoreService, IIdentityRedirectionService redirectionService
+
             )
         {
             _propertyService = propertyService;
-            _userAuthCoreService = userAuthCoreService;
-            //_securityService = securityService;
-
+            _authService = userAuthCoreService;
+            _redirectionService = redirectionService;
         }
         [Authorize(Policy = "RequireSuperintendentRole")]
         public async Task<IActionResult> Requests()
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
 
             if (string.IsNullOrEmpty(loggedUser.PropCode))
             {
@@ -53,14 +54,15 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
         }
 
         [Authorize(Policy = "RequireAnonymousRole")]
         public async Task<IActionResult> Register()
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+
+            var loggedUser = await _authService.GetUserClaims(User);
 
 
             var model = new PropertyModel()
@@ -98,7 +100,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 return View("Register", prop);
             }
 
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
 
             prop.Units = new List<string>();
 
@@ -117,7 +119,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
             catch (DomainValidationException vex)
             {
@@ -151,9 +153,9 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 return View("Register", prop);
             }
 
-            //await _securityService.SetLoggedUserClaims( User.Identity.Name ,UserRolesEnum.Superintendent, prop.Code,"");
 
-            return RedirectToAction("Requests", "Superintendent");
+            //return RedirectToAction("Requests", "Superintendent");
+            return _redirectionService.RedirectAfterEnrollment(TempData, this);
 
         }
         /// <summary>
@@ -166,7 +168,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<IActionResult> RejectRequest(string unitNumber, string requestCode)
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
             try
             {
                 var vm = await GetPropertyTenantRequestViewModel(unitNumber, requestCode);
@@ -174,7 +176,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
         }
         [Authorize(Policy = "RequireSuperintendentRole")]
@@ -187,7 +189,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 // re-render the view when validation failed.
                 return View("RejectRequest");
             }
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
 
             try
             {
@@ -196,7 +198,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
 
             return RedirectToAction("Requests", "Superintendent");
@@ -211,7 +213,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<IActionResult> ScheduleRequest(string unitNumber, string requestCode)
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
             try
             {
                 var vm = await GetPropertyTenantRequestViewModel(unitNumber, requestCode);
@@ -222,7 +224,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
         }
 
@@ -233,7 +235,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         public async Task<IActionResult> ScheduleRequest(PropertyTenantRequestViewModel request, string unitNumber, string requestCode)
         {
            
-           var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+           var loggedUser = await _authService.GetUserClaims(User);
             if (request.SelectedWorkerEmail == _selectWorkerTip)
             {
                 ModelState.Clear();
@@ -270,7 +272,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
             catch (DomainException dex)
             {
@@ -295,7 +297,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<IActionResult> CloseRequest(string unitNumber, string requestCode)
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
 
             try
             {
@@ -306,7 +308,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
         }
         [Authorize(Policy = "RequireSuperintendentRole")]
@@ -315,7 +317,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         public async Task<IActionResult> CloseRequest(string unitNumber, string requestCode, string workerId, DateTime serviceDate)
         {
            
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
             try
             {
                 await _propertyService.ExecuteTenantRequestCommandAsync(loggedUser.PropCode, unitNumber, requestCode,
@@ -325,14 +327,14 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
         }
         [Authorize(Policy = "RequireSuperintendentRole")]
         [HttpGet]
         public async Task<IActionResult> RequestDetails(string unitNumber, string requestCode)
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
             try
             {
                 var vm = await GetPropertyTenantRequestViewModel(unitNumber, requestCode);
@@ -341,7 +343,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
         }
 
@@ -349,7 +351,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
         private async Task<PropertyTenantRequestViewModel> GetPropertyTenantRequestViewModel(string unitNumber, string requestCode)
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
 
             var tenantRequest =
                 _propertyService.GetTenantRequest(loggedUser.PropCode, unitNumber, requestCode);

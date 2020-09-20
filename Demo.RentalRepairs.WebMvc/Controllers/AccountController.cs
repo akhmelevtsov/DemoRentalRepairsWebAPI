@@ -31,7 +31,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
         private readonly IEmailSender _emailSender;
         private readonly ILogger _logger;
-        private readonly ISecurityService _securityService;
+      
 
         public AccountController(
             IPropertyService propertyService,
@@ -40,8 +40,8 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             SignInManager<ApplicationUser> signInManager,
             RoleManager<IdentityRole> roleManager,
             IEmailSender emailSender,
-            ILogger<AccountController> logger, 
-            ISecurityService securityService)
+            ILogger<AccountController> logger
+            )
         {
             _propertyService = propertyService;
             _userAuthCoreService = userAuthCoreService;
@@ -50,7 +50,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             _roleManager = roleManager;
             _emailSender = emailSender;
             _logger = logger;
-            _securityService = securityService;
+         
         }
 
         [TempData]
@@ -76,10 +76,10 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             if (ModelState.IsValid)
             {
 
-                var res = await _securityService.SignInUser(model.Email, model.Password, model.RememberMe);
+                var res = await _userAuthCoreService.SignInUser(model.Email, model.Password, model.RememberMe);
                 if (res.Succeeded)
                     return RedirectLoggedInUser(res.UserRole );
-                var result = (SignInResult)_securityService.SigninResult;
+                var result = (SignInResult)_userAuthCoreService.SigninResult;
                 //// This doesn't count login failures towards account lockout
                 //// To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 ////var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
@@ -288,7 +288,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 //var securityService = new SecurityService(_userManager, null, _roleManager , _signInManager, _logger  );
 
                 //IdentityResult result;
-                var res = await _securityService.RegisterUser(model.Email , model.Password );
+                var res = await _userAuthCoreService.RegisterUser(UserRolesEnum.Anonymous, model.Email , model.Password );
                 if (res.Succeeded )
                     return RedirectLoggedInUser();
                 AddErrors(res);
@@ -304,8 +304,8 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            await _securityService.LogoutUser();
-           
+            //await _userAuthCoreService.LogoutUser();
+            await _signInManager.SignOutAsync();
             return RedirectToAction(nameof(HomeController.Index), "Home");
         }
 

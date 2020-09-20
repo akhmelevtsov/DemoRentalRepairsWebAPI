@@ -9,6 +9,7 @@ using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
 using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
+using Demo.RentalRepairs.WebMvc.Interfaces;
 using Demo.RentalRepairs.WebMvc.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -23,9 +24,8 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
     {
         private readonly ValidationRulesService _validationRulesService = new ValidationRulesService();
         private readonly IPropertyService _propertyService;
-        private readonly IUserAuthorizationService _userAuthCoreService;
-        //private readonly UserManager<ApplicationUser> _userManager;
-        //private readonly ISecurityService _securityService;
+        private readonly IUserAuthorizationService _authService;
+        private readonly IIdentityRedirectionService _redirectionService;
 
         private readonly Dictionary<string, string> _vDict = new Dictionary<string, string>()
         {
@@ -42,18 +42,17 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
         };
 
-        public WorkerController(IPropertyService propertyService, IUserAuthorizationService userAuthCoreService, UserManager<ApplicationUser> userManager //, ISecurityService securityService
+        public WorkerController(IPropertyService propertyService, IUserAuthorizationService userAuthCoreService, IIdentityRedirectionService redirectionService
         )
         {
             _propertyService = propertyService;
-            _userAuthCoreService = userAuthCoreService;
-            //_securityService = securityService;
-
+            _authService = userAuthCoreService;
+            _redirectionService = redirectionService;
         }
         [Authorize(Policy = "RequireWorkerRole")]
         public async Task<IActionResult> Requests()
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
 
             //_userAuthCoreService.SetUser(loggedUser);
             try
@@ -73,7 +72,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
         }
 
@@ -87,7 +86,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         public async Task<IActionResult> Register()
         {
 
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
 
             var viewModel = new WorkerEditViewModel(); // {ContactInfo = {EmailAddress = loggedUser.Login}};
             viewModel.ContactInfo.EmailAddress = loggedUser.Login;
@@ -109,7 +108,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 // re-render the view when validation failed.
                 return View("Register", worker);
             }
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
          
             try
             {
@@ -117,7 +116,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
             catch (DomainValidationException vex)
             {
@@ -139,7 +138,9 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
 
             //await _securityService.SetLoggedUserClaims( User.Identity.Name , UserRolesEnum.Worker ,"","");
 
-            return RedirectToAction("Requests", "Worker"); //, new { propCode = propCode, unit = unitNumber });
+            //return RedirectToAction("Requests", "Worker"); //, new { propCode = propCode, unit = unitNumber });
+            return _redirectionService.RedirectAfterEnrollment(TempData, this);
+
         }
 
 
@@ -150,7 +151,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<IActionResult> ReportRequest(string propCode, string unitNumber, string requestCode)
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
             try
             {
                 var vm = await GetTenantRequestViewModel(propCode, unitNumber, requestCode);
@@ -158,7 +159,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
         }
         [Authorize(Policy = "RequireWorkerRole")]
@@ -172,7 +173,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 // re-render the view when validation failed.
                 return View("ReportRequest");
             }
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
 
             try
             {
@@ -182,7 +183,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
             catch (DomainValidationException vex)
             {
@@ -201,7 +202,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<IActionResult> RequestDetails(string propCode, string unitNumber, string requestCode)
         {
-            var loggedUser = await _userAuthCoreService.GetUserClaims(User.Identity.Name);
+            var loggedUser = await _authService.GetUserClaims(User);
             try
             {
                 var vm = await GetTenantRequestViewModel(propCode, unitNumber, requestCode);
@@ -209,7 +210,7 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Account");
+                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
             }
 
         }

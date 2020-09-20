@@ -32,8 +32,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
             var services = new ServiceCollection();
 
             services.AddTransient<ISecuritySignInService, SecuritySignInMockService>();
-            services.AddScoped<ISecurityService, SecurityMockService>();
-            services.AddSingleton<IUserAuthorizationService, UserAuthorizationService>();
+            services.AddScoped<IUserAuthorizationService , UserAuthorizationMockService>();
             services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();
             services.AddTransient<ITemplateDataService, TemplateDataService>();
             //services.AddSingleton<IEmailService, MailSlurperEmailService  >();
@@ -72,7 +71,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
             var services = new ServiceCollection();
 
             services.AddTransient<ISecuritySignInService, SecuritySignInMockService>();
-            services.AddScoped<ISecurityService, SecurityMockService>();
+            services.AddScoped<IUserAuthorizationService , UserAuthorizationMockService>();
             services.AddSingleton<IUserAuthorizationService, UserAuthorizationService>();
             services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();
             services.AddTransient<ITemplateDataService, TemplateDataService>();
@@ -134,8 +133,8 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                 options.UseSqlServer(connectionString) );
 
             services.AddTransient<ISecuritySignInService, SecuritySignInMockService>();
-            services.AddScoped<ISecurityService, SecurityMockService>();
-            services.AddSingleton<IUserAuthorizationService, UserAuthorizationService>();
+            services.AddScoped<IUserAuthorizationService , UserAuthorizationMockService>();
+            //services.AddSingleton<IUserAuthorizationService, UserAuthorizationService>();
             services.AddSingleton<IPropertyRepository, PropertyRepositoryEf>();
             services.AddTransient<ITemplateDataService, TemplateDataService>();
             services.AddTransient<IEmailBuilderService, EmailBuilderService>();
@@ -170,7 +169,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
 
             services.AddTransient<ISecuritySignInService, SecuritySignInMockService>();
-            services.AddScoped<ISecurityService, SecurityMockService>();
+            services.AddScoped<IUserAuthorizationService , UserAuthorizationMockService>();
             services.AddSingleton<IUserAuthorizationService, UserAuthorizationService>();
 
             services.AddSingleton<IPropertyRepository, RentalRepairsMongoDbRepository>();
@@ -222,8 +221,8 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
                 options.UseSqlServer(connectionString));
 
             services.AddTransient<ISecuritySignInService, SecuritySignInMockService>();
-            services.AddTransient<ISecurityService, SecurityService>();
-            services.AddSingleton<IUserAuthorizationService, UserAuthorizationService>();
+            services.AddSingleton<IUserAuthorizationService, AspNetIdentityService>();
+            //services.AddSingleton<IUserAuthorizationService, UserAuthorizationService>();
             services.AddSingleton<IPropertyRepository, PropertyRepositoryEf>();
             services.AddTransient<ITemplateDataService, TemplateDataService>();
             services.AddTransient<IEmailBuilderService, EmailBuilderService>();

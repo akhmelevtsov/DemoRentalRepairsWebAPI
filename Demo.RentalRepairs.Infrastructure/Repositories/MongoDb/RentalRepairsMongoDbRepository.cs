@@ -1,17 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Authentication;
-using System.Text;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Domain.Entities;
-using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb.Interfaces;
 using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb.Models;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using MongoDB.Shared ;
 
 namespace Demo.RentalRepairs.Infrastructure.Repositories.MongoDb
 {
@@ -45,24 +41,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.MongoDb
 
         public void AddTenant(Tenant tenant)
         {
-            //var p = _properties.Find<PropertyModel>(prop => prop.Id == tenant.PropertyCode ).FirstOrDefault();
-            //if (p==null)
-            //    throw new DomainEntityNotFoundException("property_not_found", "property not found");
-            //if (p.Tenants == null)
-            //    p.Tenants = new List<TenantModel>();
-
-            //p.Tenants.Add(_modelMapper.CopyFrom(tenant));
-            //_properties.UpdateOne()
-            //throw new NotImplementedException();
-
-            //var filter = Builders<PropertyModel >.Filter.And(
-            //    Builders<PropertyModel>.Filter.Where(x => x.Id == tenant.PropertyCode ),
-            //    Builders<PropertyModel>.Filter.ElemMatch(x => x.Tenants , c => c.UnitNumber == tenant.UnitNumber ));
-            //var update = Builders<PropertyModel>.Update.Push(x => x.Tenants[-1].Requests , newSubCategory);
-            //_properties.FindOneAndUpdate(filter, update);
-
-
-
+            
             var filter = Builders<PropertyModel>.Filter.Eq(p => p.Id, tenant.PropertyCode);
             var update = Builders<PropertyModel>.Update.Push(x => x.Tenants, _modelMapper.CopyFrom(tenant));
             _properties.FindOneAndUpdate(filter, update);
@@ -80,24 +59,13 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.MongoDb
 
         public void UpdateTenantRequest(TenantRequest tTenantRequest)
         {
-            //var filter = Builders<PropertyModel>.Filter.And(
-            //    Builders<PropertyModel>.Filter.Where(x => x.Id == tTenantRequest.Tenant.PropertyCode),
-            //    Builders<PropertyModel>.Filter.ElemMatch(x => x.Tenants, c => c.UnitNumber == tTenantRequest.Tenant.UnitNumber));
-            //var update = Builders<PropertyModel>.Update
-            //    //.Set(x => x.Tenants[-1].Requests[-1].RequestStatus, tTenantRequest.RequestStatus )
-            //        .Set("Tenants.$[t].Requests.$[r].RequestStatus", tTenantRequest.RequestStatus)
-            //    //.Set(x => x.Tenants[-1].Requests[-1].RequestChanges, _modelMapper .SerializeEvents( tTenantRequest.RequestChanges ))
-            //    //.Set(x => x.Tenants[-1].Requests[-1].ServiceWorkOrderCount, tTenantRequest.ServiceWorkOrderCount)
-            //    ;
+            
             var arrayFilters = new List<ArrayFilterDefinition>
             {
                 new BsonDocumentArrayFilterDefinition<BsonDocument>(new BsonDocument("t.UnitNumber", tTenantRequest.Tenant.UnitNumber )),
                 new BsonDocumentArrayFilterDefinition<BsonDocument>(new BsonDocument("r.Code",  tTenantRequest.Code))
             };
             var updateOptions = new UpdateOptions { ArrayFilters = arrayFilters };
-
-
-            //_properties.FindOneAndUpdate(filter, update );
 
             _properties.UpdateOne(x => x.Id == tTenantRequest.Tenant.PropertyCode,
                 Builders<PropertyModel>.Update

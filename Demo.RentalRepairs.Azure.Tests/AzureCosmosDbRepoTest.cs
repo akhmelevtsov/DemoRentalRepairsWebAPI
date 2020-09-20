@@ -34,8 +34,7 @@ namespace Demo.RentalRepairs.Azure.Tests
 
 
             services.AddTransient<ISecuritySignInService, SecuritySignInMockService>();
-            services.AddScoped<ISecurityService, SecurityMockService>();
-            services.AddSingleton<IUserAuthorizationService, UserAuthorizationService>();
+            services.AddSingleton<IUserAuthorizationService, UserAuthorizationMockService>();
 
             services.AddSingleton<IPropertyRepository, RentalRepairsMongoDbRepository>();
             services.AddTransient<ITemplateDataService, TemplateDataService>();

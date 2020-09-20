@@ -1,4 +1,5 @@
-﻿@using Demo.RentalRepairs.Domain.Enums
+﻿@model Demo.RentalRepairs.Core.Services.UserClaimsService
+@using Demo.RentalRepairs.Domain.Enums
 @{
     ViewData["Title"] = "Home Page";
 }
@@ -6,14 +7,13 @@
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     @*<p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>*@
-    @if (this.User.IsInRole(UserRolesEnum.Anonymous.ToString()))
+    @if (!string.IsNullOrEmpty(Model.Login) && Model .UserRole == UserRolesEnum.Anonymous)
     {
-
         <h4>Enroll As:</h4>
         <p>
-            @Html.ActionLink("Superintendent", "Register", "Superintendent") <br/>
-            @Html.ActionLink("Tenant", "Register", "Tenant") <br/>
-            @Html.ActionLink("Worker", "Register", "Worker") <br/>
+            @Html.ActionLink("Superintendent", "Register", "Superintendent") <br />
+            @Html.ActionLink("Tenant", "Register", "Tenant") <br />
+            @Html.ActionLink("Worker", "Register", "Worker") <br />
         </p>
     }
 </div>

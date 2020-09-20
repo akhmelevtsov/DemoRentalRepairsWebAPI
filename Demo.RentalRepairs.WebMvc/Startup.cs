@@ -1,15 +1,30 @@
 ﻿using System;
+using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Core.Services;
 using Demo.RentalRepairs.Infrastructure;
+using Demo.RentalRepairs.Infrastructure.Email;
+using Demo.RentalRepairs.Infrastructure.Identity;
 using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore;
 using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
+using Demo.RentalRepairs.Infrastructure.Identity.AzureAdB2C;
 using Demo.RentalRepairs.Infrastructure.Mocks;
+using Demo.RentalRepairs.Infrastructure.Notifications;
+using Demo.RentalRepairs.Infrastructure.Repositories;
 using Demo.RentalRepairs.Infrastructure.Repositories.Cosmos_Db;
 using Demo.RentalRepairs.Infrastructure.Repositories.EF;
 using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb;
 using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb.Interfaces;
+
+using Demo.RentalRepairs.WebMvc.Extensions;
+using Demo.RentalRepairs.WebMvc.Interfaces;
+using Demo.RentalRepairs.WebMvc.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.AzureADB2C.UI;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -18,6 +33,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
+using Microsoft.AspNetCore.Rewrite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,90 +49,122 @@ namespace Demo.RentalRepairs.WebMvc
         }
 
         public IConfiguration Configuration { get; }
+       
+        ComponentsSettings _componentsSettings;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+
+            services.Configure<ComponentsSettings>(Configuration.GetSection("Components"));
+
+
+            _componentsSettings = services.BuildServiceProvider().GetService<IOptions<ComponentsSettings>>().Value;
+
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
+  
+            switch (_componentsSettings.RepositoryType )
+            {
+                case RepositoryTypeEnum.InMemory:
+                    services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();
+                    break;
+                case RepositoryTypeEnum.SqlServer:
+                    services.AddDbContext<PropertiesContext>(options =>
+                        options.UseSqlServer(
+                            Configuration.GetConnectionString("DemoRentalRepairsWebMvcContext")));
+                    services.AddTransient<IPropertyRepository, PropertyRepositoryEf>();
+                    break;
+                case RepositoryTypeEnum.MongoDb:
+                    services.Configure<RentalRepairsMongoDbSettings>(
+                        Configuration.GetSection(nameof(RentalRepairsMongoDbSettings)));
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+                    services.AddSingleton<IMongoDbSettings>(sp =>
+                        sp.GetRequiredService<IOptions<RentalRepairsMongoDbSettings>>().Value);
+
+                    services.AddSingleton<IMongoDbContext, RentalRepairsMongoDbContext>();
+                    services.AddSingleton<IPropertyRepository, RentalRepairsMongoDbRepository>();
 
 
-            services.AddDefaultIdentity<ApplicationUser>()
-                .AddRoles<IdentityRole>()
-                .AddDefaultUI(UIFramework.Bootstrap4)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                    break;
+                case RepositoryTypeEnum.CosmosDb:
+                    services.Configure<RentalRepairsCosmosDbSettings>(
+                        Configuration.GetSection(nameof(RentalRepairsCosmosDbSettings)));
 
-            services.AddDbContext<PropertiesContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DemoRentalRepairsWebMvcContext")));
+                    services.AddSingleton<IMongoDbSettings>(sp =>
+                        sp.GetRequiredService<IOptions<RentalRepairsCosmosDbSettings>>().Value);
 
-            //services.Configure<RentalRepairsMongoDbSettings>(
-            //    Configuration.GetSection(nameof(RentalRepairsMongoDbSettings)));
+                    services.AddSingleton<IMongoDbContext, RentalRepairsCosmosDbContext>();
+                    services.AddSingleton<IPropertyRepository, RentalRepairsMongoDbRepository>();
 
-            //services.AddSingleton<IMongoDbSettings>(sp =>
-            //    sp.GetRequiredService<IOptions<RentalRepairsMongoDbSettings>>().Value);
-            //services.AddSingleton<IMongoDbContext, RentalRepairsMongoDbContext>();
 
-            services.Configure<RentalRepairsCosmosDbSettings>(
-                Configuration.GetSection(nameof(RentalRepairsCosmosDbSettings)));
+                    break;
+                case RepositoryTypeEnum.AzureTable:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
-            services.AddSingleton<IMongoDbSettings>(sp =>
-                sp.GetRequiredService<IOptions<RentalRepairsCosmosDbSettings>>().Value);
-
-            services.AddSingleton<IMongoDbContext, RentalRepairsCosmosDbContext>();
 
             services.AddMvc(config =>
             {
-                // using Microsoft.AspNetCore.Mvc.Authorization;
-                // using Microsoft.AspNetCore.Authorization;
                 var policy = new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
                     .Build();
                 config.Filters.Add(new AuthorizeFilter(policy));
 
             }).SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-            //    .AddFluentValidation(fv =>
-            //    {
-            //        fv.ConfigureClientsideValidation(enabled: false);
-            //        fv.RegisterValidatorsFromAssemblyContaining<PropertyValidator>();
-            //        fv.ImplicitlyValidateChildProperties = true;
+           
+            //services.AddDistributedMemoryCache();
 
-            //    });
-            services.AddSession(options => {
-                options.IdleTimeout = TimeSpan.FromMinutes(10);
-            });
-            services.AddAuthorization(options =>
+            services.AddSession(options =>
             {
-                options.AddPolicy("RequireTenantRole",
-                    policy => policy.RequireRole("Tenant"));
-                options.AddPolicy("RequireSuperintendentRole",
-                    policy => policy.RequireRole("Superintendent"));
-                options.AddPolicy("RequireWorkerRole",
-                    policy => policy.RequireRole("Worker"));
-                options.AddPolicy("RequireAnonymousRole",
-                    policy => policy.RequireRole("Anonymous"));
+                options.IdleTimeout = TimeSpan.FromMinutes(10);
+                //options.Cookie.HttpOnly = true;
+                //// Make the session cookie essential
+                //options.Cookie.IsEssential = true;
             });
+           
+            switch (_componentsSettings.IdentityType )
+            {
+                case IdentityTypeEnum.AspNetIdentity:
+                    services.AddAspNetIdentityServices(Configuration);
+                    break;
+                case IdentityTypeEnum.AzureAdB2C:
+                    services.AddAdB2CServices(Configuration);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
 
-            services.AddScoped<ISecuritySignInService , SecuritySignInService >();
-            services.AddScoped<ISecurityService,SecurityService >();
-            services.AddScoped<IUserAuthorizationService, UserAuthorizationService>();
-            //services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();
-            services.AddTransient<IPropertyRepository, PropertyRepositoryEf>();
-            //services.AddSingleton<IPropertyRepository, RentalRepairsMongoDbRepository>();
-            services.AddTransient<ITemplateDataService , TemplateDataService >();
+
+            services.AddTransient<ITemplateDataService, TemplateDataService>();
             services.AddTransient<IEmailBuilderService, EmailBuilderService>();
-            services.AddTransient<IEmailService, EmailServiceMock>();
-            services.AddTransient<INotifyPartiesService, NotifyPartiesService>();
-            services.AddScoped< IPropertyService, PropertyService>();
+
+            switch (_componentsSettings.EmailServiceType )
+            {
+                case EmailServiceTypeEnum.NoEmail:
+                    services.AddTransient<INotifyPartiesService, NotifyPartiesService>();
+                    services.AddTransient<IEmailService, EmailServiceMock>();
+                    break;
+                case EmailServiceTypeEnum.DebugEmailSlurper:
+                    services.AddTransient<INotifyPartiesService, NotifyPartiesService>();
+                    services.AddTransient<IEmailService, MailSlurperEmailService>();
+                    break;
+                case EmailServiceTypeEnum.AzureSendGrid:
+                    services.AddTransient<INotifyPartiesService, NotifyPartiesQueueClient>();
+                    services.AddTransient<IEmailService, EmailServiceMock>();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            services.AddScoped<IPropertyService, PropertyService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -135,35 +183,30 @@ namespace Demo.RentalRepairs.WebMvc
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-            app.UseCookiePolicy();
+            //app.UseCookiePolicy();
             app.UseAuthentication();
             app.UseSession();
+            if (_componentsSettings.IdentityType == IdentityTypeEnum.AzureAdB2C)
+                app.UseRewriter(
+                new RewriteOptions().Add(
+                    context =>
+                    {
+                        if (context.HttpContext.Request.Path == "/AzureADB2C/Account/SignedOut")
+                        { context.HttpContext.Response.Redirect("/Home/AfterSignOut"); }
+                    })
+            );
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
+                    name: "areaRoute",
+                    template: "{area}/{controller}/{action=Index}/{id?}");
+                routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id:alpha?}");
-               
-            });
-            //CreateUserRoles(serviceProvider).Wait();
-        }
-        //private async Task CreateUserRoles(IServiceProvider serviceProvider)
-        //{
-        //    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        //    var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        //    IdentityResult roleResult;
-        //    //Adding Admin Role
-        //    var roleCheck = await roleManager.RoleExistsAsync("Admin");
-        //    if (!roleCheck)
-        //    {
-        //        //create the roles and seed them to the database
-        //        roleResult = await roleManager.CreateAsync(new IdentityRole("Admin"));
-        //    }
-        //    //Assign Admin role to the main User here we have given our newly registered 
-        //    //login id for Admin management
-        //    ApplicationUser user = await userManager.FindByEmailAsync("a@email.com");
-        //    await userManager.AddToRoleAsync(user, "Admin");
-        //}
+            });
+           
+        }
+       
     }
 }

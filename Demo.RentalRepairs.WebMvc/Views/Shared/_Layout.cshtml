@@ -1,4 +1,28 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@using Microsoft.Extensions.Options
+@using Demo.RentalRepairs.Infrastructure.Identity
+@inject IOptions<ComponentsSettings> ComponentOptionsAccessor
+@{
+
+    string  loginPartial = "";
+
+    switch (ComponentOptionsAccessor.Value.IdentityType )
+    {
+        case IdentityTypeEnum.AspNetIdentity:
+            loginPartial = "_LoginPartial";
+            break;
+        case IdentityTypeEnum.AzureAdB2C:
+            loginPartial = "_LoginPartialAdB2C";
+            break;
+        default:
+            throw new ArgumentOutOfRangeException();
+    }
+
+}
+
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8" />
@@ -13,7 +37,7 @@
               asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
               asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute"
               crossorigin="anonymous"
-              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"/>
+              integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" />
     </environment>
     <link rel="stylesheet" href="~/css/site.css" />
 </head>
@@ -27,38 +51,31 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
-                    <partial name="_LoginPartial" />
+                    <partial name=@loginPartial />
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        @*<li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>*@
-                        @*<li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Properties" asp-action="Index">Properties</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Tenants" asp-action="Index">Tenants</a>
-                        </li>*@
-                        @if (User.IsInRole("Tenant"))
+
+                        @if ((await AuthorizationService.AuthorizeAsync(User, "RequireTenantRole")).Succeeded)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Tenant" asp-action="Requests">Requests</a>
                             </li>
-                        } else if (User.IsInRole("Superintendent"))
+                        }
+                        else if ((await AuthorizationService.AuthorizeAsync(User, "RequireSuperintendentRole")).Succeeded)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Superintendent" asp-action="Requests">Requests</a>
-                            </li>                           
+                            </li>
                         }
-                        else if (User.IsInRole("Worker"))
+                        else if ((await AuthorizationService.AuthorizeAsync(User, "RequireWorkerRole")).Succeeded)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Worker" asp-action="Requests">Requests</a>
-                            </li>      
+                            </li>
                         }
- 
+
                     </ul>
                 </div>
             </div>

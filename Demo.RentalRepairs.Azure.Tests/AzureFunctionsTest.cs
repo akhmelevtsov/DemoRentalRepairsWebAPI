@@ -42,7 +42,7 @@ namespace Demo.RentalRepairs.Azure.Tests
                 (options => options.ConnectionString = "UseDevelopmentStorage=true");
 
             services.AddTransient<ISecuritySignInService, SecuritySignInMockService>();
-            services.AddScoped<ISecurityService, SecurityMockService>();
+            services.AddScoped<IUserAuthorizationService , UserAuthorizationMockService>();
             services.AddSingleton<IUserAuthorizationService, UserAuthorizationService>();
             services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();
             services.AddTransient<ITemplateDataService, TemplateDataService>();

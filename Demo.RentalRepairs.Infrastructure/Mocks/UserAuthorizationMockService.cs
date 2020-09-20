@@ -1,83 +1,63 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 using Demo.RentalRepairs.Core;
 using Demo.RentalRepairs.Core.Interfaces;
+using Demo.RentalRepairs.Core.Services;
 using Demo.RentalRepairs.Domain.Enums;
-using Demo.RentalRepairs.Domain.ValueObjects;
+using Microsoft.AspNetCore.Razor.Language.CodeGeneration;
 
 namespace Demo.RentalRepairs.Infrastructure.Mocks
 {
-    public class UserAuthorizationMockService : IUserAuthorizationService
+    public class UserAuthorizationMockService : UserAuthorizationService 
     {
-        public UserAuthorizationMockService()
-        {
-           
-        }
+        private readonly Dictionary <string, UserClaimsService> _claims = new Dictionary<string,UserClaimsService>();
 
-        public UserClaims LoggedUser => new UserClaims("");
 
-        public UserClaims SetUser(UserRolesEnum userRole, string emailAddress, string propertyCode, string unitNumber)
-        {
-           return new UserClaims(emailAddress, userRole,propertyCode , unitNumber );
-        }
-
-        public void SetUser(UserClaims loggedUser)
-        {
-            
-        }
-
-        public async Task<OperationResult> RegisterUser(UserRolesEnum userRole, string email, string password)
+       public override async Task<OperationResult> RegisterUser(UserRolesEnum userRole, string email, string password)
         {
             await Task.CompletedTask;
+            _claims.Add(email, new UserClaimsService(email, UserRolesEnum.Anonymous, "", ""));
             return new OperationResult() {Succeeded = true};
         }
 
-        public Task<UserClaims> GetUserClaims(string email)
+        public override async Task<OperationResult> SignInUser(string email, string password, bool rememberMe)
+        {
+            await Task.CompletedTask;
+            return new OperationResult() { Succeeded = true };
+        }
+
+        //public object SigninResult { get; set; }
+
+ 
+        public override  async Task<UserClaimsService> GetUserClaims(string emailLogin)
+        {
+            await Task.CompletedTask;
+            if (!_claims.ContainsKey((string)emailLogin))
+                throw new Exception("User not found");
+            var claim = _claims[(string)emailLogin];
+            IntLoggedUser  = claim;
+            return claim;
+        }
+
+        public override  async Task SetUserClaims(string email, UserRolesEnum userRole, string propCode, string unitNumber)
+        {
+            await Task.CompletedTask;
+            if (!_claims.ContainsKey(email ) )
+                throw new Exception("User not logged in");
+            _claims[email] = new UserClaimsService(email, userRole, propCode, unitNumber);
+
+        }
+
+        public override string GetLoginFromClaimsPrinciple(ClaimsPrincipal principle)
         {
             throw new NotImplementedException();
         }
 
-        public void Check(Func<bool> action)
-        {
-           
-        }
-
-        public bool IsRegisteredTenant(string propCode, string tenantUnit)
-        {
-            return true;
-        }
-
-        public bool IsAuthenticatedTenant()
-        {
-            return true;
-        }
-
-        public bool IsRegisteredSuperintendent(string propCode)
-        {
-            return true;
-        }
-
-        public bool IsRegisteredWorker(string email=null)
-        {
-            return true;
-        }
-
-        public bool IsUserCommand(Type getType)
-        {
-            return true;
-        }
-
-        public bool IsAuthenticatedSuperintendent()
-        {
-            return true;
-        }
-
-        public bool IsAnonymousUser()
-        {
-            return true;
-        }
-
-        public async Task SetUserClaims(UserRolesEnum userRole, string propCode, string userNumber)
+        public async Task LogoutUser()
         {
             await Task.CompletedTask;
         }
