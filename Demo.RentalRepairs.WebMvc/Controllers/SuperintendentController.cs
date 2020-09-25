@@ -65,26 +65,27 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             var loggedUser = await _authService.GetUserClaims(User);
 
 
-            var model = new PropertyModel()
-            {
-                Code = "sunlight",
-                Name = "Sun Light Apartments",
-                Address = new PropertyAddress()
-                { StreetNumber = "1", StreetName = "Sunlight Creek", City = "Toronto", PostalCode = "M9A 4J5" },
-                NoReplyEmailAddress = loggedUser.Login,
-                PhoneNumber = "905-111-1111",
-                Superintendent = new PersonContactInfo()
-                {
-                    EmailAddress = loggedUser.Login,
-                    FirstName = "John",
-                    LastName = "Smith",
-                    MobilePhone = "647-222-5321"
-                },
-                Units = new List<string> { "11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34" },
-                UnitsStr = "11,12,13,14, 21, 22, 23, 24, 31, 32, 33, 34"
+            //var model = new PropertyModel()
+            //{
+            //    Code = "sunlight",
+            //    Name = "Sun Light Apartments",
+            //    Address = new PropertyAddress()
+            //    { StreetNumber = "1", StreetName = "Sunlight Creek", City = "Toronto", PostalCode = "M9A 4J5" },
+            //    NoReplyEmailAddress = loggedUser.Login,
+            //    PhoneNumber = "905-111-1111",
+            //    Superintendent = new PersonContactInfo()
+            //    {
+            //        EmailAddress = loggedUser.Login,
+            //        FirstName = "John",
+            //        LastName = "Smith",
+            //        MobilePhone = "647-222-5321"
+            //    },
+            //    Units = new List<string> { "11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34" },
+            //    UnitsStr = "11,12,13,14, 21, 22, 23, 24, 31, 32, 33, 34"
 
 
-            };
+            //};
+            var model = new PropertyModel();
             return View(model);
         }
 

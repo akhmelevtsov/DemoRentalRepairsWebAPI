@@ -13,6 +13,7 @@ using Demo.RentalRepairs.Infrastructure.Identity.AzureAdB2C;
 using Demo.RentalRepairs.Infrastructure.Mocks;
 using Demo.RentalRepairs.Infrastructure.Notifications;
 using Demo.RentalRepairs.Infrastructure.Repositories;
+using Demo.RentalRepairs.Infrastructure.Repositories.AzureTableApi;
 using Demo.RentalRepairs.Infrastructure.Repositories.Cosmos_Db;
 using Demo.RentalRepairs.Infrastructure.Repositories.EF;
 using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb;
@@ -104,6 +105,13 @@ namespace Demo.RentalRepairs.WebMvc
 
                     break;
                 case RepositoryTypeEnum.AzureTable:
+                    services.Configure<RentalRepairsAzureTableApiDbSettings>(
+                        Configuration.GetSection(nameof(RentalRepairsAzureTableApiDbSettings)));
+                    services.AddSingleton(sp =>
+                        sp.GetRequiredService<IOptions<RentalRepairsAzureTableApiDbSettings>>().Value);
+                    services.AddSingleton<AzureTableApiDbContext>();
+                    services.AddSingleton<IPropertyRepository, AzureTableApiRepository>();
+
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
