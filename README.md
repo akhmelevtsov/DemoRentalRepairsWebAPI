@@ -6,15 +6,49 @@ The goal of this project was to build a simple workflow-based application with D
 
 ## Domain Model
 
-The domain model contains DDD artifacts and domain-level validations built with the Fluent Validation library.
+The domain model contains DDD classes, domain-level enumerations and validations built with the Fluent Validation library.
+The domain logic supports a simple workflow scenario:
+
+1 Property manager (superintendent) registers a rental property 
+2 Tenant registers himself with the rental property
+3.Tenant submits a service request 
+4.Superintendent either declines the request or assignes a service worker and schedules the service date
+5.Worker either completes the request or rejects the work order
+6. If the request is rejected, superintendent re-schedules it 
+7. If the request is done, superintendent closes it
+
+The participants are notified by emails on any service request status change
 
 ## Core Services
 
-Provide application services abstracted from a specific implementation. For example, each workflow change can be initiated by an authorized user and also be stored in some repository
+Provide application services abstracted from a specific service implementation: 
+
+ - repository service to store service request status and participants' data
+ - notification service to notify participants on every service request status change
+ - user identity service to abstract working with identity/authorization
 
 ## Infrastructure 
 
-Provides implementation for core interfaces. For example, there are few implementations for the repository interface :In-Memory for testing,  Enitiy Framework Core, Mongo DB, Azure Cosmos DB.
+Provides implementations for core interfaces.
+
+Repository services:
+- In memory (POCO classes)
+- SQL server with EF core 
+- Mongo DB 
+- Cosmos DB with Mongo DB API
+- Azure Table Storage with Table API
+
+Identity services:
+
+- Asp.Net Core Identity 
+- Azure AD B2C 
+
+Notification Services:
+
+- Dummy service for turning notifications off
+- Slurper Email service for debugging emails
+- Azure SendGrid 
+
 
 
 ## ASP.NET Core MVC application
