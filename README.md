@@ -65,7 +65,8 @@ Notification Services:
 
 ## ASP.NET Core MVC application
 
-Simple client that allows users to register, login and interact with core services through the UI
+Simple client that allows users to register, login and interact with core services through the UI. 
+Current version is here: https://demorentalrepairswebmvc.azurewebsites.net/
 
 ## ASP.NET Core Web API
 
