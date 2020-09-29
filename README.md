@@ -1,6 +1,18 @@
-# DemoRentalRepairsWebAPI
+# DemoRentalRepairs
 
-The goal of this project was to build a simple workflow-based application with Domain Driven Design, Clean Architecture (Onion Architecture) and .NET Core technologies as well as  to demonstrate how the core components can be re-used in various configurations 
+## Description
+
+The repo was started to create a Domain Driven Design example for a simple business workflow and to build it   with ASP .NET Core Web API and Clean Architecture (Onion Architecture). Initially the core service used in-memory repository, then few more were added:  SQL Server and Mongo DB locally and Azure SQL database, Azure Storage Table and Cosmos DB.  
+
+To demonstrate how Clean Architecture helps extend the application, ASP.NET Core MVC project was added that reuses core services. As the domain model requires user roles, the security concern was addressed in a core service layer and ASP.NET Core Identity was added initially with local user SQL server storage.
+
+The next task was to publish the application to Azure. The MVC App migrated to Azure App Service and the two SQL Server databases to Azure SQL Database.  To demonstrate the scaling capabilities of the cloud environment, the Notification service was turned into a microservice on Azure with Azure Functions App, Storage Queue and SendGrid. In the process, just two new implementations of the Notification and Email Client service were added with no changes to the core service behaviour.  
+
+Initial migration to Azure revealed some drawbacks - the pricing model for SQL database is not suitable to run demo app even at the lowest pricing tear. So, a new database repository for Azure Storage Tables was created to replace the Azure SQL Database repository, and ASP.NET Core Identity was replaced with Azure AD B2C. The ability to dynamically register user claims was achieved with help of MS Graph API
+
+The development was supported with automated testing, otherwise it would be much more difficult to apply all those modifications. The first unit test was written to simulate 'happy path' - a use case that covers all interactions between domain entities to complete the workflow. Later this test was lifted to integration tests. Few integration tests were also created for email messaging with help of Slurp remote API service and for Azure functions with local Azure Storage emulator
+
+Fig 1. Project dependency diagram
 
 ![alt text](https://github.com/akhmelevtsov/DemoRentalRepairsWebAPI/blob/master/Dependencies%20Graph.png?raw=true)
 
