@@ -4,7 +4,7 @@
 
 The repo was started to create a Domain Driven Design example for a simple business workflow and to build it   with ASP .NET Core Web API and Clean Architecture (Onion Architecture). Initially the core service used in-memory repository, then few more were added:  SQL Server and Mongo DB locally and Azure SQL database, Azure Storage Table and Cosmos DB.  
 
-To demonstrate how Clean Architecture helps extend the application, ASP.NET Core MVC project that reuses core services was added. As the domain model requires user roles, the security concern was addressed in the core service layer and ASP.NET Core Identity was added with local user SQL server storage.
+To demonstrate how Clean Architecture helps extend the application, ASP.NET Core MVC project that reuses core services was added. As the domain model requires user roles, the security concern was addressed in the core service layer and ASP.NET Core Identity was added with local SQL server database .
 
 The next task was to publish the application to Azure. The MVC App migrated to Azure App Service and the two SQL Server databases to Azure SQL Database.  To demonstrate the scaling capabilities of the cloud environment, the Notification service was turned into a microservice on Azure with Azure Functions App, Storage Queue and SendGrid. In the process, just two new implementations of the Notification and Email Client service were added with no changes to the core service behaviour.  
 
