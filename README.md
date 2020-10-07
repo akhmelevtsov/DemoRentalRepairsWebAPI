@@ -37,7 +37,7 @@ Fig 2. Use Case Diagram
 
 Fig 3. Service Request State Diagram
 
-![alt text](https://github.com/akhmelevtsov/DemoRentalRepairsWebAPI/blob/master/Service%20Request%20State%20Diagram.png?raw=true)
+![alt text](https://github.com/akhmelevtsov/DemoRentalRepairsWebAPI/blob/master/Service%20Request%20State%20Diagram.png?raw=false)
 
 ## Core Services
 
