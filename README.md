@@ -31,6 +31,14 @@ The domain logic supports a simple workflow scenario:
 
 The participants are notified by emails on any service request status change
 
+Fig 2. Use Case Diagram
+
+![alt text](https://github.com/akhmelevtsov/DemoRentalRepairsWebAPI/blob/master/Use%20Case%20Diagram.png?raw=true)
+
+Fig 3. Service Request State Diagram
+
+![alt text](https://github.com/akhmelevtsov/DemoRentalRepairsWebAPI/blob/master/Service%20Request%20State%20Diagram.png?raw=true)
+
 ## Core Services
 
 Provide application services abstracted from a specific service implementation: 
