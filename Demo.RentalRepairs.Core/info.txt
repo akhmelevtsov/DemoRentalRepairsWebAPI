@@ -1,14 +1,1 @@
-   private async Task UploadChunk(int blockNumber, byte[] bytes, CaseFileDownload cfd)
-            {
-                _logger.LogInformation($"Uploading chunk {blockNumber} of file: {cfd.FileName}");
-
-                var command = new Integration.CaseFile.Commands.Upload.Command()
-                {
-                    FileId = cfd.CaseFileId.Value,
-                    FileName = cfd.FileName,
-                    FileChunk = new MemoryStream(bytes), // File.Open(tempFilePath, FileMode.Open),
-                    ChunkIndex = blockNumber
-                };
-                var handler = new Integration.CaseFile.Commands.Upload.Command.CommandHandler(_file);
-                await handler.Handle(command, _cancellationToken);
-            }
+  
