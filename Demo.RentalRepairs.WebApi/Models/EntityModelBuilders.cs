@@ -1,6 +1,6 @@
 ﻿using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
-using FluentValidation.Internal;
+using System.Text.RegularExpressions;
 
 namespace Demo.RentalRepairs.WebApi.Models
 {
@@ -39,14 +39,15 @@ namespace Demo.RentalRepairs.WebApi.Models
             return new TenantRequestModel()
             {
                 RequestCode = tenantRequest.Code,
-                RequestStatus = tenantRequest.RequestStatus.ToString().SplitPascalCase(),
+                RequestStatus = SplitPascalCase(tenantRequest.RequestStatus.ToString()),
                 DateCreated = tenantRequest.DateCreated ,
-              
                 RequestTitle = tenantRequest.RequestTitle ,
-            
-               
-
             };
+        }
+
+        private static string SplitPascalCase(string input)
+        {
+            return Regex.Replace(input, "([A-Z])", " $1", RegexOptions.Compiled).Trim();
         }
     }
 }

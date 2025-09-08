@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Internal;
+﻿using System.Linq;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace Demo.RentalRepairs.Infrastructure.Repositories.EF
 {

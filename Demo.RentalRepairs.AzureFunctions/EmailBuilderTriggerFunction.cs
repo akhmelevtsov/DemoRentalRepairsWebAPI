@@ -1,30 +1,30 @@
-using System;
-using System.Threading.Tasks;
-using Demo.RentalRepairs.Core;
 using Demo.RentalRepairs.Core.Interfaces;
 using Demo.RentalRepairs.Core.Services;
 using Demo.RentalRepairs.Infrastructure;
 using Demo.RentalRepairs.Infrastructure.Notifications;
 using Demo.RentalRepairs.Infrastructure.Repositories.MongoDb;
-using Demo.RentalRepairs.Infrastructure.Shared;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 
 namespace Demo.RentalRepairs.AzureFunctions
 {
-    public static class EmailBuilderTriggerFunction
+    public class EmailBuilderTriggerFunction
     {
-        [FunctionName("EmailBuilderTriggerFunction")]
-        public static async Task Run(
-            [QueueTrigger(AzureStorageNames.EmailInputDataQueue , Connection = "AzureWebJobsStorage")]string myQueueItem,
-            [Queue(AzureStorageNames.EmailOutputDataQueue), StorageAccount("AzureWebJobsStorage")] ICollector<EmailInfo   > storage,
-            ILogger log)
+        private readonly ILogger<EmailBuilderTriggerFunction> _logger;
+
+        public EmailBuilderTriggerFunction(ILogger<EmailBuilderTriggerFunction> logger)
+        {
+            _logger = logger;
+        }
+
+        [Function("EmailBuilderTriggerFunction")]
+        [QueueOutput(AzureStorageNames.EmailOutputDataQueue, Connection = "AzureWebJobsStorage")]
+        public async Task<EmailInfo> Run(
+            [QueueTrigger(AzureStorageNames.EmailInputDataQueue, Connection = "AzureWebJobsStorage")] string myQueueItem)
         {
             ModelSerializer modelMappers = new ModelSerializer();
            
-            log.LogInformation($"C# Queue trigger function processed: ");
+            _logger.LogInformation($"C# Queue trigger function processed: ");
             try
             {
                 var modelMapper = new ModelMapper();
@@ -35,20 +35,16 @@ namespace Demo.RentalRepairs.AzureFunctions
                     var email =  await handler.Handle(myQueueItem,false);
                     if (email != null)
                     {
-                        var output = JsonConvert.SerializeObject(email)  ;
-                         storage.Add(email);
+                        return email;
                     }
                 }
-
-
+                return null;
             }
             catch (Exception ex)
             {
-                log.LogError(ex, $"Something went wrong with the EmailQueueTrigger {myQueueItem}");
+                _logger.LogError(ex, $"Something went wrong with the EmailQueueTrigger {myQueueItem}");
                 throw;
             }
-
-
         }
     }
 }

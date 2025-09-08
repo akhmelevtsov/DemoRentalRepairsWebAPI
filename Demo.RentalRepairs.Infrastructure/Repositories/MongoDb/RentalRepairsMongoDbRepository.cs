@@ -53,7 +53,7 @@ namespace Demo.RentalRepairs.Infrastructure.Repositories.MongoDb
             var filter = Builders<PropertyModel>.Filter.And(
                 Builders<PropertyModel>.Filter.Where(x => x.Id == tTenantRequest.Tenant.PropertyCode),
                 Builders<PropertyModel>.Filter.ElemMatch(x => x.Tenants, c => c.UnitNumber == tTenantRequest.Tenant.UnitNumber));
-            var update = Builders<PropertyModel>.Update.Push(x => x.Tenants[-1].Requests, _modelMapper.CopyFrom(tTenantRequest));
+            var update = Builders<PropertyModel>.Update.Push("Tenants.$.Requests", _modelMapper.CopyFrom(tTenantRequest));
             _properties.FindOneAndUpdate(filter, update);
         }
 

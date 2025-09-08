@@ -72,7 +72,6 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             services.AddTransient<ISecuritySignInService, SecuritySignInMockService>();
             services.AddScoped<IUserAuthorizationService , UserAuthorizationMockService>();
-            services.AddSingleton<IUserAuthorizationService, UserAuthorizationService>();
             services.AddSingleton<IPropertyRepository, PropertyRepositoryInMemory>();
             services.AddTransient<ITemplateDataService, TemplateDataService>();
             services.AddSingleton<IEmailService, EmailServiceMock>();
@@ -124,13 +123,9 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
         [TestMethod]
         public async Task ServiceHappyPathTestWithEfRepo()
         {
-
-            const string connectionString = "Server=(localdb)\\mssqllocaldb; Database = PropertiesTest1; Trusted_Connection = True; MultipleActiveResultSets = true";
-
-           
             var services = new ServiceCollection();
             services.AddDbContext<PropertiesContext>(options =>
-                options.UseSqlServer(connectionString) );
+                options.UseInMemoryDatabase(databaseName: "PropertiesTestInMemory"));
 
             services.AddTransient<ISecuritySignInService, SecuritySignInMockService>();
             services.AddScoped<IUserAuthorizationService , UserAuthorizationMockService>();
@@ -150,9 +145,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             using (var context = serviceProvider.GetService<PropertiesContext>())
             {
-                  context.Database.EnsureDeleted();
-                  context.Database.EnsureCreated();
-                 await SharedTests.TestHappyPath(repo, propertyService, authService);
+                await SharedTests.TestHappyPath(repo, propertyService, authService);
             }
 
         }
@@ -170,7 +163,6 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
             services.AddTransient<ISecuritySignInService, SecuritySignInMockService>();
             services.AddScoped<IUserAuthorizationService , UserAuthorizationMockService>();
-            services.AddSingleton<IUserAuthorizationService, UserAuthorizationService>();
 
             services.AddSingleton<IPropertyRepository, RentalRepairsMongoDbRepository>();
             services.AddTransient<ITemplateDataService, TemplateDataService>();
@@ -199,16 +191,10 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
         [TestMethod]
         public async Task ServiceHappyPathTestWithEfRepoAndAspNetIdentity()
         {
-
-            const string connectionString = "Server=(localdb)\\mssqllocaldb; Database = PropertiesTest1; Trusted_Connection = True; MultipleActiveResultSets = true";
-
-            const string conString =
-                "Server=(localdb)\\mssqllocaldb;Database=aspnet-WebAuthApp-61133D25-72F3-4C13-AC8F-791FA643AA77;Trusted_Connection=True;MultipleActiveResultSets=true";
             var services = new ServiceCollection();
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(conString ));
-
+                options.UseInMemoryDatabase(databaseName: "AspNetIdentityTestInMemory"));
 
             services.AddDefaultIdentity<ApplicationUser>()
                 .AddRoles<IdentityRole>()
@@ -218,7 +204,7 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
 
 
             services.AddDbContext<PropertiesContext>(options =>
-                options.UseSqlServer(connectionString));
+                options.UseInMemoryDatabase(databaseName: "PropertiesTestInMemory2"));
 
             services.AddTransient<ISecuritySignInService, SecuritySignInMockService>();
             services.AddSingleton<IUserAuthorizationService, AspNetIdentityService>();
@@ -238,17 +224,12 @@ namespace Demo.RentalRepairs.Core.Tests.Integration
           
             using (var context1 = serviceProvider.GetService<ApplicationDbContext>())
             {
-                context1.Database.EnsureDeleted();
-                context1.Database.EnsureCreated();
                 using (var context = serviceProvider.GetService<PropertiesContext>())
                 {
-                    context.Database.EnsureDeleted();
-                    context.Database.EnsureCreated();
                     await SharedTests.TestHappyPath(repo, propertyService,
                         authService);
                 }
             }
-
 
         }
    

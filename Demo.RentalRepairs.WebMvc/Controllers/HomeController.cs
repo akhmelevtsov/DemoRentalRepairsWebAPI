@@ -1,15 +1,9 @@
 ﻿using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Demo.RentalRepairs.WebMvc.Models;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.AzureADB2C.UI;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
 
 namespace Demo.RentalRepairs.WebMvc.Controllers
 {

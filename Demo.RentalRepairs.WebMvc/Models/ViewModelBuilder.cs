@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Demo.RentalRepairs.Domain.Entities;
 using Demo.RentalRepairs.Domain.Enums;
-using Demo.RentalRepairs.Domain.ValueObjects.Request;
-using FluentValidation.Internal;
+using Demo.RentalRepairs.WebMvc.Framework;
 
 namespace Demo.RentalRepairs.WebMvc.Models
 {
@@ -19,7 +17,7 @@ namespace Demo.RentalRepairs.WebMvc.Models
                 list.Add(new TenantRequestChangeViewModel()
                 {
                     UpdateDate = e.DateCreated,
-                    TenantRequestStatus = e.TenantRequestStatus.ToString().SplitPascalCase(),
+                    TenantRequestStatus = e.TenantRequestStatus.ToString().SplitCamelCase(),
                     Comments = e.Comments()
                 });
             }
@@ -27,15 +25,13 @@ namespace Demo.RentalRepairs.WebMvc.Models
             return list.OrderByDescending( x => x.UpdateDate ).ToList() ;
         }
 
-       
-
         public static PropertyTenantRequestViewModel BuildViewModel(this TenantRequest tenantRequest)
         {
             return new PropertyTenantRequestViewModel()
             {
 
                 RequestCode = tenantRequest.Code,
-                RequestStatus = tenantRequest.RequestStatus.ToString().SplitPascalCase(),
+                RequestStatus = tenantRequest.RequestStatus.ToString().SplitCamelCase(),
                 DateCreated = tenantRequest.DateCreated,
                 UnitNumber = tenantRequest.TenantUnit,
                 RequestTitle = tenantRequest.RequestTitle,
@@ -53,9 +49,5 @@ namespace Demo.RentalRepairs.WebMvc.Models
             };
 
         }
-
-    
-
-
     }
 }

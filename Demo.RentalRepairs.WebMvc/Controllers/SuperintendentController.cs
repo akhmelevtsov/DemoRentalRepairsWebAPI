@@ -4,15 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Exceptions;
 using Demo.RentalRepairs.Core.Interfaces;
-using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.ValueObjects;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
-using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
 using Demo.RentalRepairs.WebMvc.Interfaces;
 using Demo.RentalRepairs.WebMvc.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -58,42 +55,37 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
         }
 
-        [Authorize(Policy = "RequireAnonymousRole")]
+        [AllowAnonymous] // Allow registration for authenticated but unassigned users
         public async Task<IActionResult> Register()
         {
+            // Only allow registration if user is authenticated but not yet assigned a role
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
+            var userEmail = User.Identity.Name;
             var loggedUser = await _authService.GetUserClaims(User);
 
+            // Check if user already has a property registered
+            if (!string.IsNullOrEmpty(loggedUser.PropCode))
+            {
+                return RedirectToAction(nameof(Requests));
+            }
 
-            //var model = new PropertyModel()
-            //{
-            //    Code = "sunlight",
-            //    Name = "Sun Light Apartments",
-            //    Address = new PropertyAddress()
-            //    { StreetNumber = "1", StreetName = "Sunlight Creek", City = "Toronto", PostalCode = "M9A 4J5" },
-            //    NoReplyEmailAddress = loggedUser.Login,
-            //    PhoneNumber = "905-111-1111",
-            //    Superintendent = new PersonContactInfo()
-            //    {
-            //        EmailAddress = loggedUser.Login,
-            //        FirstName = "John",
-            //        LastName = "Smith",
-            //        MobilePhone = "647-222-5321"
-            //    },
-            //    Units = new List<string> { "11", "12", "13", "14", "21", "22", "23", "24", "31", "32", "33", "34" },
-            //    UnitsStr = "11,12,13,14, 21, 22, 23, 24, 31, 32, 33, 34"
-
-
-            //};
             var model = new PropertyModel();
             return View(model);
         }
 
-        [Authorize(Policy = "RequireAnonymousRole")]
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(PropertyModel prop)
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             if (!ModelState.IsValid)
             {
@@ -117,10 +109,8 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                     prop.PhoneNumber,
                     prop.Superintendent,
                     prop.Units.ToList(), prop.NoReplyEmailAddress));
-            }
-            catch (CoreAuthorizationException)
-            {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
+                    
+                return _redirectionService.RedirectAfterEnrollment(TempData, this);
             }
             catch (DomainValidationException vex)
             {
@@ -153,11 +143,6 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 ModelState.AddModelError("", ex.Message);
                 return View("Register", prop);
             }
-
-
-            //return RedirectToAction("Requests", "Superintendent");
-            return _redirectionService.RedirectAfterEnrollment(TempData, this);
-
         }
         /// <summary>
         /// RejectRequest

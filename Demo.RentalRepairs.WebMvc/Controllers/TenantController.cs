@@ -4,20 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Exceptions;
 using Demo.RentalRepairs.Core.Interfaces;
-using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
-using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
 using Demo.RentalRepairs.WebMvc.Interfaces;
 using Demo.RentalRepairs.WebMvc.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
 
 namespace Demo.RentalRepairs.WebMvc.Controllers
 {
@@ -226,19 +221,23 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         
 
        
-        [Authorize(Policy = "RequireAnonymousRole")]
+        [AllowAnonymous] // Allow for registration process
         [HttpGet]
         public async Task<ActionResult> GetUnits(string propCode)
         {
-            var loggedUser = await _authService.GetUserClaims(User);
-            var validationResult = _validationRulesService.ValidatePropertyCode(propCode );
+            if (!User.Identity.IsAuthenticated)
+            {
+                return Unauthorized();
+            }
+
+            var validationResult = _validationRulesService.ValidatePropertyCode(propCode);
 
             if (validationResult.IsValid)
             {
                 var units = GetUnitListItems(propCode);
                 return Json(units);
             }
-            return null;
+            return BadRequest("Invalid property code");
         }
         [Authorize(Policy = "RequireTenantRole")]
         [HttpGet]

@@ -1,5 +1,3 @@
-using System;
-
 namespace Demo.RentalRepairs.WebMvc.Models
 {
     public class ErrorViewModel

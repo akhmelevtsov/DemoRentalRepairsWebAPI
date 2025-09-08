@@ -10,7 +10,7 @@ using Demo.RentalRepairs.WebApi.Swagger.Examples;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Swashbuckle.AspNetCore.Examples;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace Demo.RentalRepairs.WebApi.Controllers
 {

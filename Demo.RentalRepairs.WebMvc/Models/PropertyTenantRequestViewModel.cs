@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
-using Demo.RentalRepairs.Domain.Enums;
-using Demo.RentalRepairs.Domain.ValueObjects.Request;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Demo.RentalRepairs.WebMvc.Models

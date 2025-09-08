@@ -1,11 +1,11 @@
 ﻿using Demo.RentalRepairs.WebApi.Models;
-using Swashbuckle.AspNetCore.Examples;
+using Swashbuckle.AspNetCore.Filters;
 
 namespace Demo.RentalRepairs.WebApi.Swagger.Examples
 {
-    public class TenantRequestDocModelExample : IExamplesProvider
+    public class TenantRequestDocModelExample : IExamplesProvider<TenantRequestDocModel>
     {
-        public object GetExamples()
+        public TenantRequestDocModel GetExamples()
         {
             return new TenantRequestDocModel()
             {

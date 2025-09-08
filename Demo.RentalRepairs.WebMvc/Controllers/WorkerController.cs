@@ -4,18 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using Demo.RentalRepairs.Core.Exceptions;
 using Demo.RentalRepairs.Core.Interfaces;
-using Demo.RentalRepairs.Domain.Enums;
 using Demo.RentalRepairs.Domain.Exceptions;
 using Demo.RentalRepairs.Domain.Services;
 using Demo.RentalRepairs.Domain.ValueObjects.Request;
-using Demo.RentalRepairs.Infrastructure.Identity.AspNetCore.Data;
 using Demo.RentalRepairs.WebMvc.Interfaces;
 using Demo.RentalRepairs.WebMvc.Models;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Demo.RentalRepairs.WebMvc.Controllers
 {
@@ -49,100 +45,90 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             _authService = userAuthCoreService;
             _redirectionService = redirectionService;
         }
+        
         [Authorize(Policy = "RequireWorkerRole")]
         public async Task<IActionResult> Requests()
         {
-            var loggedUser = await _authService.GetUserClaims(User);
-
-            //_userAuthCoreService.SetUser(loggedUser);
-            try
+            // Authorization is now handled by the policy, no need for manual checks
+            var userEmail = User.Identity?.Name;
+            var worker = _propertyService.GetWorkerByEmail(userEmail);
+            
+            if (worker == null)
             {
-                var worker = _propertyService.GetWorkerByEmail(loggedUser.Login);
-                if (worker == null)
-                {
-                    return base.RedirectToAction(actionName: nameof(this.Register), controllerName: "Worker");
-                }
-
-
-                var requests = _propertyService.GetWorkerRequests(loggedUser.Login)
-                    .OrderByDescending(s => s.DateCreated).Select(s => s.BuildViewModel()).ToList();
-
-
-                return View(requests);
+                return RedirectToAction(nameof(Register));
             }
-            catch (CoreAuthorizationException)
-            {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
-            }
+
+            var requests = _propertyService.GetWorkerRequests(userEmail)
+                .OrderByDescending(s => s.DateCreated)
+                .Select(s => s.BuildViewModel())
+                .ToList();
+
+            return View(requests);
         }
 
-
-
-
         // GET: Worker/Register
-       
-        [Authorize(Policy = "RequireAnonymousRole")]
+        [AllowAnonymous] // Allow registration for authenticated but unassigned users
         [HttpGet]
         public async Task<IActionResult> Register()
         {
+            // Only allow registration if user is authenticated but not yet assigned a role
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
-            var loggedUser = await _authService.GetUserClaims(User);
+            var userEmail = User.Identity.Name;
+            var existingWorker = _propertyService.GetWorkerByEmail(userEmail);
+            
+            if (existingWorker != null)
+            {
+                return RedirectToAction(nameof(Requests));
+            }
 
-            var viewModel = new WorkerEditViewModel(); // {ContactInfo = {EmailAddress = loggedUser.Login}};
-            viewModel.ContactInfo.EmailAddress = loggedUser.Login;
+            var viewModel = new WorkerEditViewModel();
+            viewModel.ContactInfo.EmailAddress = userEmail;
             return View(viewModel);
         }
 
-
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Policy = "RequireAnonymousRole")]
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Register(WorkerEditViewModel worker)
         {
-
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account");
+            }
 
             if (!ModelState.IsValid)
             {
                 // re-render the view when validation failed.
                 return View("Register", worker);
             }
-            var loggedUser = await _authService.GetUserClaims(User);
-         
+
             try
             {
                 await _propertyService.RegisterWorkerAsync(worker.ContactInfo);
-            }
-            catch (CoreAuthorizationException)
-            {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
+                return _redirectionService.RedirectAfterEnrollment(TempData, this);
             }
             catch (DomainValidationException vex)
             {
                 MapValidationErrorsToModel(vex);
-
                 return View(worker);
             }
             catch (DomainException dex)
             {
                 ModelState.AddModelError("", dex.Message);
                 return View("Register", worker);
-
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", ex.Message);
                 return View("Register", worker);
             }
-
-            //await _securityService.SetLoggedUserClaims( User.Identity.Name , UserRolesEnum.Worker ,"","");
-
-            //return RedirectToAction("Requests", "Worker"); //, new { propCode = propCode, unit = unitNumber });
-            return _redirectionService.RedirectAfterEnrollment(TempData, this);
-
         }
-
 
         /// <summary>
         /// ReportRequest
@@ -151,7 +137,6 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
         [HttpGet]
         public async Task<IActionResult> ReportRequest(string propCode, string unitNumber, string requestCode)
         {
-            var loggedUser = await _authService.GetUserClaims(User);
             try
             {
                 var vm = await GetTenantRequestViewModel(propCode, unitNumber, requestCode);
@@ -159,50 +144,50 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
+                return RedirectToAction("AccessDenied", "Home");
             }
         }
+        
         [Authorize(Policy = "RequireWorkerRole")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ReportRequest(string propertyCode, string unitNumber, string requestCode, string reportNotes, bool success)
+        public async Task<IActionResult> ReportRequest(ReportRequestViewModel model)
         {
-
             if (!ModelState.IsValid)
             {
-                // re-render the view when validation failed.
-                return View("ReportRequest");
+                return View(model);
             }
-            var loggedUser = await _authService.GetUserClaims(User);
 
             try
             {
-               await _propertyService.ExecuteTenantRequestCommandAsync(propertyCode, unitNumber, requestCode, new ReportServiceWorkCommand()
-                    { Notes = reportNotes, Success = success });
+                await _propertyService.ExecuteTenantRequestCommandAsync(
+                    model.PropertyCode, 
+                    model.UnitNumber, 
+                    model.RequestCode, 
+                    new ReportServiceWorkCommand()
+                    { 
+                        Notes = model.ReportNotes, 
+                        Success = model.Success 
+                    });
 
-            }
-            catch (CoreAuthorizationException)
-            {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
+                return RedirectToAction(nameof(Requests));
             }
             catch (DomainValidationException vex)
             {
                 MapValidationErrorsToModel(vex);
-
-                return View("ReportRequest");
+                return View(model);
             }
             catch (Exception ex)
             {
                 ModelState.AddModelError("", ex.Message);
-                return View("ReportRequest");
+                return View(model);
             }
-            return RedirectToAction("Requests", "Worker");
         }
+        
         [Authorize(Policy = "RequireWorkerRole")]
         [HttpGet]
         public async Task<IActionResult> RequestDetails(string propCode, string unitNumber, string requestCode)
         {
-            var loggedUser = await _authService.GetUserClaims(User);
             try
             {
                 var vm = await GetTenantRequestViewModel(propCode, unitNumber, requestCode);
@@ -210,15 +195,13 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
             }
             catch (CoreAuthorizationException)
             {
-                return base.RedirectToAction(actionName: "AccessDenied", controllerName: "Home");
+                return RedirectToAction("AccessDenied", "Home");
             }
-
         }
 
         #region Private Methods
         private void MapValidationErrorsToModel(ValidationException vex)
         {
-            //ModelState.Clear();
             foreach (var err in vex.Errors)
             {
                 var propName = err.PropertyName.ToString();
@@ -226,28 +209,19 @@ namespace Demo.RentalRepairs.WebMvc.Controllers
                 if (!_vDict.ContainsKey(propName))
                     throw new ApplicationException("Internal error");
                 propName = _vDict[propName];
-                //if (!ModelState.Keys.Contains(propName))
-                //    throw new ApplicationException("Internal error");
-
 
                 ModelState.AddModelError(propName, err.ErrorMessage);
             }
         }
+        
         private async Task<PropertyTenantRequestViewModel> GetTenantRequestViewModel(string propCode, string unitNumber, string requestCode)
         {
-            //var loggedUser = await _securityService.GetLoggedWorker(User);
-
             await Task.CompletedTask;
 
-            var tenantRequest =
-                _propertyService.GetTenantRequest(propCode, unitNumber, requestCode);
-
-
+            var tenantRequest = _propertyService.GetTenantRequest(propCode, unitNumber, requestCode);
             var vm = tenantRequest.BuildViewModel();
             return vm;
         }
         #endregion
-
-
     }
 }
