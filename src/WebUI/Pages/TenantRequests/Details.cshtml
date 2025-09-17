@@ -1,0 +1,140 @@
+@page "{id:int}"
+@model DetailsModel
+@{
+    ViewData["Title"] = "Request Details";
+}
+
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="mb-1">Request #@Model.TenantRequest.Id</h2>
+                    <p class="text-muted mb-0">
+                        <i class="fas fa-calendar me-2"></i>
+                        Submitted @Model.TenantRequest.SubmittedDate.ToString("MMMM dd, yyyy")
+                    </p>
+                </div>
+                <div>
+                    <span class="status-badge status-@Model.TenantRequest.Status.ToLower()">
+                        @Model.TenantRequest.Status
+                    </span>
+                </div>
+            </div>
+
+            <!-- Request Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Request Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Property:</strong> @Model.TenantRequest.PropertyName</p>
+                            <p><strong>Property Code:</strong> @Model.TenantRequest.PropertyCode</p>
+                            <p><strong>Unit Number:</strong> @Model.TenantRequest.UnitNumber</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Status:</strong> @Model.TenantRequest.Status</p>
+                            @if (Model.TenantRequest.IsEmergency)
+                            {
+                                <p><strong class="text-danger">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>Emergency Request
+                                </strong></p>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.TenantRequest.PreferredContactTime))
+                            {
+                                <p><strong>Preferred Contact:</strong> @Model.TenantRequest.PreferredContactTime</p>
+                            }
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <h6>Problem Description</h6>
+                    <p class="border p-3 rounded bg-light">@Model.TenantRequest.ProblemDescription</p>
+                </div>
+            </div>
+
+            <!-- Tenant Information -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-user me-2"></i>Tenant Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Name:</strong> @Model.TenantRequest.TenantName</p>
+                            <p><strong>Email:</strong> @Model.TenantRequest.TenantEmail</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Phone:</strong> @Model.TenantRequest.TenantPhone</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Work Information (if scheduled/completed) -->
+            @if (Model.TenantRequest.ScheduledDate.HasValue || !string.IsNullOrEmpty(Model.TenantRequest.WorkerName))
+            {
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-wrench me-2"></i>Work Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                @if (!string.IsNullOrEmpty(Model.TenantRequest.WorkerName))
+                                {
+                                    <p><strong>Assigned Worker:</strong> @Model.TenantRequest.WorkerName</p>
+                                }
+                                @if (!string.IsNullOrEmpty(Model.TenantRequest.WorkerEmail))
+                                {
+                                    <p><strong>Worker Email:</strong> @Model.TenantRequest.WorkerEmail</p>
+                                }
+                            </div>
+                            <div class="col-md-6">
+                                @if (Model.TenantRequest.ScheduledDate.HasValue)
+                                {
+                                    <p><strong>Scheduled Date:</strong> @Model.TenantRequest.ScheduledDate.Value.ToString("MMMM dd, yyyy")</p>
+                                }
+                                @if (Model.TenantRequest.CompletedDate.HasValue)
+                                {
+                                    <p><strong>Completed Date:</strong> @Model.TenantRequest.CompletedDate.Value.ToString("MMMM dd, yyyy")</p>
+                                }
+                            </div>
+                        </div>
+                        
+                        @if (!string.IsNullOrEmpty(Model.TenantRequest.CompletionNotes))
+                        {
+                            <hr>
+                            <h6>Completion Notes</h6>
+                            <p class="border p-3 rounded bg-light">@Model.TenantRequest.CompletionNotes</p>
+                        }
+                    </div>
+                </div>
+            }
+
+            <!-- Actions -->
+            <div class="d-flex justify-content-between">
+                <a asp-page="/Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+                
+                @if (User.FindFirst("role")?.Value == "Tenant")
+                {
+                    <a asp-page="/TenantRequests/Submit" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i>Submit New Request
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

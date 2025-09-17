@@ -1,0 +1,337 @@
+@page
+@model RentalRepairs.WebUI.Pages.IndexModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container-fluid py-4">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h2 mb-0">
+                <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+            </h1>
+            <p class="text-muted">Welcome back, @Model.Dashboard.UserName</p>
+        </div>
+    </div>
+
+    @if (Model.Dashboard.UserRole == UserRole.SystemAdmin)
+    {
+        <!-- System Admin Dashboard -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title text-muted mb-2">Total Properties</h6>
+                                <div class="dashboard-metric">@Model.Dashboard.TotalSystemProperties</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-building fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title text-muted mb-2">Total Requests</h6>
+                                <div class="dashboard-metric">@Model.Dashboard.TotalSystemRequests</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-tasks fa-2x text-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Properties and Requests -->
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Recent Properties</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Dashboard.RecentProperties.Any())
+                        {
+                            <div class="list-group list-group-flush">
+                                @foreach (var property in Model.Dashboard.RecentProperties)
+                                {
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>@property.Name</strong>
+                                            <br><small class="text-muted">@property.Code</small>
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill">@property.TenantCount tenants</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-0">No properties found.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Recent Requests</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.Dashboard.RecentRequests.Any())
+                        {
+                            <div class="list-group list-group-flush">
+                                @foreach (var request in Model.Dashboard.RecentRequests)
+                                {
+                                    <div class="list-group-item">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">@request.ProblemDescription</h6>
+                                            <small class="text-muted">@request.SubmittedDate.ToString("MM/dd/yyyy")</small>
+                                        </div>
+                                        <small class="text-muted">@request.PropertyName - Unit @request.UnitNumber</small>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-0">No recent requests found.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (Model.Dashboard.UserRole == UserRole.PropertySuperintendent)
+    {
+        <!-- Superintendent Dashboard -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card dashboard-card warning">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title text-muted mb-2">Pending Requests</h6>
+                                <div class="dashboard-metric text-warning">@Model.Dashboard.PendingRequests</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-clock fa-2x text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card dashboard-card danger">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title text-muted mb-2">Emergency Requests</h6>
+                                <div class="dashboard-metric text-danger">@Model.Dashboard.EmergencyRequests</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-exclamation-triangle fa-2x text-danger"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Requests -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Recent Requests</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Dashboard.RecentRequests.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Unit</th>
+                                    <th>Issue</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var request in Model.Dashboard.RecentRequests)
+                                {
+                                    <tr>
+                                        <td>@request.UnitNumber</td>
+                                        <td>@request.ProblemDescription</td>
+                                        <td><span class="status-badge status-@request.Status.ToLower()">@request.Status</span></td>
+                                        <td>@request.SubmittedDate.ToString("MM/dd/yyyy")</td>
+                                        <td>
+                                            <a href="/TenantRequests/Details/@request.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">No recent requests found.</p>
+                }
+            </div>
+        </div>
+    }
+    else if (Model.Dashboard.UserRole == UserRole.Tenant)
+    {
+        <!-- Tenant Dashboard -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Your Property Information</h5>
+                        <p class="card-text">
+                            <strong>Property:</strong> @Model.Dashboard.PropertyName<br>
+                            <strong>Unit:</strong> @Model.Dashboard.UnitNumber
+                        </p>
+                        <a asp-page="/TenantRequests/Submit" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Submit New Request
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Requests -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">My Recent Requests</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Dashboard.MyRequests.Any())
+                {
+                    <div class="list-group">
+                        @foreach (var request in Model.Dashboard.MyRequests)
+                        {
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">@request.ProblemDescription</h6>
+                                    <span class="status-badge status-@request.Status.ToLower()">@request.Status</span>
+                                </div>
+                                <p class="mb-1">Submitted: @request.SubmittedDate.ToString("MMMM dd, yyyy")</p>
+                                @if (request.ScheduledDate.HasValue)
+                                {
+                                    <small class="text-muted">Scheduled: @request.ScheduledDate.Value.ToString("MMMM dd, yyyy")</small>
+                                }
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">You haven't submitted any requests yet.</p>
+                }
+            </div>
+        </div>
+    }
+    else if (Model.Dashboard.UserRole == UserRole.Worker)
+    {
+        <!-- Worker Dashboard -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card dashboard-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title text-muted mb-2">Assigned Requests</h6>
+                                <div class="dashboard-metric">@Model.Dashboard.AssignedRequests</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-tasks fa-2x text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card dashboard-card success">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-title text-muted mb-2">Completed This Month</h6>
+                                <div class="dashboard-metric text-success">@Model.Dashboard.CompletedThisMonth</div>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="fas fa-check-circle fa-2x text-success"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Work -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Upcoming Work</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.Dashboard.UpcomingWork.Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Property</th>
+                                    <th>Unit</th>
+                                    <th>Issue</th>
+                                    <th>Scheduled</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var work in Model.Dashboard.UpcomingWork)
+                                {
+                                    <tr>
+                                        <td>@work.PropertyName</td>
+                                        <td>@work.UnitNumber</td>
+                                        <td>@work.ProblemDescription</td>
+                                        <td>@work.ScheduledDate?.ToString("MM/dd/yyyy")</td>
+                                        <td>
+                                            <a href="/Work/Details/@work.Id" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> View
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">No upcoming work scheduled.</p>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        // Auto-refresh dashboard data every 5 minutes
+        setInterval(function() {
+            location.reload();
+        }, 300000);
+    </script>
+}

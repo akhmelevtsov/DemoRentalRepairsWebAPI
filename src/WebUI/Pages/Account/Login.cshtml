@@ -1,0 +1,195 @@
+@page
+@model RentalRepairs.WebUI.Pages.Account.LoginModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-tools fa-3x text-primary mb-3"></i>
+                        <h2 class="h4 mb-2">Welcome Back</h2>
+                        <p class="text-muted">Sign in to your account</p>
+                    </div>
+
+                    <!-- Tab Navigation -->
+                    <ul class="nav nav-tabs mb-4" id="loginTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link @(Model.ActiveTab == "admin" ? "active" : "")" 
+                                    id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin" 
+                                    type="button" role="tab">
+                                <i class="fas fa-user-shield me-2"></i>Admin/Superintendent
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link @(Model.ActiveTab == "tenant" ? "active" : "")" 
+                                    id="tenant-tab" data-bs-toggle="tab" data-bs-target="#tenant" 
+                                    type="button" role="tab">
+                                <i class="fas fa-home me-2"></i>Tenant
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link @(Model.ActiveTab == "worker" ? "active" : "")" 
+                                    id="worker-tab" data-bs-toggle="tab" data-bs-target="#worker" 
+                                    type="button" role="tab">
+                                <i class="fas fa-wrench me-2"></i>Worker
+                            </button>
+                        </li>
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <div class="tab-content" id="loginTabsContent">
+                        <!-- Admin/Superintendent Login -->
+                        <div class="tab-pane fade @(Model.ActiveTab == "admin" ? "show active" : "")" 
+                             id="admin" role="tabpanel">
+                            <form method="post" asp-page-handler="AdminLogin">
+                                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                                
+                                <div class="mb-3">
+                                    <label asp-for="Login.Email" class="form-label">
+                                        <i class="fas fa-envelope me-2"></i>Email Address
+                                    </label>
+                                    <input asp-for="Login.Email" class="form-control" placeholder="Enter your email" />
+                                    <span asp-validation-for="Login.Email" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label asp-for="Login.Password" class="form-label">
+                                        <i class="fas fa-lock me-2"></i>Password
+                                    </label>
+                                    <input asp-for="Login.Password" class="form-control" placeholder="Enter your password" />
+                                    <span asp-validation-for="Login.Password" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="mb-3 form-check">
+                                    <input asp-for="Login.RememberMe" class="form-check-input" />
+                                    <label asp-for="Login.RememberMe" class="form-check-label">
+                                        Remember me
+                                    </label>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Tenant Login -->
+                        <div class="tab-pane fade @(Model.ActiveTab == "tenant" ? "show active" : "")" 
+                             id="tenant" role="tabpanel">
+                            <form method="post" asp-page-handler="TenantLogin">
+                                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                                
+                                <div class="mb-3">
+                                    <label asp-for="TenantLogin.Email" class="form-label">
+                                        <i class="fas fa-envelope me-2"></i>Email Address
+                                    </label>
+                                    <input asp-for="TenantLogin.Email" class="form-control" placeholder="Enter your email" />
+                                    <span asp-validation-for="TenantLogin.Email" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <label asp-for="TenantLogin.PropertyCode" class="form-label">
+                                            <i class="fas fa-building me-2"></i>Property Code
+                                        </label>
+                                        <input asp-for="TenantLogin.PropertyCode" class="form-control" placeholder="Property code" />
+                                        <span asp-validation-for="TenantLogin.PropertyCode" class="text-danger"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label asp-for="TenantLogin.UnitNumber" class="form-label">
+                                            <i class="fas fa-door-open me-2"></i>Unit Number
+                                        </label>
+                                        <input asp-for="TenantLogin.UnitNumber" class="form-control" placeholder="Unit number" />
+                                        <span asp-validation-for="TenantLogin.UnitNumber" class="text-danger"></span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mb-3 form-check">
+                                    <input asp-for="TenantLogin.RememberMe" class="form-check-input" />
+                                    <label asp-for="TenantLogin.RememberMe" class="form-check-label">
+                                        Remember me
+                                    </label>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Sign In as Tenant
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Worker Login -->
+                        <div class="tab-pane fade @(Model.ActiveTab == "worker" ? "show active" : "")" 
+                             id="worker" role="tabpanel">
+                            <form method="post" asp-page-handler="WorkerLogin">
+                                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                                
+                                <div class="mb-3">
+                                    <label asp-for="WorkerLogin.Email" class="form-label">
+                                        <i class="fas fa-envelope me-2"></i>Email Address
+                                    </label>
+                                    <input asp-for="WorkerLogin.Email" class="form-control" placeholder="Enter your email" />
+                                    <span asp-validation-for="WorkerLogin.Email" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label asp-for="WorkerLogin.Specialization" class="form-label">
+                                        <i class="fas fa-wrench me-2"></i>Specialization
+                                    </label>
+                                    <select asp-for="WorkerLogin.Specialization" class="form-select">
+                                        <option value="">Select your specialization</option>
+                                        @foreach (var specialization in Model.WorkerLogin.AvailableSpecializations)
+                                        {
+                                            <option value="@specialization">@specialization</option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="WorkerLogin.Specialization" class="text-danger"></span>
+                                </div>
+                                
+                                <div class="mb-3 form-check">
+                                    <input asp-for="WorkerLogin.RememberMe" class="form-check-input" />
+                                    <label asp-for="WorkerLogin.RememberMe" class="form-check-label">
+                                        Remember me
+                                    </label>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Sign In as Worker
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Hidden fields for return URL -->
+                    @if (!string.IsNullOrEmpty(Model.Login.ReturnUrl))
+                    {
+                        <input type="hidden" asp-for="Login.ReturnUrl" />
+                        <input type="hidden" asp-for="TenantLogin.ReturnUrl" />
+                        <input type="hidden" asp-for="WorkerLogin.ReturnUrl" />
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // Preserve active tab state
+        document.addEventListener('DOMContentLoaded', function() {
+            const activeTab = '@Model.ActiveTab';
+            if (activeTab) {
+                const tabButton = document.getElementById(activeTab + '-tab');
+                const tabContent = document.getElementById(activeTab);
+                if (tabButton && tabContent) {
+                    tabButton.classList.add('active');
+                    tabContent.classList.add('show', 'active');
+                }
+            }
+        });
+    </script>
+}
