@@ -1,0 +1,108 @@
+2025-09-14 20:48:49.563 -04:00 [INF] User profile is available. Using 'C:\Users\akhme\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-09-14 20:48:50.795 -04:00 [WRN] The property 'TenantRequest.TenantId' was first mapped explicitly and then ignored. Consider not mapping the property in the first place.
+2025-09-14 20:48:50.900 -04:00 [ERR] An error occurred while initializing the database
+System.InvalidOperationException: The relationship from 'TenantRequest.Tenant' to 'Tenant' with foreign key properties {'TenantId' : string} cannot target the primary key {'Id' : int} because it is not compatible. Configure a principal key or a set of foreign key properties with compatible types for this relationship.
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelValidator.ValidateNoShadowKeys(IModel model, IDiagnosticsLogger`1 logger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelValidator.Validate(IModel model, IDiagnosticsLogger`1 logger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.RelationalModelValidator.Validate(IModel model, IDiagnosticsLogger`1 logger)
+   at Microsoft.EntityFrameworkCore.SqlServer.Infrastructure.Internal.SqlServerModelValidator.Validate(IModel model, IDiagnosticsLogger`1 logger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelRuntimeInitializer.Initialize(IModel model, Boolean designTime, IDiagnosticsLogger`1 validationLogger)
+   at Microsoft.EntityFrameworkCore.Infrastructure.ModelSource.GetModel(DbContext context, ModelCreationDependencies modelCreationDependencies, Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.CreateModel(Boolean designTime)
+   at Microsoft.EntityFrameworkCore.Internal.DbContextServices.get_Model()
+   at Microsoft.EntityFrameworkCore.Infrastructure.EntityFrameworkServicesBuilder.<>c.<TryAddCoreServices>b__8_4(IServiceProvider p)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitFactory(FactoryCallSite factoryCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitConstructor(ConstructorCallSite constructorCallSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSiteMain(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitCache(ServiceCallSite callSite, RuntimeResolverContext context, ServiceProviderEngineScope serviceProviderEngine, RuntimeResolverLock lockType)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.VisitScopeCache(ServiceCallSite callSite, RuntimeResolverContext context)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteVisitor`2.VisitCallSite(ServiceCallSite callSite, TArgument argument)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.CallSiteRuntimeResolver.Resolve(ServiceCallSite callSite, ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.DynamicServiceProviderEngine.<>c__DisplayClass2_0.<RealizeService>b__0(ServiceProviderEngineScope scope)
+   at Microsoft.Extensions.DependencyInjection.ServiceProvider.GetService(ServiceIdentifier serviceIdentifier, ServiceProviderEngineScope serviceProviderEngineScope)
+   at Microsoft.Extensions.DependencyInjection.ServiceLookup.ServiceProviderEngineScope.GetService(Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService(IServiceProvider provider, Type serviceType)
+   at Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService[T](IServiceProvider provider)
+   at Microsoft.EntityFrameworkCore.DbContext.get_DbContextDependencies()
+   at Microsoft.EntityFrameworkCore.DbContext.get_ContextServices()
+   at Microsoft.EntityFrameworkCore.DbContext.get_InternalServiceProvider()
+   at Microsoft.EntityFrameworkCore.DbContext.Microsoft.EntityFrameworkCore.Infrastructure.IInfrastructure<System.IServiceProvider>.get_Instance()
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService(IInfrastructure`1 accessor, Type serviceType)
+   at Microsoft.EntityFrameworkCore.Infrastructure.Internal.InfrastructureExtensions.GetService[TService](IInfrastructure`1 accessor)
+   at Microsoft.EntityFrameworkCore.Infrastructure.AccessorExtensions.GetService[TService](IInfrastructure`1 accessor)
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.get_Dependencies()
+   at Microsoft.EntityFrameworkCore.Infrastructure.DatabaseFacade.EnsureCreatedAsync(CancellationToken cancellationToken)
+   at Program.<Main>$(String[] args) in C:\Users\akhme\source\repos\akhmelevtsov\DemoRentalRepairsWebAPI\src\WebUI\Program.cs:line 222
+2025-09-14 20:48:51.123 -04:00 [INF] Now listening on: https://localhost:59692
+2025-09-14 20:48:51.129 -04:00 [INF] Now listening on: http://localhost:59693
+2025-09-14 20:48:51.132 -04:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-09-14 20:48:51.137 -04:00 [INF] Hosting environment: Development
+2025-09-14 20:48:51.141 -04:00 [INF] Content root path: C:\Users\akhme\source\repos\akhmelevtsov\DemoRentalRepairsWebAPI\src\WebUI
+2025-09-14 20:51:11.749 -04:00 [INF] Request starting HTTP/2 GET https://localhost:59692/ - null null
+2025-09-14 20:51:11.847 -04:00 [INF] Executing endpoint 'HTTP: GET /'
+2025-09-14 20:51:11.875 -04:00 [INF] Executing RedirectResult, redirecting to /Account/Login.
+2025-09-14 20:51:11.881 -04:00 [INF] Executed endpoint 'HTTP: GET /'
+2025-09-14 20:51:11.894 -04:00 [INF] HTTP GET / responded 302 in 107.3667 ms
+2025-09-14 20:51:11.909 -04:00 [INF] Request finished HTTP/2 GET https://localhost:59692/ - 302 0 null 164.1508ms
+2025-09-14 20:51:11.919 -04:00 [INF] Request starting HTTP/2 GET https://localhost:59692/Account/Login - null null
+2025-09-14 20:51:11.941 -04:00 [INF] Executing endpoint '/Account/Login'
+2025-09-14 20:51:12.023 -04:00 [INF] Route matched with {page = "/Account/Login"}. Executing page /Account/Login
+2025-09-14 20:51:12.065 -04:00 [INF] Executing handler method RentalRepairs.WebUI.Pages.Account.LoginModel.OnGetAsync - ModelState is "Valid"
+2025-09-14 20:51:12.084 -04:00 [INF] AuthenticationScheme: Cookies signed out.
+2025-09-14 20:51:12.092 -04:00 [INF] Executed handler method OnGetAsync, returned result Microsoft.AspNetCore.Mvc.RazorPages.PageResult.
+2025-09-14 20:51:12.380 -04:00 [INF] Executed page /Account/Login in 345.8254ms
+2025-09-14 20:51:12.389 -04:00 [INF] Executed endpoint '/Account/Login'
+2025-09-14 20:51:12.393 -04:00 [INF] Request starting HTTP/2 GET https://localhost:59692/css/site.css?v=vl4cLzOfV7Z2e-LxhBP4mP4xvlKK3z-gTgNUbbPnjis - null null
+2025-09-14 20:51:12.393 -04:00 [INF] Request starting HTTP/2 GET https://localhost:59692/js/site.js?v=avvb4AW0hdolUiB0OddpkhbhJUtcNK9tscO9K8lZeY4 - null null
+2025-09-14 20:51:12.397 -04:00 [INF] HTTP GET /Account/Login responded 200 in 461.8173 ms
+2025-09-14 20:51:12.427 -04:00 [INF] Request finished HTTP/2 GET https://localhost:59692/Account/Login - 200 null text/html; charset=utf-8 507.307ms
+2025-09-14 20:51:12.429 -04:00 [INF] Sending file. Request path: '/js/site.js'. Physical path: 'C:\Users\akhme\source\repos\akhmelevtsov\DemoRentalRepairsWebAPI\src\WebUI\wwwroot\js\site.js'
+2025-09-14 20:51:12.429 -04:00 [INF] Sending file. Request path: '/css/site.css'. Physical path: 'C:\Users\akhme\source\repos\akhmelevtsov\DemoRentalRepairsWebAPI\src\WebUI\wwwroot\css\site.css'
+2025-09-14 20:51:12.447 -04:00 [INF] HTTP GET /js/site.js responded 200 in 27.8965 ms
+2025-09-14 20:51:12.450 -04:00 [INF] HTTP GET /css/site.css responded 200 in 35.5173 ms
+2025-09-14 20:51:12.462 -04:00 [INF] Request finished HTTP/2 GET https://localhost:59692/js/site.js?v=avvb4AW0hdolUiB0OddpkhbhJUtcNK9tscO9K8lZeY4 - 200 2213 text/javascript 69.155ms
+2025-09-14 20:51:12.466 -04:00 [INF] Request finished HTTP/2 GET https://localhost:59692/css/site.css?v=vl4cLzOfV7Z2e-LxhBP4mP4xvlKK3z-gTgNUbbPnjis - 200 2948 text/css 73.0426ms
+2025-09-14 20:51:13.253 -04:00 [INF] Request starting HTTP/2 GET https://localhost:59692/favicon.ico - null null
+2025-09-14 20:51:13.275 -04:00 [INF] HTTP GET /favicon.ico responded 404 in 7.7500 ms
+2025-09-14 20:51:13.284 -04:00 [INF] Request finished HTTP/2 GET https://localhost:59692/favicon.ico - 404 0 null 31.8326ms
+2025-09-14 20:51:13.300 -04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:59692/favicon.ico, Response status code: 404
+2025-09-14 20:51:54.237 -04:00 [INF] Request starting HTTP/2 GET https://localhost:59692/ - null null
+2025-09-14 20:51:54.249 -04:00 [INF] Executing endpoint 'HTTP: GET /'
+2025-09-14 20:51:54.255 -04:00 [INF] Executing RedirectResult, redirecting to /Account/Login.
+2025-09-14 20:51:54.261 -04:00 [INF] Executed endpoint 'HTTP: GET /'
+2025-09-14 20:51:54.267 -04:00 [INF] HTTP GET / responded 302 in 18.2137 ms
+2025-09-14 20:51:54.277 -04:00 [INF] Request finished HTTP/2 GET https://localhost:59692/ - 302 0 null 39.6083ms
+2025-09-14 20:51:54.535 -04:00 [INF] Request starting HTTP/2 GET https://localhost:59692/Account/Login - null null
+2025-09-14 20:51:54.554 -04:00 [INF] Executing endpoint '/Account/Login'
+2025-09-14 20:51:54.561 -04:00 [INF] Route matched with {page = "/Account/Login"}. Executing page /Account/Login
+2025-09-14 20:51:54.571 -04:00 [INF] Executing handler method RentalRepairs.WebUI.Pages.Account.LoginModel.OnGetAsync - ModelState is "Valid"
+2025-09-14 20:51:54.585 -04:00 [INF] AuthenticationScheme: Cookies signed out.
+2025-09-14 20:51:54.592 -04:00 [INF] Executed handler method OnGetAsync, returned result Microsoft.AspNetCore.Mvc.RazorPages.PageResult.
+2025-09-14 20:51:54.608 -04:00 [INF] Executed page /Account/Login in 39.1481ms
+2025-09-14 20:51:54.615 -04:00 [INF] Executed endpoint '/Account/Login'
+2025-09-14 20:51:54.621 -04:00 [INF] HTTP GET /Account/Login responded 200 in 71.6209 ms
+2025-09-14 20:51:54.630 -04:00 [INF] Request finished HTTP/2 GET https://localhost:59692/Account/Login - 200 null text/html; charset=utf-8 95.523ms

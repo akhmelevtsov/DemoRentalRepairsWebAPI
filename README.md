@@ -1,88 +1,267 @@
-# DemoRentalRepairs
+﻿## Rental Repairs Modernization Project
 
-## Description
+This repository demonstrates a **systematic modernization** of a legacy .NET application into a clean, maintainable, and extensible solution. The project highlights **Clean Architecture**, **Domain-Driven Design (DDD)**, **CQRS**, and **MediatR**, with GitHub Copilot in agent mode assisting the process.
 
-The repo was started to create a Domain Driven Design example for a simple business workflow and to build it   with ASP .NET Core Web API and Clean Architecture (Onion Architecture). Initially the core service used in-memory repository, then few more were added:  SQL Server and Mongo DB locally and Azure SQL database, Azure Storage Table and Cosmos DB.  
+---
 
-To demonstrate how Clean Architecture helps extend the application, ASP.NET Core MVC project that reuses core services was added. As the domain model requires user roles, the security concern was addressed in the core service layer and ASP.NET Core Identity was added with local SQL server database .
+## 🧭 Repository Structure
 
-The next task was to publish the application to Azure. The MVC App migrated to Azure App Service and the two SQL Server databases to Azure SQL Database.  To demonstrate the scaling capabilities of the cloud environment, the Notification service was turned into a microservice on Azure with Azure Functions App, Storage Queue and SendGrid. In the process, just two new implementations of the Notification and Email Client service were added with no changes to the core service behaviour.  
+- `/` — Original codebase (preserved for reference and comparison)
+- `src/` — Modernized solution following Clean Architecture:
+  - `Domain/` — Core business logic, entities, value objects, domain events
+  - `Application/` — Use cases, CQRS handlers, DTOs, validation
+  - `Infrastructure/` — EF Core persistence, external services, repositories
+  - `WebUI/` — Razor Pages presentation layer
 
-Initial migration to Azure revealed some drawbacks - the pricing model for SQL database is not suitable to run demo app even at the lowest pricing tear. So, a new database repository for Azure Storage Tables was created to replace the Azure SQL Database repository, and ASP.NET Core Identity was replaced with Azure AD B2C. The ability to dynamically register user claims was achieved with help of MS Graph API
+---
 
-The development was supported with automated testing, otherwise it would be much more difficult to apply all those modifications. The first unit test was written to simulate 'happy path' - a use case that covers all interactions between domain entities to complete the workflow. Later this test was lifted to integration tests. Few integration tests were also created for email messaging with help of Slurp remote API service and for Azure functions with local Azure Storage emulator
+## 🛠 Technologies
 
-Fig 1. Project dependency diagram
+- **.NET 8**
+- **MediatR** for CQRS
+- **Entity Framework Core** for persistence
+- **Mapster** for DTO mapping
+- **FluentValidation** for input validation
+- **xUnit** for testing
 
-![alt text](https://github.com/akhmelevtsov/DemoRentalRepairsWebAPI/blob/master/Dependencies%20Graph.png?raw=true)
+---
 
-## Domain Model
+## 🎯 Objectives
 
-The domain model contains DDD classes, domain-level enumerations and validations built with the Fluent Validation library.
-The domain logic supports a simple workflow scenario:
+1. Demonstrate a **step-by-step migration process** using AI with human-in-the-loop approvals  
+2. Apply **Clean Architecture** and **DDD** principles to a legacy project  
+3. Showcase the **benefits of the new architecture** compared to the original  
 
-1 Property manager (superintendent) registers a rental property 
-2 Tenant registers himself with the rental property
-3.Tenant submits a service request 
-4.Superintendent either declines the request or assignes a service worker and schedules the service date
-5.Worker either completes the request or rejects the work order
-6. If the request is rejected, superintendent re-schedules it 
-7. If the request is done, superintendent closes it
+---
 
-The participants are notified by emails on any service request status change
+## 📄 Documentation
 
-Fig 2. Use Case Diagram
+- [`docs/domain-overview.md`](docs/domain-overview.md) — Business domain concepts, entities, and workflows  
+- [`docs/migration-process.md`](docs/migration-process.md) — Migration strategy and execution plan  
+- [`docs/architecture-comparison.md`](docs/architecture-comparison.md) — Benefits of the new architecture  
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+Before running the application, ensure you have the following installed:
+
+- **[.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)** (8.0 or later)
+- **SQL Server** or **SQL Server Express** ([Download here](https://www.microsoft.com/en-us/sql-server/sql-server-downloads))
+  - Alternative: **SQL Server LocalDB** (included with Visual Studio)
+- **Visual Studio 2022** (recommended) or **Visual Studio Code**
+- **Git** for cloning the repository
+
+### Quick Start (Modernized Application)
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/akhmelevtsov/DemoRentalRepairsWebAPI.git
+   cd DemoRentalRepairsWebAPI
+   ```
+
+2. **Navigate to the modernized solution**
+   ```bash
+   cd src
+   ```
+
+3. **Restore NuGet packages**
+   ```bash
+   dotnet restore
+   ```
+
+4. **Update database connection string** (if needed)
+   
+   Edit `src/WebUI/appsettings.json`:
+   ```json
+   {
+     "ConnectionStrings": {
+       "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=RentalRepairsDb;Trusted_Connection=true;MultipleActiveResultSets=true;"
+     }
+   }
+   ```
+   
+   For SQL Server Express, use:
+   ```json
+   "DefaultConnection": "Server=.\\SQLEXPRESS;Database=RentalRepairsDb;Trusted_Connection=true;MultipleActiveResultSets=true;"
+   ```
+
+5. **Run the application**
+   ```bash
+   cd WebUI
+   dotnet run
+   ```
+
+6. **Open your browser**
+   
+   Navigate to: `https://localhost:5001` or `http://localhost:5000`
+
+### First Run Setup
+
+The application will automatically:
+- ✅ Create the database if it doesn't exist
+- ✅ Apply any pending migrations
+- ✅ Log initialization status to console
+
+### Default Test Data
+
+To get started quickly, you can register test users:
+
+1. **Property Manager (Superintendent)**
+   - Click "Register" and create an account
+   - Register a property with sample data:
+     - Property Code: `test-property`
+     - Units: `101, 102, 103, 201, 202, 203`
+
+2. **Tenant**
+   - Register as a tenant for unit `101` in `test-property`
+   - Submit repair requests to test the workflow
+
+3. **Worker**
+   - Register as a worker to receive work assignments
+
+### Running Legacy Version (Comparison)
+
+To compare with the original legacy implementation:
+
+1. **Navigate to legacy WebMVC**
+   ```bash
+   cd Demo.RentalRepairs.WebMvc
+   dotnet run
+   ```
+
+2. **Navigate to legacy WebAPI**
+   ```bash
+   cd Demo.RentalRepairs.WebApi
+   dotnet run
+   ```
+
+### Running Tests
+
+**Run all tests:**
+```bash
+cd src
+dotnet test
+```
+
+**Run specific test projects:**
+```bash
+# Domain tests
+dotnet test Domain.Tests/
+
+# Application tests  
+dotnet test Application.Tests/
+
+# Integration tests
+dotnet test WebUI.Tests/
+```
+
+**Generate test coverage report:**
+```bash
+dotnet test --collect:"XPlat Code Coverage"
+```
+
+### Database Management
+
+**Reset database:**
+```bash
+cd src/WebUI
+dotnet ef database drop --force
+dotnet run  # Will recreate on startup
+```
+
+**Apply migrations manually:**
+```bash
+cd src/Infrastructure
+dotnet ef database update --startup-project ../WebUI
+```
+
+### Troubleshooting
+
+#### Common Issues
+
+**1. Database Connection Errors**
+- Verify SQL Server is running
+- Check connection string in `appsettings.json`
+- Ensure database permissions are correct
+
+**2. Port Already in Use**
+```bash
+# Check what's using the port
+netstat -ano | findstr :5001
+
+# Kill the process (replace PID)
+taskkill /PID <process_id> /F
+```
+
+**3. SSL Certificate Issues**
+```bash
+# Trust the development certificate
+dotnet dev-certs https --trust
+```
+
+**4. Build Errors**
+```bash
+# Clean and rebuild
+dotnet clean
+dotnet restore
+dotnet build
+```
+
+#### Enable Detailed Logging
+
+Add to `appsettings.Development.json`:
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Debug",
+      "Microsoft.EntityFrameworkCore": "Information"
+    }
+  }
+}
+```
+
+### Configuration Options
+
+The application supports various configuration options in `appsettings.json`:
+
+- **Caching**: Enable/disable in-memory caching
+- **Email Notifications**: Configure SMTP or mock email provider  
+- **Logging**: Serilog configuration for file and console output
+- **Security**: Authentication and authorization settings
+
+### What's Working Now
+
+✅ **Complete Clean Architecture Implementation**
+- Domain layer with DDD patterns
+- Application layer with CQRS and MediatR
+- Infrastructure layer with EF Core
+- Presentation layer with Razor Pages
+
+✅ **Core Business Functionality**
+- Property registration and management
+- Tenant request submission and tracking
+- Worker assignment and task completion
+- User authentication and authorization
+
+✅ **Comprehensive Testing**
+- 50+ unit and integration tests
+- Domain logic validation
+- End-to-end workflow testing
+
+✅ **Production-Ready Features**
+- Security headers and authentication
+- Logging and health checks
+- Error handling and validation
+- Performance optimizations
+
+---
 
 
-<img src="https://github.com/akhmelevtsov/DemoRentalRepairsWebAPI/blob/master/Use%20Case%20Diagram.png" width=80%>
 
-Fig 3. Service Request State Diagram
-<img src="https://github.com/akhmelevtsov/DemoRentalRepairsWebAPI/blob/master/Service%20Request%20State%20Diagram.png" width=80%>
-
-## Core Services
-
-Provide application services abstracted from a specific service implementation: 
-
- - repository service to store service request status and participants' data
- - notification service to notify participants on every service request status change
- - user identity service to abstract working with identity/authorization
-
-## Infrastructure 
-
-Provides implementations for core interfaces.
-
-Repository services:
-- In memory (POCO classes)
-- SQL server with EF core 
-- Mongo DB 
-- Cosmos DB with Mongo DB API
-- Azure Table Storage with Table API
-
-Identity services:
-
-- Asp.Net Core Identity 
-- Azure AD B2C 
-
-Notification Services:
-
-- Dummy service for turning notifications off
-- Slurper Email service for debugging emails
-- Azure SendGrid 
-
-
-
-## ASP.NET Core MVC application
-
-Simple client that allows users to register, login and interact with core services through the UI. 
-Current version is here: https://demorentalrepairswebmvc.azurewebsites.net/
-
-## ASP.NET Core Web API
-
-Utilizes the same core services for mobile or any other client HTTP calls
-
-## Azure Functions
-
-Provide micro-services for building and sending the workflow emails 
 
 
 

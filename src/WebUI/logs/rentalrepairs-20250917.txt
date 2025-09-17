@@ -1,0 +1,73 @@
+2025-09-17 07:52:05.781 -04:00 [INF] User profile is available. Using 'C:\Users\akhme\AppData\Local\ASP.NET\DataProtection-Keys' as key repository and Windows DPAPI to encrypt keys at rest.
+2025-09-17 07:52:07.019 -04:00 [WRN] The property 'Property.Units' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2025-09-17 07:52:07.047 -04:00 [WRN] The foreign key property 'TenantRequest.TenantId1' was created in shadow state because a conflicting property with the simple name 'TenantId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-09-17 07:52:09.819 -04:00 [WRN] The property 'Property.Units' is a collection or enumeration type with a value converter but with no value comparer. Set a value comparer to ensure the collection/enumeration elements are compared correctly.
+2025-09-17 07:52:09.829 -04:00 [WRN] The foreign key property 'TenantRequest.TenantId1' was created in shadow state because a conflicting property with the simple name 'TenantId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2025-09-17 07:52:09.920 -04:00 [ERR] An error occurred using the connection to database 'master' on server '(localdb)\mssqllocaldb'.
+2025-09-17 07:52:10.017 -04:00 [ERR] An error occurred while initializing the database
+Microsoft.Data.SqlClient.SqlException (0x80131904): Logon failed for login 'DELL-NOTEBOOK\akhme' due to trigger execution.
+Changed database context to 'master'.
+Changed language setting to us_english.
+   at Microsoft.Data.SqlClient.SqlInternalConnection.OnError(SqlException exception, Boolean breakConnection, Action`1 wrapCloseInAction)
+   at Microsoft.Data.SqlClient.TdsParser.ThrowExceptionAndWarning(TdsParserStateObject stateObj, Boolean callerHasConnectionLock, Boolean asyncClose)
+   at Microsoft.Data.SqlClient.TdsParser.TryRun(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj, Boolean& dataReady)
+   at Microsoft.Data.SqlClient.TdsParser.Run(RunBehavior runBehavior, SqlCommand cmdHandler, SqlDataReader dataStream, BulkCopySimpleResultSet bulkCopyHandler, TdsParserStateObject stateObj)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.CompleteLogin(Boolean enlistOK)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.AttemptOneLogin(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean ignoreSniOpenTimeout, TimeoutTimer timeout, Boolean withFailover)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.LoginNoFailover(ServerInfo serverInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString connectionOptions, SqlCredential credential, TimeoutTimer timeout)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds.OpenLoginEnlist(TimeoutTimer timeout, SqlConnectionString connectionOptions, SqlCredential credential, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance)
+   at Microsoft.Data.SqlClient.SqlInternalConnectionTds..ctor(DbConnectionPoolIdentity identity, SqlConnectionString connectionOptions, SqlCredential credential, Object providerInfo, String newPassword, SecureString newSecurePassword, Boolean redirectedUserInstance, SqlConnectionString userConnectionOptions, SessionData reconnectSessionData, Boolean applyTransientFaultHandling, String accessToken, DbConnectionPool pool)
+   at Microsoft.Data.SqlClient.SqlConnectionFactory.CreateConnection(DbConnectionOptions options, DbConnectionPoolKey poolKey, Object poolGroupProviderInfo, DbConnectionPool pool, DbConnection owningConnection, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionFactory.CreatePooledConnection(DbConnectionPool pool, DbConnection owningObject, DbConnectionOptions options, DbConnectionPoolKey poolKey, DbConnectionOptions userOptions)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.CreateObject(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.UserCreateRequest(DbConnection owningObject, DbConnectionOptions userOptions, DbConnectionInternal oldConnection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.TryGetConnection(DbConnection owningObject, UInt32 waitForMultipleObjectsTimeout, Boolean allowCreate, Boolean onlyOneCheckConnection, DbConnectionOptions userOptions, DbConnectionInternal& connection)
+   at Microsoft.Data.ProviderBase.DbConnectionPool.WaitForPendingOpen()
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.MigrationCommandExecutor.ExecuteNonQueryAsync(IEnumerable`1 migrationCommands, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Migrations.Internal.MigrationCommandExecutor.ExecuteNonQueryAsync(IEnumerable`1 migrationCommands, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerDatabaseCreator.CreateAsync(CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerDatabaseCreator.CreateAsync(CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabaseCreator.EnsureCreatedAsync(CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalDatabaseCreator.EnsureCreatedAsync(CancellationToken cancellationToken)
+   at Program.<Main>$(String[] args) in C:\Users\akhme\source\repos\akhmelevtsov\DemoRentalRepairsWebAPI\src\WebUI\Program.cs:line 222
+ClientConnectionId:b1cbc3e2-7edb-4b59-a0d6-3679cc4a29a4
+Error Number:17892,State:1,Class:14
+2025-09-17 07:52:10.418 -04:00 [INF] Now listening on: https://localhost:59692
+2025-09-17 07:52:10.424 -04:00 [INF] Now listening on: http://localhost:59693
+2025-09-17 07:52:10.526 -04:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-09-17 07:52:10.533 -04:00 [INF] Hosting environment: Development
+2025-09-17 07:52:10.537 -04:00 [INF] Content root path: C:\Users\akhme\source\repos\akhmelevtsov\DemoRentalRepairsWebAPI\src\WebUI
+2025-09-17 07:52:11.230 -04:00 [INF] Request starting HTTP/2 GET https://localhost:59692/ - null null
+2025-09-17 07:52:11.524 -04:00 [INF] Executing endpoint 'HTTP: GET /'
+2025-09-17 07:52:11.557 -04:00 [INF] Executing RedirectResult, redirecting to /Account/Login.
+2025-09-17 07:52:11.563 -04:00 [INF] Executed endpoint 'HTTP: GET /'
+2025-09-17 07:52:11.571 -04:00 [INF] HTTP GET / responded 302 in 78.6620 ms
+2025-09-17 07:52:11.585 -04:00 [INF] Request finished HTTP/2 GET https://localhost:59692/ - 302 0 null 366.7246ms
+2025-09-17 07:52:11.593 -04:00 [INF] Request starting HTTP/2 GET https://localhost:59692/Account/Login - null null
+2025-09-17 07:52:11.644 -04:00 [INF] Executing endpoint '/Account/Login'
+2025-09-17 07:52:11.716 -04:00 [INF] Route matched with {page = "/Account/Login"}. Executing page /Account/Login
+2025-09-17 07:52:11.743 -04:00 [INF] Executing handler method RentalRepairs.WebUI.Pages.Account.LoginModel.OnGetAsync - ModelState is "Valid"
+2025-09-17 07:52:11.759 -04:00 [INF] AuthenticationScheme: Cookies signed out.
+2025-09-17 07:52:11.766 -04:00 [INF] Executed handler method OnGetAsync, returned result Microsoft.AspNetCore.Mvc.RazorPages.PageResult.
+2025-09-17 07:52:11.965 -04:00 [INF] Executed page /Account/Login in 238.0706ms
+2025-09-17 07:52:11.974 -04:00 [INF] Executed endpoint '/Account/Login'
+2025-09-17 07:52:11.976 -04:00 [INF] Request starting HTTP/2 GET https://localhost:59692/css/site.css?v=vl4cLzOfV7Z2e-LxhBP4mP4xvlKK3z-gTgNUbbPnjis - null null
+2025-09-17 07:52:11.976 -04:00 [INF] Request starting HTTP/2 GET https://localhost:59692/js/site.js?v=avvb4AW0hdolUiB0OddpkhbhJUtcNK9tscO9K8lZeY4 - null null
+2025-09-17 07:52:11.991 -04:00 [INF] HTTP GET /Account/Login responded 200 in 352.2963 ms
+2025-09-17 07:52:12.015 -04:00 [INF] The file /css/site.css was not modified
+2025-09-17 07:52:12.019 -04:00 [INF] The file /js/site.js was not modified
+2025-09-17 07:52:12.026 -04:00 [WRN] Unable to configure Browser Link script injection on the response. This may have been caused by the response's Content-Encoding: '["br"]'. Consider disabling response compression.
+2025-09-17 07:52:12.028 -04:00 [INF] HTTP GET /css/site.css responded 304 in 18.2482 ms
+2025-09-17 07:52:12.029 -04:00 [INF] HTTP GET /js/site.js responded 304 in 10.7686 ms
+2025-09-17 07:52:12.043 -04:00 [WRN] Unable to configure browser refresh script injection on the response. This may have been caused by the response's Content-Encoding: '["br"]'. Consider disabling response compression.
+2025-09-17 07:52:12.045 -04:00 [INF] Request finished HTTP/2 GET https://localhost:59692/css/site.css?v=vl4cLzOfV7Z2e-LxhBP4mP4xvlKK3z-gTgNUbbPnjis - 304 null text/css 69.8997ms
+2025-09-17 07:52:12.049 -04:00 [INF] Request finished HTTP/2 GET https://localhost:59692/js/site.js?v=avvb4AW0hdolUiB0OddpkhbhJUtcNK9tscO9K8lZeY4 - 304 null text/javascript 73.5012ms
+2025-09-17 07:52:12.070 -04:00 [INF] Request finished HTTP/2 GET https://localhost:59692/Account/Login - 200 null text/html; charset=utf-8 476.7348ms
+2025-09-17 07:52:12.125 -04:00 [INF] Request starting HTTP/2 GET https://localhost:59692/favicon.ico - null null
+2025-09-17 07:52:12.145 -04:00 [INF] HTTP GET /favicon.ico responded 404 in 6.6686 ms
+2025-09-17 07:52:12.152 -04:00 [INF] Request finished HTTP/2 GET https://localhost:59692/favicon.ico - 404 0 null 27.4129ms
+2025-09-17 07:52:12.166 -04:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:59692/favicon.ico, Response status code: 404
