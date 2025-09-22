@@ -1,4 +1,10 @@
-﻿## Rental Repairs Modernization Project
+![.NET 8](https://img.shields.io/badge/.NET-8.0-blueviolet?style=for-the-badge&logo=dotnet)
+![Architecture](https://img.shields.io/badge/Architecture-Clean%20Architecture-blue?style=for-the-badge)
+![Pattern](https://img.shields.io/badge/Pattern-DDD%20%7C%20CQRS-orange?style=for-the-badge)
+![AI Assisted](https://img.shields.io/badge/GitHub%20Copilot-Agent%20Mode-lightgrey?style=for-the-badge&logo=github)
+![Modernization](https://img.shields.io/badge/Modernization-Legacy%20to%20Cloud--Ready-success?style=for-the-badge&logo=azuredevops&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+ ## Rental Repairs Modernization Project
 
 This repository demonstrates a **systematic modernization** of a legacy .NET application into a clean, maintainable, and extensible solution. The project highlights **Clean Architecture**, **Domain-Driven Design (DDD)**, **CQRS**, and **MediatR**, with GitHub Copilot in agent mode assisting the process.
 
